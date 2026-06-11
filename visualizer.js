@@ -33,8 +33,8 @@ function getViewportState() {
     return {
         isLandscape,
         aspect: window.innerWidth / window.innerHeight,
-        scaleBias: isLandscape ? 1.0 : 1.06,
-        cameraDistance: isLandscape ? 56.0 : 60.0,
+        scaleBias: isLandscape ? 1.0 : 1.04,
+        cameraDistance: isLandscape ? 52.0 : 56.0,
         fogDensity: isLandscape ? 0.015 : 0.018
     };
 }
@@ -45,7 +45,7 @@ function handleInteractionMove(clientX, clientY) {
     touchVector.x = (clientX / window.innerWidth) * 2.0 - 1.0;
     touchVector.y = -(clientY / window.innerHeight) * 2.0 + 1.0;
     const movement = Math.sqrt(Math.pow(touchVector.x - lastTouchVector.x, 2) + Math.pow(touchVector.y - lastTouchVector.y, 2));
-    targetVelocity = Math.min(movement * (viewport.isLandscape ? 11.5 : 10.0), 3.5);
+    targetVelocity = Math.min(movement * (viewport.isLandscape ? 14.0 : 12.5), 4.2);
     isInteracting = true;
 }
 
@@ -266,22 +266,23 @@ function animate() {
     // Magical multi-wave deforming math calculations mapping frequency shifts
     for (let i = 0; i < positionAttribute.count; i++) {
         const bx = baseVertices.getX(i), by = baseVertices.getY(i), bz = baseVertices.getZ(i);
-        const waveX = Math.sin(by * 0.22 + time * 3.6) * (0.55 + touchVelocity * 1.0);
-        const waveY = Math.cos(bx * 0.22 + time * 2.8) * (0.45 + dynamicFactor * 0.9);
-        const waveZ = Math.sin((bx + by) * 0.18 + time * 2.2) * (0.25 + touchVelocity * 0.35);
+        const waveX = Math.sin(by * 0.20 + time * 4.2) * (0.75 + touchVelocity * 1.25);
+        const waveY = Math.cos(bx * 0.20 + time * 3.2) * (0.60 + dynamicFactor * 1.10);
+        const waveZ = Math.sin((bx + by) * 0.16 + time * 2.6) * (0.35 + touchVelocity * 0.45);
         positionAttribute.setXYZ(i, bx + waveX, by + waveY, bz + waveZ);
     }
     positionAttribute.needsUpdate = true;
     geometry.computeVertexNormals();
 
-    camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
-    camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
+    camera.position.x += (touchVector.x * 6.5 - camera.position.x) * 0.05;
+    camera.position.y += (touchVector.y * 6.5 - camera.position.y) * 0.05;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const finalScale = Math.min(1.15 + (totalValueGained * 0.0012) + (dynamicFactor * 0.14), 2.0) * viewport.scaleBias;
+    const basePulse = 1.15 + (dynamicFactor * 0.18) + (touchVelocity * 0.12);
+    const finalScale = Math.min(basePulse + (totalValueGained * 0.0012), 2.35) * viewport.scaleBias;
     mirrorSphere.scale.set(finalScale, finalScale, finalScale);
-    mirrorSphere.rotation.y += 0.006 + (touchVelocity * 0.015);
-    mirrorSphere.rotation.x += 0.002 + (dynamicFactor * 0.004);
+    mirrorSphere.rotation.y += 0.008 + (touchVelocity * 0.02);
+    mirrorSphere.rotation.x += 0.003 + (dynamicFactor * 0.006);
 
     if (starfield) {
         starfield.rotation.y += 0.0001;
