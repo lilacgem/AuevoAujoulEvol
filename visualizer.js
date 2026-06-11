@@ -157,16 +157,54 @@ function updateStarParticles() {
 
 let evoHistory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger')) || { totalSeals: 0 };
 const recordButton = document.getElementById('recordButton');
+
+function captureSealImage() {
+    try {
+        const imageDataUrl = renderer.domElement.toDataURL('image/png');
+        const archive = JSON.parse(localStorage.getItem('AuEvo_Seal_Archive') || '[]');
+        const sealRecord = {
+            id: Date.now(),
+            totalSeals: evoHistory.totalSeals + 1,
+            level: 58 + evoHistory.totalSeals + 1,
+            timestamp: new Date().toISOString(),
+            image: imageDataUrl
+        };
+
+        archive.unshift(sealRecord);
+        localStorage.setItem('AuEvo_Seal_Archive', JSON.stringify(archive.slice(0, 25)));
+
+        const link = document.createElement('a');
+        link.href = imageDataUrl;
+        link.download = `auevo-soul-seal-${sealRecord.id}.png`;
+        link.click();
+
+        return sealRecord;
+    } catch (error) {
+        console.error('Seal generation failed:', error);
+        return null;
+    }
+}
+
 if (recordButton) {
     recordButton.addEventListener('click', () => {
-        evoHistory.totalSeals += 1;
-        localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(evoHistory));
-        document.getElementById('levelDisplay').innerText = 58 + evoHistory.totalSeals;
-        
+        const sealRecord = captureSealImage();
+
+        if (sealRecord) {
+            evoHistory.totalSeals = sealRecord.totalSeals;
+            localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(evoHistory));
+            document.getElementById('levelDisplay').innerText = sealRecord.level;
+            document.getElementById('vacuum-status').innerText = `> SOUL SEAL GENERATED AND SAVED (${sealRecord.totalSeals})`;
+        }
+
         const originalText = recordButton.innerText;
         recordButton.innerText = `GEN ${evoHistory.totalSeals} SEALED`;
-        recordButton.style.borderColor = "#39ff14"; recordButton.style.color = "#39ff14";
-        setTimeout(() => { recordButton.innerText = originalText; recordButton.style.borderColor = "var(--matrix-orange)"; recordButton.style.color = "var(--matrix-orange)"; }, 2000);
+        recordButton.style.borderColor = '#39ff14';
+        recordButton.style.color = '#39ff14';
+        setTimeout(() => {
+            recordButton.innerText = originalText;
+            recordButton.style.borderColor = 'var(--matrix-orange)';
+            recordButton.style.color = 'var(--matrix-orange)';
+        }, 2000);
     });
 }
 
