@@ -238,11 +238,11 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const pulse = 1.0 + 0.04 * Math.max(0.0, dynamicFactor);
-    const largeScale = 2.8 + (totalValueGained * 0.001) + 0.3;
+    const pulse = 1.0 + 0.015 * Math.max(0.0, dynamicFactor);
+    const largeScale = 1.9 + (totalValueGained * 0.0005);
 
-    const ovalScale = 1.0 + (dynamicFactor * 0.08) + (touchVelocity * 0.05);
-    ovalMesh.scale.set(0.85 * ovalScale * largeScale * pulse, 1.85 * ovalScale * largeScale * pulse, 0.85 * ovalScale * largeScale * pulse);
+    const ovalScale = 1.0 + (dynamicFactor * 0.04) + (touchVelocity * 0.02);
+    ovalMesh.scale.set(0.75 * ovalScale * largeScale * pulse, 1.45 * ovalScale * largeScale * pulse, 0.75 * ovalScale * largeScale * pulse);
     ovalMesh.position.z = -18.0 + touchVector.y * 1.2 + Math.sin(time * 0.35) * 0.5;
 
     ovalMesh.rotation.y = touchVector.x * 0.25 + Math.sin(time * 0.2) * 0.02;
