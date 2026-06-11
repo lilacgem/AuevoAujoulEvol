@@ -10,7 +10,7 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x000002, 0.015);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000.0);
-camera.position.set(0.0, 0.0, 55.0);
+camera.position.set(0.0, 0.0, 56.0);
 
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg'),
@@ -28,11 +28,24 @@ let touchVelocity = 0.0, targetVelocity = 0.0, isInteracting = false;
 let dynamicFactor = 0.18, colorAccumulator = 0.5, totalValueGained = 0;
 let particles = [];
 
+function getViewportState() {
+    const isLandscape = window.innerWidth >= window.innerHeight;
+    return {
+        isLandscape,
+        aspect: window.innerWidth / window.innerHeight,
+        scaleBias: isLandscape ? 1.0 : 1.06,
+        cameraDistance: isLandscape ? 56.0 : 60.0,
+        fogDensity: isLandscape ? 0.015 : 0.018
+    };
+}
+
 function handleInteractionMove(clientX, clientY) {
     lastTouchVector.x = touchVector.x; lastTouchVector.y = touchVector.y;
+    const viewport = getViewportState();
     touchVector.x = (clientX / window.innerWidth) * 2.0 - 1.0;
     touchVector.y = -(clientY / window.innerHeight) * 2.0 + 1.0;
-    targetVelocity = Math.min(Math.sqrt(Math.pow(touchVector.x - lastTouchVector.x, 2) + Math.pow(touchVector.y - lastTouchVector.y, 2)) * 12.0, 3.5);
+    const movement = Math.sqrt(Math.pow(touchVector.x - lastTouchVector.x, 2) + Math.pow(touchVector.y - lastTouchVector.y, 2));
+    targetVelocity = Math.min(movement * (viewport.isLandscape ? 11.5 : 10.0), 3.5);
     isInteracting = true;
 }
 
@@ -57,7 +70,7 @@ scene.add(starfield);
 // High-Density Core Geometric Sphere Layer (larger, more active resonance form)
 const geometry = new THREE.SphereGeometry(7.2, 40, 40);
 const baseVertices = geometry.attributes.position.clone();
-const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.65, wireframe: true, side: THREE.DoubleSide });
+const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.68, wireframe: true, side: THREE.DoubleSide });
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
 scene.add(mirrorSphere);
 
@@ -170,9 +183,10 @@ function processVocalTelemetry() {
         dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, 0.18, 0.05);
     }
 
-    // Interactive shift across the visual color space
-    colorAccumulator = (colorAccumulator + 0.001 + (normalizedVol * 0.01) + (touchVelocity * 0.002)) % 1.0;
-    if (!analyser) mirrorMaterial.color.setHSL(colorAccumulator, 0.95, 0.55);
+    // Full-spectrum resonance mapping across touch, voice, and audio energy.
+    colorAccumulator = (colorAccumulator + 0.0015 + (normalizedVol * 0.012) + (touchVelocity * 0.003)) % 1.0;
+    const spectrumShift = (colorAccumulator + normalizedVol * 0.18 + touchVelocity * 0.08 + (isInteracting ? 0.03 : 0.0)) % 1.0;
+    mirrorMaterial.color.setHSL(spectrumShift, 0.92, 0.56);
 
     const hueDisplay = document.getElementById('hueDisplay');
     const resDisplay = document.getElementById('resDisplay');
