@@ -13,13 +13,13 @@ camera.position.set(0.0, 0.0, 55.0);
 
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg'),
-    alpha: false,
+    alpha: true,                 /* CRITICAL FLIP: Changes canvas from solid black to fully transparent */
     preserveDrawingBuffer: true,
     antialias: true
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
-renderer.setClearColor(0x000002, 1.0);
+renderer.setClearColor(0x000002, 0.0); /* Set clear alpha to 0.0 so web layout backgrounds are visible */
 
 let touchVector = { x: 0.0, y: 0.0 }, lastTouchVector = { x: 0.0, y: 0.0 };
 let touchVelocity = 0.0, targetVelocity = 0.0, isInteracting = false;
