@@ -54,8 +54,8 @@ starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 const starfield = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 }));
 scene.add(starfield);
 
-// High-Density Core Geometric Sphere Layer (rounder resonance form)
-const geometry = new THREE.SphereGeometry(5.8, 32, 32);
+// High-Density Core Geometric Sphere Layer (larger, more active resonance form)
+const geometry = new THREE.SphereGeometry(7.2, 40, 40);
 const baseVertices = geometry.attributes.position.clone();
 const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.65, wireframe: true, side: THREE.DoubleSide });
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
@@ -251,9 +251,10 @@ function animate() {
     // Magical multi-wave deforming math calculations mapping frequency shifts
     for (let i = 0; i < positionAttribute.count; i++) {
         const bx = baseVertices.getX(i), by = baseVertices.getY(i), bz = baseVertices.getZ(i);
-        const waveX = Math.sin(by * 0.25 + time * 3.0) * (0.4 + touchVelocity * 0.8);
-        const waveY = Math.cos(bx * 0.25 + time * 2.5) * (0.3 + dynamicFactor * 0.5);
-        positionAttribute.setXYZ(i, bx + waveX, by + waveY, bz);
+        const waveX = Math.sin(by * 0.22 + time * 3.6) * (0.55 + touchVelocity * 1.0);
+        const waveY = Math.cos(bx * 0.22 + time * 2.8) * (0.45 + dynamicFactor * 0.9);
+        const waveZ = Math.sin((bx + by) * 0.18 + time * 2.2) * (0.25 + touchVelocity * 0.35);
+        positionAttribute.setXYZ(i, bx + waveX, by + waveY, bz + waveZ);
     }
     positionAttribute.needsUpdate = true;
     geometry.computeVertexNormals();
@@ -262,9 +263,10 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const finalScale = Math.min(1.0 + (totalValueGained * 0.001) + (dynamicFactor * 0.1), 1.8);
+    const finalScale = Math.min(1.15 + (totalValueGained * 0.0012) + (dynamicFactor * 0.14), 2.0);
     mirrorSphere.scale.set(finalScale, finalScale, finalScale);
-    mirrorSphere.rotation.y += 0.004 + (touchVelocity * 0.01);
+    mirrorSphere.rotation.y += 0.006 + (touchVelocity * 0.015);
+    mirrorSphere.rotation.x += 0.002 + (dynamicFactor * 0.004);
 
     if (starfield) {
         starfield.rotation.y += 0.0001;
