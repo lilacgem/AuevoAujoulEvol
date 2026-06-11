@@ -51,12 +51,13 @@ starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 const starfield = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 }));
 scene.add(starfield);
 
-// ─── GEOMETRY 1: EXPANDED INNER CYLINDER ("Intertwined yet apart") ───
-// Increased base radius to 9.5 and height to 24.0 so it fits prominently inside the globe
-const cylinderGeo = new THREE.CylinderGeometry(9.5, 9.5, 24.0, 32, 32, true);
+// ─── GEOMETRY 1: FLOATING INNER CYLINDER ───
+// Slightly smaller and positioned outside the main globe so the two forms read as separate, yet they still move together.
+const cylinderGeo = new THREE.CylinderGeometry(6.2, 6.2, 18.0, 32, 32, true);
 const baseCylinderVertices = cylinderGeo.attributes.position.clone();
-const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.65, wireframe: true, side: THREE.DoubleSide });
+const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.70, wireframe: true, side: THREE.DoubleSide });
 const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMaterial);
+cylinderMesh.position.set(0.0, 0.0, 6.0);
 scene.add(cylinderMesh);
 
 // ─── GEOMETRY 2: MASTER OUTER OVAL GLOBE ───
@@ -243,15 +244,21 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const cylScale = 1.0 + (totalValueGained * 0.001);
-    cylinderMesh.scale.set(cylScale, cylScale, cylScale);
+    const pulse = 1.0 + 0.08 * Math.sin(time * 1.4);
+    const cylScale = 1.0 + (totalValueGained * 0.001) + 0.04;
+    cylinderMesh.scale.set(cylScale * pulse, cylScale * pulse, cylScale * pulse);
+    cylinderMesh.position.x = Math.sin(time * 0.45) * 6.0;
+    cylinderMesh.position.y = Math.cos(time * 0.35) * 4.0;
+    cylinderMesh.position.z = 6.0 + Math.sin(time * 0.8) * 1.6;
+    cylinderMesh.rotation.x = Math.sin(time * 0.25) * 0.12;
+    cylinderMesh.rotation.z = Math.cos(time * 0.30) * 0.10;
     
     const ovalScale = 1.0 + (dynamicFactor * 0.05);
     // Maintained vertical stretch matrix settings
     ovalMesh.scale.set(0.85 * ovalScale, 1.85 * ovalScale, 0.85 * ovalScale);
 
-    cylinderMesh.rotation.y += 0.005 + (touchVelocity * 0.01);
-    ovalMesh.rotation.y -= 0.002;
+    cylinderMesh.rotation.y += 0.004 + (touchVelocity * 0.01);
+    ovalMesh.rotation.y -= 0.0012;
 
     if (starfield) {
         starfield.rotation.y += 0.0001;
