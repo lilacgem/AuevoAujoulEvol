@@ -86,8 +86,8 @@ const auraSphere = new THREE.Mesh(auraGeometry, auraMaterial);
 auraSphere.position.set(0.0, 0.0, 0.0);
 scene.add(auraSphere);
 
-const enclosureGeometry = new THREE.TorusGeometry(10.2, 0.12, 8, 120);
-const enclosureMaterial = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.28, wireframe: true });
+const enclosureGeometry = new THREE.TorusGeometry(10.2, 0.08, 8, 120);
+const enclosureMaterial = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.18, wireframe: true });
 const enclosureRing = new THREE.Mesh(enclosureGeometry, enclosureMaterial);
 scene.add(enclosureRing);
 
@@ -305,7 +305,8 @@ function animate() {
     mirrorSphere.rotation.y += 0.0035 + (touchVelocity * 0.008);
     mirrorSphere.rotation.x += 0.0014 + (dynamicFactor * 0.0025);
 
-    auraSphere.scale.set((0.92 + dynamicFactor * 0.05) * viewport.scaleBias, (0.92 + dynamicFactor * 0.05) * viewport.scaleBias, (0.92 + dynamicFactor * 0.05) * viewport.scaleBias);
+    const glowPulse = 0.92 + dynamicFactor * 0.03 + Math.sin(Date.now() * 0.00035) * 0.015;
+    auraSphere.scale.set(glowPulse * viewport.scaleBias, glowPulse * viewport.scaleBias, glowPulse * viewport.scaleBias);
     auraSphere.rotation.y *= 0.96;
     auraSphere.rotation.x *= 0.96;
 
