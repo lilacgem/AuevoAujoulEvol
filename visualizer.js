@@ -220,16 +220,17 @@ function updateStarParticles() {
             // Trigger structural mass modifications on impact, but cap the growth to prevent runaway scaling.
             totalValueGained = Math.min(totalValueGained + 25, 200);
             const statusBox = document.getElementById('vacuum-status');
-            
+            const vibeDisplay = document.getElementById('vibeDisplay');
+
             if (totalValueGained > 200) {
                 mirrorMaterial.color.setHex(0x39ff14); // Lock emerald green
-                statusBox.innerText = `> RECLAIMED VALUE SECURED TO SOVEREIGN VAULT`;
-                statusBox.style.color = "#39ff14";
-                document.getElementById('vibeDisplay').innerText = "CONNECTED";
+                if (statusBox) statusBox.innerText = `> RECLAIMED VALUE SECURED TO SOVEREIGN VAULT`;
+                if (statusBox) statusBox.style.color = "#39ff14";
+                if (vibeDisplay) vibeDisplay.innerText = "CONNECTED";
             } else if (totalValueGained > 75) {
                 mirrorMaterial.color.setHex(0xff5e00); // Lock orange
-                statusBox.innerText = `> PORTAL LEDGER STABILIZING HARMONIC FLOW`;
-                statusBox.style.color = "#ff5e00";
+                if (statusBox) statusBox.innerText = `> PORTAL LEDGER STABILIZING HARMONIC FLOW`;
+                if (statusBox) statusBox.style.color = "#ff5e00";
             }
         }
     }
