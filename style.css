@@ -135,17 +135,7 @@ canvas {
     white-space: normal;
 }
 
-/* Unified Button Interfaces */
-.interface-layer {
-    display: flex;
-    gap: 15px;
-    width: 95%;
-    max-width: 550px;
-    margin-bottom: 10px;
-    pointer-events: auto;
-    z-index: 30;
-}
-
+/* Button styles kept for any future use */
 .btn-core {
     flex: 1;
     background: linear-gradient(135deg, rgba(3, 3, 3, 0.9), rgba(20, 20, 30, 0.6));
@@ -179,7 +169,6 @@ canvas {
 @media (max-width: 600px) {
     .dashboard { grid-template-columns: repeat(2, 1fr); }
     .dash-row.clutter { display: none; }
-    .interface-layer { flex-direction: column; gap: 8px; }
 }
 
 @keyframes pulseText {

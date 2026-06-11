@@ -54,8 +54,8 @@ starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 const starfield = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 }));
 scene.add(starfield);
 
-// High-Density Core Geometric Cylinder Layer (Fusing File 1 and File 2 structures)
-const geometry = new THREE.CylinderGeometry(4.5, 4.5, 18.0, 32, 32, true);
+// High-Density Core Geometric Sphere Layer (rounder resonance form)
+const geometry = new THREE.SphereGeometry(5.8, 32, 32);
 const baseVertices = geometry.attributes.position.clone();
 const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.65, wireframe: true, side: THREE.DoubleSide });
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
