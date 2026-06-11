@@ -77,9 +77,12 @@ if (micButton) {
 
         if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-                document.getElementById('awarenessDisplay').innerText = "INTEGRATED";
-                document.getElementById('vibeDisplay').innerText = "ACTIVE";
-                
+                const awarenessDisplay = document.getElementById('awarenessDisplay');
+                const vibeDisplay = document.getElementById('vibeDisplay');
+
+                if (awarenessDisplay) awarenessDisplay.innerText = "INTEGRATED";
+                if (vibeDisplay) vibeDisplay.innerText = "ACTIVE";
+
                 micButton.innerText = "MIRROR ACTIVE";
                 micButton.style.borderColor = "#39ff14";
                 micButton.style.color = "#39ff14";
@@ -253,12 +256,12 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const pulse = 1.0 + 0.08 * Math.sin(time * 1.4);
-    const cylScale = 1.0 + (totalValueGained * 0.001) + 0.04;
+    const pulse = 1.0 + 0.06 * Math.sin(time * 1.2);
+    const cylScale = 1.5 + (totalValueGained * 0.001) + 0.2;
     cylinderMesh.scale.set(cylScale * pulse, cylScale * pulse, cylScale * pulse);
-    cylinderMesh.position.x = Math.sin(time * 0.42) * 9.0;
-    cylinderMesh.position.y = Math.cos(time * 0.33) * 6.0;
-    cylinderMesh.position.z = 6.5 + Math.sin(time * 0.75) * 2.2;
+    cylinderMesh.position.x = Math.sin(time * 0.28) * 4.5;
+    cylinderMesh.position.y = Math.cos(time * 0.22) * 3.0;
+    cylinderMesh.position.z = -18.0 + Math.sin(time * 0.55) * 1.5;
     cylinderMesh.rotation.x = Math.sin(time * 0.25) * 0.12;
     cylinderMesh.rotation.z = Math.cos(time * 0.30) * 0.10;
     
