@@ -51,22 +51,13 @@ starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 const starfield = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 }));
 scene.add(starfield);
 
-// ─── GEOMETRY 1: FLOATING INNER CYLINDER ───
-// Slightly smaller and positioned outside the main globe so the two forms read as separate, yet they still move together.
-const cylinderGeo = new THREE.CylinderGeometry(6.2, 6.2, 18.0, 32, 32, true);
-const baseCylinderVertices = cylinderGeo.attributes.position.clone();
-const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.70, wireframe: true, side: THREE.DoubleSide });
-const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMaterial);
-cylinderMesh.position.set(0.0, 0.0, 6.0);
-scene.add(cylinderMesh);
-
-// ─── GEOMETRY 2: MASTER OUTER OVAL GLOBE ───
+// ─── GEOMETRY 1: MASTER OUTER OVAL GLOBE ───
 const ovalGeo = new THREE.SphereGeometry(15.0, 48, 48);
 const baseOvalVertices = ovalGeo.attributes.position.clone();
 const ovalMaterial = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.35, wireframe: true, side: THREE.DoubleSide });
 const ovalMesh = new THREE.Mesh(ovalGeo, ovalMaterial);
 scene.add(ovalMesh);
-window.__AUEVO_DEBUG__ = { scene, cylinderMesh, ovalMesh, camera, renderer };
+window.__AUEVO_DEBUG__ = { scene, ovalMesh, camera, renderer };
 
 let audioContext, analyser, dataArray;
 const micButton = document.getElementById('micButton');
@@ -243,34 +234,18 @@ function animate() {
     ovalPositions.needsUpdate = true;
     ovalGeo.computeVertexNormals();
 
-    // ─── INNER CYLINDER TWIST ENGINE ───
-    const cylPositions = cylinderGeo.attributes.position;
-    for (let i = 0; i < cylPositions.count; i++) {
-        const bx = baseCylinderVertices.getX(i), by = baseCylinderVertices.getY(i), bz = baseCylinderVertices.getZ(i);
-        const waveX = Math.sin(by * 0.35 + time * 4.0) * (0.3 + touchVelocity * 0.6);
-        cylPositions.setXYZ(i, bx + waveX, by, bz);
-    }
-    cylPositions.needsUpdate = true;
-    cylinderGeo.computeVertexNormals();
-
     camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const pulse = 1.0 + 0.06 * Math.sin(time * 1.2);
-    const cylScale = 1.5 + (totalValueGained * 0.001) + 0.2;
-    cylinderMesh.scale.set(cylScale * pulse, cylScale * pulse, cylScale * pulse);
-    cylinderMesh.position.x = Math.sin(time * 0.28) * 4.5;
-    cylinderMesh.position.y = Math.cos(time * 0.22) * 3.0;
-    cylinderMesh.position.z = -18.0 + Math.sin(time * 0.55) * 1.5;
-    cylinderMesh.rotation.x = Math.sin(time * 0.25) * 0.12;
-    cylinderMesh.rotation.z = Math.cos(time * 0.30) * 0.10;
-    
+    const pulse = 1.0 + 0.03 * Math.sin(time * 0.9);
+    const largeScale = 2.8 + (totalValueGained * 0.001) + 0.3;
+
     const ovalScale = 1.0 + (dynamicFactor * 0.05);
     // Maintained vertical stretch matrix settings
-    ovalMesh.scale.set(0.85 * ovalScale, 1.85 * ovalScale, 0.85 * ovalScale);
+    ovalMesh.scale.set(0.85 * ovalScale * largeScale * pulse, 1.85 * ovalScale * largeScale * pulse, 0.85 * ovalScale * largeScale * pulse);
+    ovalMesh.position.z = -18.0 + Math.sin(time * 0.35) * 1.5;
 
-    cylinderMesh.rotation.y += 0.004 + (touchVelocity * 0.01);
     ovalMesh.rotation.y -= 0.0012;
 
     if (starfield) {
