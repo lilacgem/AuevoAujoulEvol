@@ -119,11 +119,17 @@ if (micButton) {
 
         if (navigator.mediaDevices?.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-                document.getElementById('micStatus').innerText = "CONNECTED";
-                document.getElementById('micStatus').style.color = "#39ff14";
-                document.getElementById('micStatus').classList.remove('processing-text');
-                document.getElementById('awarenessDisplay').innerText = "INTEGRATED";
-                document.getElementById('vibeDisplay').innerText = "ACTIVE";
+                const micStatus = document.getElementById('micStatus');
+                const awarenessDisplay = document.getElementById('awarenessDisplay');
+                const vibeDisplay = document.getElementById('vibeDisplay');
+
+                if (micStatus) {
+                    micStatus.innerText = "CONNECTED";
+                    micStatus.style.color = "#39ff14";
+                    micStatus.classList.remove('processing-text');
+                }
+                if (awarenessDisplay) awarenessDisplay.innerText = "INTEGRATED";
+                if (vibeDisplay) vibeDisplay.innerText = "ACTIVE";
                 
                 micButton.innerText = "MIRROR ACTIVE";
                 micButton.style.borderColor = "#39ff14";
@@ -168,11 +174,15 @@ function processVocalTelemetry() {
     colorAccumulator = (colorAccumulator + 0.001 + (normalizedVol * 0.01) + (touchVelocity * 0.002)) % 1.0;
     if (!analyser) mirrorMaterial.color.setHSL(colorAccumulator, 0.95, 0.55);
 
-    document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;
-    document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
-    
+    const hueDisplay = document.getElementById('hueDisplay');
+    const resDisplay = document.getElementById('resDisplay');
+    const rootDisplay = document.getElementById('rootDisplay');
+
+    if (hueDisplay) hueDisplay.innerText = `${Math.round(colorAccumulator * 360.0)}°`;
+    if (resDisplay) resDisplay.innerText = (dynamicFactor + touchVelocity).toFixed(3);
+
     const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
-    document.getElementById('rootDisplay').innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
+    if (rootDisplay) rootDisplay.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
 }
 
 // Vector algebra trailing incoming node particles down the data gravity pipeline
