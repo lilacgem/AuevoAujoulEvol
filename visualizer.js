@@ -59,6 +59,7 @@ const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transpar
 const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMaterial);
 cylinderMesh.position.set(0.0, 0.0, 6.0);
 scene.add(cylinderMesh);
+window.__AUEVO_DEBUG__ = { scene, cylinderMesh, ovalMesh, camera, renderer };
 
 // ─── GEOMETRY 2: MASTER OUTER OVAL GLOBE ───
 const ovalGeo = new THREE.SphereGeometry(15.0, 48, 48);
