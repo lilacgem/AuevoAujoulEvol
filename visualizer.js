@@ -227,8 +227,8 @@ function animate() {
     const ovalPositions = ovalGeo.attributes.position;
     for (let i = 0; i < ovalPositions.count; i++) {
         const bx = baseOvalVertices.getX(i), by = baseOvalVertices.getY(i), bz = baseOvalVertices.getZ(i);
-        const waveX = Math.sin(by * 0.20 + time * 2.5) * (0.5 + dynamicFactor * 0.8);
-        const waveY = Math.cos(bx * 0.20 + time * 2.0) * (0.4 + dynamicFactor * 0.6);
+        const waveX = Math.sin(by * 0.18 + time * 1.4 + touchVector.x * 2.0) * (0.4 + dynamicFactor * 1.2);
+        const waveY = Math.cos(bx * 0.18 + time * 1.1 + touchVector.y * 2.0) * (0.35 + dynamicFactor * 1.0);
         ovalPositions.setXYZ(i, bx + waveX, by + waveY, bz);
     }
     ovalPositions.needsUpdate = true;
@@ -238,15 +238,15 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const pulse = 1.0 + 0.03 * Math.sin(time * 0.9);
+    const pulse = 1.0 + 0.04 * Math.max(0.0, dynamicFactor);
     const largeScale = 2.8 + (totalValueGained * 0.001) + 0.3;
 
-    const ovalScale = 1.0 + (dynamicFactor * 0.05);
-    // Maintained vertical stretch matrix settings
+    const ovalScale = 1.0 + (dynamicFactor * 0.08) + (touchVelocity * 0.05);
     ovalMesh.scale.set(0.85 * ovalScale * largeScale * pulse, 1.85 * ovalScale * largeScale * pulse, 0.85 * ovalScale * largeScale * pulse);
-    ovalMesh.position.z = -18.0 + Math.sin(time * 0.35) * 1.5;
+    ovalMesh.position.z = -18.0 + touchVector.y * 1.2 + Math.sin(time * 0.35) * 0.5;
 
-    ovalMesh.rotation.y -= 0.0012;
+    ovalMesh.rotation.y = touchVector.x * 0.25 + Math.sin(time * 0.2) * 0.02;
+    ovalMesh.rotation.x = touchVector.y * 0.18 + Math.cos(time * 0.18) * 0.02;
 
     if (starfield) {
         starfield.rotation.y += 0.0001;
