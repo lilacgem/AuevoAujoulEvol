@@ -121,11 +121,17 @@ function processVocalTelemetry() {
     colorAccumulator = (colorAccumulator + 0.001 + (normalizedVol * 0.01) + (touchVelocity * 0.002)) % 1.0;
     if (!analyser) ovalMaterial.color.setHSL(colorAccumulator, 0.95, 0.55);
 
-    document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;
-    document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
-    
+    const hueDisplay = document.getElementById('hueDisplay');
+    const resDisplay = document.getElementById('resDisplay');
+    const rootDisplay = document.getElementById('rootDisplay');
+
+    if (hueDisplay) hueDisplay.innerText = `${Math.round(colorAccumulator * 360.0)}°`;
+    if (resDisplay) resDisplay.innerText = (dynamicFactor + touchVelocity).toFixed(3);
+
     const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
-    document.getElementById('rootDisplay').innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
+    if (rootDisplay) {
+        rootDisplay.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
+    }
 }
 
 function updateStarParticles() {
@@ -141,16 +147,17 @@ function updateStarParticles() {
             
             totalValueGained += 25;
             const statusBox = document.getElementById('vacuum-status');
-            
+            const vibeDisplay = document.getElementById('vibeDisplay');
+
             if (totalValueGained > 200) {
                 cylinderMaterial.color.setHex(0x39ff14);
-                statusBox.innerText = `> RECLAIMED VALUE SECURED TO SOVEREIGN VAULT`;
-                statusBox.style.color = "#39ff14";
-                document.getElementById('vibeDisplay').innerText = "CONNECTED";
+                if (statusBox) statusBox.innerText = `> RECLAIMED VALUE SECURED TO SOVEREIGN VAULT`;
+                if (statusBox) statusBox.style.color = "#39ff14";
+                if (vibeDisplay) vibeDisplay.innerText = "CONNECTED";
             } else if (totalValueGained > 75) {
                 cylinderMaterial.color.setHex(0xff5e00);
-                statusBox.innerText = `> PORTAL LEDGER STABILIZING HARMONIC FLOW`;
-                statusBox.style.color = "#ff5e00";
+                if (statusBox) statusBox.innerText = `> PORTAL LEDGER STABILIZING HARMONIC FLOW`;
+                if (statusBox) statusBox.style.color = "#ff5e00";
             }
         }
     }
@@ -193,8 +200,10 @@ if (recordButton) {
         if (sealRecord) {
             evoHistory.totalSeals = sealRecord.totalSeals;
             localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(evoHistory));
-            document.getElementById('levelDisplay').innerText = sealRecord.level;
-            document.getElementById('vacuum-status').innerText = `> SOUL SEAL GENERATED AND SAVED (${sealRecord.totalSeals})`;
+            const levelDisplay = document.getElementById('levelDisplay');
+            const statusBox = document.getElementById('vacuum-status');
+            if (levelDisplay) levelDisplay.innerText = sealRecord.level;
+            if (statusBox) statusBox.innerText = `> SOUL SEAL GENERATED AND SAVED (${sealRecord.totalSeals})`;
         }
 
         const originalText = recordButton.innerText;
@@ -247,9 +256,9 @@ function animate() {
     const pulse = 1.0 + 0.08 * Math.sin(time * 1.4);
     const cylScale = 1.0 + (totalValueGained * 0.001) + 0.04;
     cylinderMesh.scale.set(cylScale * pulse, cylScale * pulse, cylScale * pulse);
-    cylinderMesh.position.x = Math.sin(time * 0.45) * 6.0;
-    cylinderMesh.position.y = Math.cos(time * 0.35) * 4.0;
-    cylinderMesh.position.z = 6.0 + Math.sin(time * 0.8) * 1.6;
+    cylinderMesh.position.x = Math.sin(time * 0.42) * 9.0;
+    cylinderMesh.position.y = Math.cos(time * 0.33) * 6.0;
+    cylinderMesh.position.z = 6.5 + Math.sin(time * 0.75) * 2.2;
     cylinderMesh.rotation.x = Math.sin(time * 0.25) * 0.12;
     cylinderMesh.rotation.z = Math.cos(time * 0.30) * 0.10;
     
