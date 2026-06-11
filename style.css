@@ -58,15 +58,15 @@ canvas {
     max-width: 550px;
     margin-top: 10px;
     padding: 14px;
-    border: 1px solid #151515;
-    background: rgba(2, 2, 5, 0.92);
+    border: 1px solid rgba(57, 255, 20, 0.2); /* Faint neon green edge instead of harsh border */
+    background: rgba(0, 0, 0, 0.35);            /* Smooth transparent dark glass tint */
     text-align: center;
     border-radius: 12px;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
     pointer-events: auto;
     z-index: 40;
-    -webkit-backdrop-filter: blur(15px);
-    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(8px);       /* Lower blur value lets the background wireframe slip through */
+    backdrop-filter: blur(8px);
 }
 
 .llc-title {
@@ -105,23 +105,22 @@ canvas {
 .dashboard {
     width: 95%;
     max-width: 550px;
-    background: rgba(2, 2, 5, 0.85);
+    background: rgba(0, 0, 0, 0.35);           /* Smooth transparent dark glass tint */
     border: 1px solid rgba(255, 170, 0, 0.25);
     border-radius: 14px;
     padding: 14px;
     box-sizing: border-box;
     display: grid;
-    /* Adjusted grid format for uniform alignment since SYNC is gone */
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     font-size: 9px;
     letter-spacing: 0.75px;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     pointer-events: auto;
     margin-top: 10px;
     margin-bottom: 15px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     z-index: 40;
 }
 
