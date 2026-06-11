@@ -67,24 +67,29 @@ starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 const starfield = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 }));
 scene.add(starfield);
 
-// High-Density Core Geometric Sphere Layer (larger, more active resonance form)
-const geometry = new THREE.SphereGeometry(7.2, 40, 40);
-const baseVertices = geometry.attributes.position.clone();
+// Core geometric base with a cylindrical frame and layered sphere resonance.
+const baseGeometry = new THREE.CylinderGeometry(7.2, 8.0, 22.0, 40, 40, true);
+const baseVertices = baseGeometry.attributes.position.clone();
+const baseMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.45, wireframe: true, side: THREE.DoubleSide });
+const baseCylinder = new THREE.Mesh(baseGeometry, baseMaterial);
+baseCylinder.rotation.x = Math.PI / 2 * 0.2;
+scene.add(baseCylinder);
+
+const geometry = new THREE.SphereGeometry(8.6, 48, 48);
 const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.68, wireframe: true, side: THREE.DoubleSide });
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
 scene.add(mirrorSphere);
 
-const haloGeometry = new THREE.SphereGeometry(8.6, 32, 32);
-const haloMaterial = new THREE.MeshBasicMaterial({ color: 0xff5e00, transparent: true, opacity: 0.18, wireframe: true, side: THREE.DoubleSide });
-const haloSphere = new THREE.Mesh(haloGeometry, haloMaterial);
-haloSphere.rotation.x = 0.6;
-haloSphere.rotation.y = 0.35;
-scene.add(haloSphere);
-
-const auraGeometry = new THREE.SphereGeometry(6.0, 32, 32);
-const auraMaterial = new THREE.MeshBasicMaterial({ color: 0x39ff14, transparent: true, opacity: 0.22, wireframe: true, side: THREE.DoubleSide });
+const auraGeometry = new THREE.SphereGeometry(6.6, 40, 40);
+const auraMaterial = new THREE.MeshBasicMaterial({ color: 0x39ff14, transparent: true, opacity: 0.18, wireframe: true, side: THREE.DoubleSide });
 const auraSphere = new THREE.Mesh(auraGeometry, auraMaterial);
+auraSphere.position.set(0.0, 0.0, 0.0);
 scene.add(auraSphere);
+
+const enclosureGeometry = new THREE.TorusGeometry(10.2, 0.12, 8, 120);
+const enclosureMaterial = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.28, wireframe: true });
+const enclosureRing = new THREE.Mesh(enclosureGeometry, enclosureMaterial);
+scene.add(enclosureRing);
 
 // Audio Synthesis Integration Pipelines
 let audioContext, analyser, dataArray;
@@ -274,35 +279,38 @@ function animate() {
 
     const time = Date.now() * 0.001;
     const positionAttribute = geometry.attributes.position;
-    
+    const basePositionAttribute = baseGeometry.attributes.position;
+
     // Magical multi-wave deforming math calculations mapping frequency shifts
     for (let i = 0; i < positionAttribute.count; i++) {
         const bx = baseVertices.getX(i), by = baseVertices.getY(i), bz = baseVertices.getZ(i);
-        const waveX = Math.sin(by * 0.20 + time * 4.2) * (0.75 + touchVelocity * 1.25);
-        const waveY = Math.cos(bx * 0.20 + time * 3.2) * (0.60 + dynamicFactor * 1.10);
-        const waveZ = Math.sin((bx + by) * 0.16 + time * 2.6) * (0.35 + touchVelocity * 0.45);
+        const waveX = Math.sin(by * 0.18 + time * 3.0) * (0.35 + touchVelocity * 0.55);
+        const waveY = Math.cos(bx * 0.18 + time * 2.4) * (0.28 + dynamicFactor * 0.45);
+        const waveZ = Math.sin((bx + by) * 0.14 + time * 2.0) * (0.18 + touchVelocity * 0.25);
         positionAttribute.setXYZ(i, bx + waveX, by + waveY, bz + waveZ);
     }
     positionAttribute.needsUpdate = true;
     geometry.computeVertexNormals();
 
+    baseCylinder.rotation.y += 0.001 + touchVelocity * 0.003;
+    baseCylinder.scale.set(1.0 + dynamicFactor * 0.02, 1.0 + dynamicFactor * 0.03, 1.0 + dynamicFactor * 0.02);
+
     camera.position.x += (touchVector.x * 6.5 - camera.position.x) * 0.05;
     camera.position.y += (touchVector.y * 6.5 - camera.position.y) * 0.05;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const basePulse = 1.15 + (dynamicFactor * 0.18) + (touchVelocity * 0.12);
-    const finalScale = Math.min(basePulse + (totalValueGained * 0.0012), 2.35) * viewport.scaleBias;
+    const basePulse = 1.25 + (dynamicFactor * 0.18) + (touchVelocity * 0.10);
+    const finalScale = Math.min(basePulse + (totalValueGained * 0.0012), 2.45) * viewport.scaleBias;
     mirrorSphere.scale.set(finalScale, finalScale, finalScale);
-    mirrorSphere.rotation.y += 0.008 + (touchVelocity * 0.02);
-    mirrorSphere.rotation.x += 0.003 + (dynamicFactor * 0.006);
+    mirrorSphere.rotation.y += 0.0035 + (touchVelocity * 0.008);
+    mirrorSphere.rotation.x += 0.0014 + (dynamicFactor * 0.0025);
 
-    haloSphere.scale.set((1.08 + dynamicFactor * 0.12 + touchVelocity * 0.08) * viewport.scaleBias, (1.08 + dynamicFactor * 0.12 + touchVelocity * 0.08) * viewport.scaleBias, (1.08 + dynamicFactor * 0.12 + touchVelocity * 0.08) * viewport.scaleBias);
-    haloSphere.rotation.y += 0.0025 + touchVelocity * 0.005;
-    haloSphere.rotation.x += 0.0015 + dynamicFactor * 0.003;
+    auraSphere.scale.set((0.92 + dynamicFactor * 0.05) * viewport.scaleBias, (0.92 + dynamicFactor * 0.05) * viewport.scaleBias, (0.92 + dynamicFactor * 0.05) * viewport.scaleBias);
+    auraSphere.rotation.y *= 0.96;
+    auraSphere.rotation.x *= 0.96;
 
-    auraSphere.scale.set((0.92 + dynamicFactor * 0.10 + touchVelocity * 0.06) * viewport.scaleBias, (0.92 + dynamicFactor * 0.10 + touchVelocity * 0.06) * viewport.scaleBias, (0.92 + dynamicFactor * 0.10 + touchVelocity * 0.06) * viewport.scaleBias);
-    auraSphere.rotation.y -= 0.003 + dynamicFactor * 0.004;
-    auraSphere.rotation.x += 0.002 + touchVelocity * 0.004;
+    enclosureRing.rotation.x += 0.001 + touchVelocity * 0.0008;
+    enclosureRing.rotation.y += 0.0012 + dynamicFactor * 0.0006;
 
     if (starfield) {
         starfield.rotation.y += 0.0001;
