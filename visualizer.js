@@ -74,6 +74,18 @@ const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparen
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
 scene.add(mirrorSphere);
 
+const haloGeometry = new THREE.SphereGeometry(8.6, 32, 32);
+const haloMaterial = new THREE.MeshBasicMaterial({ color: 0xff5e00, transparent: true, opacity: 0.18, wireframe: true, side: THREE.DoubleSide });
+const haloSphere = new THREE.Mesh(haloGeometry, haloMaterial);
+haloSphere.rotation.x = 0.6;
+haloSphere.rotation.y = 0.35;
+scene.add(haloSphere);
+
+const auraGeometry = new THREE.SphereGeometry(6.0, 32, 32);
+const auraMaterial = new THREE.MeshBasicMaterial({ color: 0x39ff14, transparent: true, opacity: 0.22, wireframe: true, side: THREE.DoubleSide });
+const auraSphere = new THREE.Mesh(auraGeometry, auraMaterial);
+scene.add(auraSphere);
+
 // Audio Synthesis Integration Pipelines
 let audioContext, analyser, dataArray;
 const micButton = document.getElementById('micButton');
@@ -283,6 +295,14 @@ function animate() {
     mirrorSphere.scale.set(finalScale, finalScale, finalScale);
     mirrorSphere.rotation.y += 0.008 + (touchVelocity * 0.02);
     mirrorSphere.rotation.x += 0.003 + (dynamicFactor * 0.006);
+
+    haloSphere.scale.set((1.08 + dynamicFactor * 0.12 + touchVelocity * 0.08) * viewport.scaleBias, (1.08 + dynamicFactor * 0.12 + touchVelocity * 0.08) * viewport.scaleBias, (1.08 + dynamicFactor * 0.12 + touchVelocity * 0.08) * viewport.scaleBias);
+    haloSphere.rotation.y += 0.0025 + touchVelocity * 0.005;
+    haloSphere.rotation.x += 0.0015 + dynamicFactor * 0.003;
+
+    auraSphere.scale.set((0.92 + dynamicFactor * 0.10 + touchVelocity * 0.06) * viewport.scaleBias, (0.92 + dynamicFactor * 0.10 + touchVelocity * 0.06) * viewport.scaleBias, (0.92 + dynamicFactor * 0.10 + touchVelocity * 0.06) * viewport.scaleBias);
+    auraSphere.rotation.y -= 0.003 + dynamicFactor * 0.004;
+    auraSphere.rotation.x += 0.002 + touchVelocity * 0.004;
 
     if (starfield) {
         starfield.rotation.y += 0.0001;
