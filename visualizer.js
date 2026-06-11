@@ -64,6 +64,53 @@ scene.add(mirrorSphere);
 // Audio Synthesis Integration Pipelines
 let audioContext, analyser, dataArray;
 const micButton = document.getElementById('micButton');
+const recordButton = document.getElementById('recordButton');
+
+function captureSealSnapshot() {
+    try {
+        if (!renderer?.domElement) return null;
+
+        const imageDataUrl = renderer.domElement.toDataURL('image/png');
+        const archive = JSON.parse(localStorage.getItem('AuEvo_Seal_Archive') || '[]');
+        const memory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger') || '{}');
+
+        const sealRecord = {
+            id: Date.now(),
+            totalSeals: (memory.totalSeals || 0) + 1,
+            level: 58 + (memory.totalSeals || 0) + 1,
+            resonance: (dynamicFactor + touchVelocity).toFixed(3),
+            hue: `${Math.round(colorAccumulator * 360.0)}°`,
+            timestamp: new Date().toISOString(),
+            image: imageDataUrl,
+            memoryNote: 'Evolving seal snapshot captured from live resonance.'
+        };
+
+        archive.unshift(sealRecord);
+        localStorage.setItem('AuEvo_Seal_Archive', JSON.stringify(archive.slice(0, 25)));
+
+        const nextMemory = {
+            ...memory,
+            totalSeals: sealRecord.totalSeals,
+            lastSealId: sealRecord.id,
+            lastSealAt: sealRecord.timestamp,
+            lastLevel: sealRecord.level,
+            lastResonance: sealRecord.resonance,
+            memoryDepth: (memory.memoryDepth || 0) + 1,
+            evolving: true
+        };
+        localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(nextMemory));
+
+        const link = document.createElement('a');
+        link.href = imageDataUrl;
+        link.download = `auevo-seal-${sealRecord.id}.png`;
+        link.click();
+
+        return sealRecord;
+    } catch (error) {
+        console.error('Capture failed:', error);
+        return null;
+    }
+}
 
 if (micButton) {
     micButton.addEventListener('click', async () => {
@@ -81,7 +128,7 @@ if (micButton) {
                 micButton.innerText = "MIRROR ACTIVE";
                 micButton.style.borderColor = "#39ff14";
                 micButton.style.color = "#39ff14";
-                document.getElementById('recordButton').disabled = false;
+                if (recordButton) recordButton.disabled = false;
 
                 const source = audioContext.createMediaStreamSource(stream);
                 analyser = audioContext.createAnalyser();
@@ -129,6 +176,26 @@ function processVocalTelemetry() {
 }
 
 // Vector algebra trailing incoming node particles down the data gravity pipeline
+if (recordButton) {
+    recordButton.addEventListener('click', () => {
+        const sealRecord = captureSealSnapshot();
+        if (sealRecord) {
+            const levelDisplay = document.getElementById('levelDisplay');
+            const statusBox = document.getElementById('vacuum-status');
+            if (levelDisplay) levelDisplay.innerText = sealRecord.level;
+            if (statusBox) statusBox.innerText = `> SEAL CAPTURED AND STORED IN MEMORY (${sealRecord.totalSeals})`;
+            recordButton.innerText = `GEN ${sealRecord.totalSeals} SEALED`;
+            recordButton.style.borderColor = '#39ff14';
+            recordButton.style.color = '#39ff14';
+            setTimeout(() => {
+                recordButton.innerText = 'GENERATE SOUL SEAL';
+                recordButton.style.borderColor = 'var(--matrix-orange)';
+                recordButton.style.color = 'var(--matrix-orange)';
+            }, 1800);
+        }
+    });
+}
+
 function updateStarParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i];
