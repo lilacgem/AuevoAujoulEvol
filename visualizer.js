@@ -140,8 +140,8 @@ function updateStarParticles() {
             scene.remove(p);
             particles.splice(i, 1);
             
-            // Trigger structural mass modifications on impact
-            totalValueGained += 25;
+            // Trigger structural mass modifications on impact, but cap the growth to prevent runaway scaling.
+            totalValueGained = Math.min(totalValueGained + 25, 200);
             const statusBox = document.getElementById('vacuum-status');
             
             if (totalValueGained > 200) {
@@ -184,7 +184,7 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const finalScale = 1.0 + (totalValueGained * 0.001) + (dynamicFactor * 0.1);
+    const finalScale = Math.min(1.0 + (totalValueGained * 0.001) + (dynamicFactor * 0.1), 1.8);
     mirrorSphere.scale.set(finalScale, finalScale, finalScale);
     mirrorSphere.rotation.y += 0.004 + (touchVelocity * 0.01);
 
