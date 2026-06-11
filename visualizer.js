@@ -253,6 +253,7 @@ function updateStarParticles() {
 // Render Loops
 function animate() {
     requestAnimationFrame(animate);
+    const viewport = getViewportState();
     touchVelocity = THREE.MathUtils.lerp(touchVelocity, targetVelocity, 0.08);
     targetVelocity *= 0.94;
 
@@ -277,7 +278,7 @@ function animate() {
     camera.position.y += (touchVector.y * 5.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const finalScale = Math.min(1.15 + (totalValueGained * 0.0012) + (dynamicFactor * 0.14), 2.0);
+    const finalScale = Math.min(1.15 + (totalValueGained * 0.0012) + (dynamicFactor * 0.14), 2.0) * viewport.scaleBias;
     mirrorSphere.scale.set(finalScale, finalScale, finalScale);
     mirrorSphere.rotation.y += 0.006 + (touchVelocity * 0.015);
     mirrorSphere.rotation.x += 0.002 + (dynamicFactor * 0.004);
@@ -291,7 +292,15 @@ function animate() {
 animate();
 
 function resizeRenderer() {
-    camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+    const viewport = getViewportState();
+    scene.fog = new THREE.FogExp2(0x000002, viewport.fogDensity);
+    camera.aspect = viewport.aspect;
+    camera.fov = viewport.isLandscape ? 56 : 64;
+    camera.position.z = viewport.cameraDistance;
+    camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
 }
 window.addEventListener('resize', resizeRenderer);
+window.addEventListener('orientationchange', resizeRenderer);
+resizeRenderer();
