@@ -190,7 +190,7 @@ const sovereignAdviceMatrix = {
 const recordButton = document.getElementById('recordButton');
 if (recordButton) {
     recordButton.innerText = "GENERATE SOUL SEAL";
-    recordButton.disabled = true;
+    recordButton.disabled = false;
     recordButton.addEventListener('click', () => {
         renderer.render(scene, camera);
         const dataUrl = document.querySelector('#bg').toDataURL('image/png');
