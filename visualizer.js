@@ -391,7 +391,7 @@ function animate() {
 
     // Apply global base dimensions to frame the vertical pillar proportions
     const finalScale = 1.0 + (analyser ? dynamicFactor * 0.05 : 0.0);
-    mirrorSphere.scale.set(0.65 * finalScale, 1.85 * finalScale, 0.65 * finalScale);
+    mirrorSphere.scale.set(1.0 * finalScale, 1.0 * finalScale, 1.0 * finalScale);
 
     // Continuous Toroidal Twisting Spins
     mirrorSphere.rotation.y += 0.003 + (touchVelocity * 0.02);
