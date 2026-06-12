@@ -146,6 +146,25 @@ canvas {
     pointer-events: none;
 }
 
+.sphere-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.sphere-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.03), 0 0 10px rgba(255,255,255,0.02);
+}
+
+.ring-1 { width: 54px; height: 54px; transform: rotateX(70deg); }
+.ring-2 { width: 74px; height: 74px; transform: rotateY(70deg); }
+.ring-3 { width: 92px; height: 92px; transform: rotateZ(20deg); }
+
 .coordinate-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
