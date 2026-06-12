@@ -150,6 +150,22 @@ function processVocalTelemetry() {
     mirrorMaterial.color.setHSL(colorAccumulator, 0.95, 0.55);
     mirrorMaterial.opacity = isInteracting ? 0.85 : 0.65 + (normalizedVol * 0.3);
 
+    const spectralFill = document.getElementById('spectralFill');
+    const spectralType = document.getElementById('spectralType');
+    const spectralPulse = document.getElementById('spectralPulse');
+    const pulsePercent = Math.min(100, Math.round((normalizedVol + touchVelocity * 0.25) * 100));
+
+    if (spectralFill) spectralFill.style.width = `${pulsePercent}%`;
+    if (spectralPulse) spectralPulse.innerText = `PULSE: ${pulsePercent}%`;
+
+    let auraType = 'CALM';
+    let fillHue = '#39ff14';
+    if (pulsePercent > 70) { auraType = 'SURGE'; fillHue = '#8b00ff'; }
+    else if (pulsePercent > 35) { auraType = 'RISING'; fillHue = '#ff5e00'; }
+
+    if (spectralType) spectralType.innerText = `AURA: ${auraType}`;
+    if (spectralFill) spectralFill.style.background = `linear-gradient(90deg, #39ff14, ${fillHue})`;
+
     if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;
     if (document.getElementById('resDisplay')) document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
     
