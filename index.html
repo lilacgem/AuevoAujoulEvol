@@ -26,7 +26,6 @@
     <canvas id="bg"></canvas>
 
     <div class="ui-container">
-        
         <div class="matrix-vault-header">
             <div class="llc-title">AU·EVO·AUJOUL·EVOL</div>
             <div class="brand-equation">
@@ -38,7 +37,24 @@
             </div>
         </div>
 
+        <section class="dashboard" aria-label="Recorder dashboard">
+            <div class="dash-row"><strong>MIC</strong> <span id="micStatus">IDLE</span></div>
+            <div class="dash-row"><strong>AWARE</strong> <span id="awarenessDisplay">STANDBY</span></div>
+            <div class="dash-row"><strong>STATE</strong> <span id="stateDisplay">OFFLINE</span></div>
+            <div class="dash-row"><strong>HUE</strong> <span id="hueDisplay">0°</span></div>
+            <div class="dash-row"><strong>RES</strong> <span id="resDisplay">0.180</span></div>
+            <div class="dash-row"><strong>ROOT</strong> <span id="rootDisplay">9</span></div>
+            <div class="dash-row"><strong>VIBE</strong> <span id="vibeDisplay">PROCESSING</span></div>
+            <div class="dash-row"><strong>LEVEL</strong> <span id="levelDisplay">55</span></div>
+            <div class="dash-row"><strong>STAMP</strong> <span id="stampDisplay">READY</span></div>
 
+            <div class="control-row">
+                <button id="micButton" class="btn-core secondary" type="button">ENABLE MIRROR</button>
+                <button id="recordButton" class="btn-core primary" type="button" disabled>GENERATE SOUL SEAL</button>
+            </div>
+
+            <div class="dash-row terminal-log" id="adviceDisplay">Mirror memory state initializing.</div>
+        </section>
     </div>
 
     <script src="visualizer.js"></script>

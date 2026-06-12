@@ -120,7 +120,9 @@ if (micButton) {
                     micButton.style.borderColor = "#00ffaa";
                     micButton.style.color = "#00ffaa";
                     
-                    document.getElementById('recordButton').disabled = false;
+                    if (document.getElementById('recordButton')) {
+                        document.getElementById('recordButton').disabled = false;
+                    }
                     const source = audioContext.createMediaStreamSource(stream);
                     analyser = audioContext.createAnalyser();
                     analyser.fftSize = 256;
@@ -164,6 +166,7 @@ let evoHistory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger')) || {
     totalSeals: 0,
     averageHue: 230,
     accumulatedResonance: 0.18,
+    lastStampAt: null,
     moodLogs: { high_energy: 0, grounded: 0, processing: 0 }
 };
 
@@ -187,9 +190,11 @@ const sovereignAdviceMatrix = {
 const recordButton = document.getElementById('recordButton');
 if (recordButton) {
     recordButton.innerText = "GENERATE SOUL SEAL";
+    recordButton.disabled = true;
     recordButton.addEventListener('click', () => {
         renderer.render(scene, camera);
         const dataUrl = document.querySelector('#bg').toDataURL('image/png');
+        const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
         
         const currentHue = Math.round(colorAccumulator * 360.0);
         const currentRes = parseFloat(document.getElementById('resDisplay')?.innerText || '0.18');
@@ -226,15 +231,19 @@ if (recordButton) {
         evoHistory.totalSeals += 1;
         evoHistory.averageHue = Math.round((evoHistory.averageHue + currentHue) / 2);
         evoHistory.accumulatedResonance = (evoHistory.accumulatedResonance + currentRes) / 2.0;
-        
+        evoHistory.lastStampAt = new Date().toLocaleString();
+
         localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(evoHistory));
 
         // Update UI Panel Display text fields instantly
         if (document.getElementById('vibeDisplay')) {
             document.getElementById('vibeDisplay').innerText = activeVibe.toUpperCase();
         }
+        if (document.getElementById('stampDisplay')) {
+            document.getElementById('stampDisplay').innerText = `STAMP ${evoHistory.totalSeals}`;
+        }
         if (document.getElementById('adviceDisplay')) {
-            document.getElementById('adviceDisplay').innerText = predictionAlert;
+            document.getElementById('adviceDisplay').innerText = `${predictionAlert} • Saved ${evoHistory.lastStampAt}`;
         }
         const lvlEl = document.getElementById('levelDisplay');
         if (lvlEl) lvlEl.innerText = 55 + evoHistory.totalSeals;
@@ -247,7 +256,7 @@ if (recordButton) {
             fetch(dataUrl)
                 .then(res => res.blob())
                 .then(blob => {
-                    const customFilename = `AuEvo_Seal_Gen${evoHistory.totalSeals}_Vibe_${activeVibe}.png`;
+                    const customFilename = `AuEvo_Seal_Gen${evoHistory.totalSeals}_Vibe_${activeVibe}_${stampTag}.png`;
                     const file = new File([blob], customFilename, { type: 'image/png' });
                     
                     // Fire the phone's native sharing dashboard panel if supported
@@ -268,7 +277,7 @@ if (recordButton) {
         } else {
             // Force browser image download pipeline assets (Standard seamless download for PC)
             const downloadLink = document.createElement('a');
-            downloadLink.download = `AuEvo_Seal_Gen${evoHistory.totalSeals}_Vibe_${activeVibe}.png`;
+            downloadLink.download = `AuEvo_Seal_Gen${evoHistory.totalSeals}_Vibe_${activeVibe}_${stampTag}.png`;
             downloadLink.href = dataUrl;
             document.body.appendChild(downloadLink);
             downloadLink.click();
