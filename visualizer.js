@@ -150,21 +150,24 @@ function processVocalTelemetry() {
     mirrorMaterial.color.setHSL(colorAccumulator, 0.95, 0.55);
     mirrorMaterial.opacity = isInteracting ? 0.85 : 0.65 + (normalizedVol * 0.3);
 
-    const spectralFill = document.getElementById('spectralFill');
-    const spectralType = document.getElementById('spectralType');
-    const spectralPulse = document.getElementById('spectralPulse');
+    const spectralOrb = document.getElementById('spectralOrb');
     const pulsePercent = Math.min(100, Math.round((normalizedVol + touchVelocity * 0.25) * 100));
 
-    if (spectralFill) spectralFill.style.width = `${pulsePercent}%`;
-    if (spectralPulse) spectralPulse.innerText = `PULSE: ${pulsePercent}%`;
+    if (spectralOrb) {
+        let glowColor = 'rgba(57,255,20,0.35)';
+        let glowStrength = 0.35;
+        if (pulsePercent > 70) {
+            glowColor = 'rgba(139,0,255,0.45)';
+            glowStrength = 0.6;
+        } else if (pulsePercent > 35) {
+            glowColor = 'rgba(255,94,0,0.35)';
+            glowStrength = 0.45;
+        }
 
-    let auraType = 'CALM';
-    let fillHue = '#39ff14';
-    if (pulsePercent > 70) { auraType = 'SURGE'; fillHue = '#8b00ff'; }
-    else if (pulsePercent > 35) { auraType = 'RISING'; fillHue = '#ff5e00'; }
-
-    if (spectralType) spectralType.innerText = `AURA: ${auraType}`;
-    if (spectralFill) spectralFill.style.background = `linear-gradient(90deg, #39ff14, ${fillHue})`;
+        spectralOrb.style.transform = `scale(${1 + pulsePercent / 180})`;
+        spectralOrb.style.boxShadow = `0 0 ${18 + pulsePercent * 0.35}px ${glowColor}, 0 0 ${28 + pulsePercent * 0.6}px rgba(255,255,255,0.08)`;
+        spectralOrb.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(57,255,20,${0.18 + glowStrength}) 35%, rgba(255,94,0,${0.08 + glowStrength * 0.2}) 70%, rgba(0,0,0,0) 100%)`;
+    }
 
     if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;
     if (document.getElementById('resDisplay')) document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
