@@ -33,16 +33,17 @@
         </div>
 
         <section class="dashboard" aria-label="Mirror controls">
-            <div class="center-orb-wrap" aria-label="Spectral orb">
-                <div id="spectralOrb" class="spectral-orb"></div>
-                <div class="spectral-ring"></div>
-            </div>
-
-            <div class="coordinate-grid" aria-hidden="true">
-                <span class="coord coord-a">A</span>
-                <span class="coord coord-b">B</span>
-                <span class="coord coord-c">C</span>
-                <span class="coord coord-d">D</span>
+            <div class="grid-core" aria-label="Spectral orb">
+                <div class="coordinate-grid" aria-hidden="true">
+                    <span class="coord">A</span>
+                    <span class="coord">B</span>
+                    <span class="coord">C</span>
+                    <span class="coord">D</span>
+                </div>
+                <div class="orb-shell">
+                    <div id="spectralOrb" class="spectral-orb"></div>
+                    <div class="spectral-ring"></div>
+                </div>
             </div>
 
             <div class="mini-metrics">
