@@ -1,16 +1,18 @@
 /**
  * @file visualizer.js
- * @description AuEvo JoulEvol - Fully Synthesized Resonant Physics Matrix Engine
+ * @description AuEvo JoulEvol - Advanced Atmospheric WebGL Engine
  */
 
-console.log('⚡ [INTEGRATION] Fusing audio frequency matrices and geometric gravity vectors...');
+console.log('⚡ [AUJOULE] Initializing Atmospheric 3D Mobile Core...');
 
-// Core Space Configuration
+// --- 1. VIEWPORT & CORE ARCHITECTURE ---
 const scene = new THREE.Scene();
+
+// Inject Deep Cosmic Void Space Fluid Fog Calculations
 scene.fog = new THREE.FogExp2(0x000002, 0.015);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000.0);
-camera.position.set(0.0, 0.0, 56.0);
+camera.position.set(0.0, 0.0, 55.0);
 
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg'),
@@ -22,315 +24,348 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
 renderer.setClearColor(0x000002, 1.0);
 
-// Interaction Vectors
-let touchVector = { x: 0.0, y: 0.0 }, lastTouchVector = { x: 0.0, y: 0.0 };
-let touchVelocity = 0.0, targetVelocity = 0.0, isInteracting = false;
-let dynamicFactor = 0.18, colorAccumulator = 0.5, totalValueGained = 0;
-let particles = [];
+// Telemetry Logic Vectors
+let touchVector = { x: 0.0, y: 0.0 };
+let lastTouchVector = { x: 0.0, y: 0.0 };
+let touchVelocity = 0.0;
+let targetVelocity = 0.0;
+let isInteracting = false;
+let pulseInteraction = 0.0;
+let dynamicFactor = 0.18;
+let colorAccumulator = 0.5;
 
-function getViewportState() {
-    const isLandscape = window.innerWidth >= window.innerHeight;
-    return {
-        isLandscape,
-        aspect: window.innerWidth / window.innerHeight,
-        scaleBias: isLandscape ? 1.0 : 1.04,
-        cameraDistance: isLandscape ? 52.0 : 56.0,
-        fogDensity: isLandscape ? 0.015 : 0.018
-    };
-}
-
+// --- 2. ADVANCED INTERACTIVE VECTOR TRACKER ---
 function handleInteractionMove(clientX, clientY) {
-    lastTouchVector.x = touchVector.x; lastTouchVector.y = touchVector.y;
-    const viewport = getViewportState();
+    lastTouchVector.x = touchVector.x;
+    lastTouchVector.y = touchVector.y;
+
     touchVector.x = (clientX / window.innerWidth) * 2.0 - 1.0;
     touchVector.y = -(clientY / window.innerHeight) * 2.0 + 1.0;
-    const movement = Math.sqrt(Math.pow(touchVector.x - lastTouchVector.x, 2) + Math.pow(touchVector.y - lastTouchVector.y, 2));
-    targetVelocity = Math.min(movement * (viewport.isLandscape ? 14.0 : 12.5), 4.2);
+
+    const dx = touchVector.x - lastTouchVector.x;
+    const dy = touchVector.y - lastTouchVector.y;
+    targetVelocity = Math.min(Math.sqrt(dx * dx + dy * dy) * 12.0, 3.5);
+
     isInteracting = true;
 }
 
 window.addEventListener('mousemove', (e) => handleInteractionMove(e.clientX, e.clientY));
-window.addEventListener('touchmove', (e) => { if (e.touches.length > 0) handleInteractionMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-window.addEventListener('touchstart', (e) => { if (e.touches.length > 0) handleInteractionMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+window.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) handleInteractionMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+window.addEventListener('touchstart', (e) => {
+    pulseInteraction = 2.0; 
+    if (e.touches.length > 0) handleInteractionMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
 window.addEventListener('touchend', () => { isInteracting = false; targetVelocity = 0.0; });
 
-// Parallax Space Dust Layer
+// --- 3. DYNAMIC PARALLAX STARFIELD ---
 const starGeometry = new THREE.BufferGeometry();
 const starCount = 1400;
 const positions = new Float32Array(starCount * 3);
+
 for (let i = 0; i < starCount * 3; i += 3) {
     positions[i] = (Math.random() - 0.5) * 400.0;
     positions[i + 1] = (Math.random() - 0.5) * 400.0;
     positions[i + 2] = (Math.random() - 0.5) * 300.0;
 }
 starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-const starfield = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 }));
+const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.4 });
+const starfield = new THREE.Points(starGeometry, starMaterial);
 scene.add(starfield);
 
-// Core geometric base with a cylindrical frame and layered sphere resonance.
-const baseGeometry = new THREE.CylinderGeometry(7.2, 8.0, 22.0, 40, 40, true);
-const baseVertices = baseGeometry.attributes.position.clone();
-const baseMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.45, wireframe: true, side: THREE.DoubleSide });
-const baseCylinder = new THREE.Mesh(baseGeometry, baseMaterial);
-baseCylinder.rotation.x = Math.PI / 2 * 0.2;
-scene.add(baseCylinder);
+// --- 4. GEOMETRY INFRASTRUCTURE ARCHITECTURE ---
+// High density 48x48 mesh enables smooth, magical fluid wave deforming
+const geometry = new THREE.SphereGeometry(14.0, 48, 48);
 
-const geometry = new THREE.SphereGeometry(8.6, 48, 48);
-const mirrorMaterial = new THREE.MeshBasicMaterial({ color: 0x8b00ff, transparent: true, opacity: 0.68, wireframe: true, side: THREE.DoubleSide });
+// Retain a backup copy of original base vertex coordinates for relative calculations
+const baseVertices = geometry.attributes.position.clone();
+
+const mirrorMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffaa00,
+    transparent: true,
+    opacity: 0.75,
+    wireframe: true,
+    side: THREE.DoubleSide
+});
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
+mirrorSphere.position.set(0.0, 0.0, 0.0); // Centered to match the clean layout grid look
 scene.add(mirrorSphere);
 
-const auraGeometry = new THREE.SphereGeometry(6.6, 40, 40);
-const auraMaterial = new THREE.MeshBasicMaterial({ color: 0x39ff14, transparent: true, opacity: 0.18, wireframe: true, side: THREE.DoubleSide });
-const auraSphere = new THREE.Mesh(auraGeometry, auraMaterial);
-auraSphere.position.set(0.0, 0.0, 0.0);
-scene.add(auraSphere);
-
-const enclosureGeometry = new THREE.TorusGeometry(10.2, 0.08, 8, 120);
-const enclosureMaterial = new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.18, wireframe: true });
-const enclosureRing = new THREE.Mesh(enclosureGeometry, enclosureMaterial);
-scene.add(enclosureRing);
-
-// Audio Synthesis Integration Pipelines
+// --- 5. AUDIO SYNC PERMISSION HANDSHAKE ---
 let audioContext, analyser, dataArray;
 const micButton = document.getElementById('micButton');
-const recordButton = document.getElementById('recordButton');
-
-function captureSealSnapshot() {
-    try {
-        if (!renderer?.domElement) return null;
-
-        const imageDataUrl = renderer.domElement.toDataURL('image/png');
-        const archive = JSON.parse(localStorage.getItem('AuEvo_Seal_Archive') || '[]');
-        const memory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger') || '{}');
-
-        const sealRecord = {
-            id: Date.now(),
-            totalSeals: (memory.totalSeals || 0) + 1,
-            level: 58 + (memory.totalSeals || 0) + 1,
-            resonance: (dynamicFactor + touchVelocity).toFixed(3),
-            hue: `${Math.round(colorAccumulator * 360.0)}°`,
-            timestamp: new Date().toISOString(),
-            image: imageDataUrl,
-            memoryNote: 'Evolving seal snapshot captured from live resonance.'
-        };
-
-        archive.unshift(sealRecord);
-        localStorage.setItem('AuEvo_Seal_Archive', JSON.stringify(archive.slice(0, 25)));
-
-        const nextMemory = {
-            ...memory,
-            totalSeals: sealRecord.totalSeals,
-            lastSealId: sealRecord.id,
-            lastSealAt: sealRecord.timestamp,
-            lastLevel: sealRecord.level,
-            lastResonance: sealRecord.resonance,
-            memoryDepth: (memory.memoryDepth || 0) + 1,
-            evolving: true
-        };
-        localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(nextMemory));
-
-        const link = document.createElement('a');
-        link.href = imageDataUrl;
-        link.download = `auevo-seal-${sealRecord.id}.png`;
-        link.click();
-
-        return sealRecord;
-    } catch (error) {
-        console.error('Capture failed:', error);
-        return null;
-    }
-}
+const micStatusEl = document.getElementById('micStatus');
+const awarenessDisplayEl = document.getElementById('awarenessDisplay');
+const stateDisplayEl = document.getElementById('stateDisplay');
 
 if (micButton) {
     micButton.addEventListener('click', async () => {
-        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioContext) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            audioContext = new AudioContextClass();
+        }
         if (audioContext.state === 'suspended') await audioContext.resume();
 
-        if (navigator.mediaDevices?.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-                const micStatus = document.getElementById('micStatus');
-                const awarenessDisplay = document.getElementById('awarenessDisplay');
-                const vibeDisplay = document.getElementById('vibeDisplay');
-
-                if (micStatus) {
-                    micStatus.innerText = "CONNECTED";
-                    micStatus.style.color = "#39ff14";
-                    micStatus.classList.remove('processing-text');
-                }
-                if (awarenessDisplay) awarenessDisplay.innerText = "INTEGRATED";
-                if (vibeDisplay) vibeDisplay.innerText = "ACTIVE";
-                
-                micButton.innerText = "MIRROR ACTIVE";
-                micButton.style.borderColor = "#39ff14";
-                micButton.style.color = "#39ff14";
-                if (recordButton) recordButton.disabled = false;
-
-                const source = audioContext.createMediaStreamSource(stream);
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                source.connect(analyser);
-
-                // Initialize Version 1's Vacuum Data Node Loop upon synchronization hook
-                setInterval(generateStarNode, 1000);
-            });
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then((stream) => {
+                    if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; }
+                    if (awarenessDisplayEl) awarenessDisplayEl.innerText = "INTEGRATED";
+                    if (stateDisplayEl) stateDisplayEl.innerText = "ACTIVE";
+                    
+                    micButton.innerText = "MIRROR ACTIVE";
+                    micButton.style.borderColor = "#00ffaa";
+                    micButton.style.color = "#00ffaa";
+                    
+                    document.getElementById('recordButton').disabled = false;
+                    const source = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    source.connect(analyser);
+                });
         }
     });
 }
 
-function generateStarNode() {
-    const angle = Math.random() * Math.PI * 2;
-    const distance = 35 + Math.random() * 10;
-    const particle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 4, 4), new THREE.MeshBasicMaterial({ color: 0xd4af37 }));
-    particle.position.set(Math.cos(angle) * distance, Math.sin(angle) * distance, (Math.random() - 0.5) * 10);
-    scene.add(particle);
-    particles.push(particle);
-}
-
 function processVocalTelemetry() {
-    let totalVolume = 0.0, normalizedVol = 0.0;
+    let totalVolume = 0.0;
+    let normalizedVol = 0.0;
 
     if (analyser && dataArray) {
         analyser.getByteFrequencyData(dataArray);
-        for (let i = 0; i < dataArray.length; i++) totalVolume += dataArray[i];
+        for (let i = 0; i < dataArray.length; i++) { totalVolume += dataArray[i]; }
         normalizedVol = totalVolume / (dataArray.length * 255.0);
         dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, normalizedVol * 6.0 + 0.15, 0.2);
     } else {
         dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, 0.18, 0.05);
     }
 
-    // Full-spectrum resonance mapping across touch, voice, and audio energy.
-    colorAccumulator = (colorAccumulator + 0.0015 + (normalizedVol * 0.012) + (touchVelocity * 0.003)) % 1.0;
-    const spectrumShift = (colorAccumulator + normalizedVol * 0.18 + touchVelocity * 0.08 + (isInteracting ? 0.03 : 0.0)) % 1.0;
-    mirrorMaterial.color.setHSL(spectrumShift, 0.92, 0.56);
+    colorAccumulator = (colorAccumulator + 0.0015 + (normalizedVol * 0.01) + (touchVelocity * 0.004)) % 1.0;
+    mirrorMaterial.color.setHSL(colorAccumulator, 0.95, 0.55);
+    mirrorMaterial.opacity = isInteracting ? 0.85 : 0.65 + (normalizedVol * 0.3);
 
-    const hueDisplay = document.getElementById('hueDisplay');
-    const resDisplay = document.getElementById('resDisplay');
-    const rootDisplay = document.getElementById('rootDisplay');
-
-    if (hueDisplay) hueDisplay.innerText = `${Math.round(colorAccumulator * 360.0)}°`;
-    if (resDisplay) resDisplay.innerText = (dynamicFactor + touchVelocity).toFixed(3);
-
-    const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
-    if (rootDisplay) rootDisplay.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
-}
-
-// Vector algebra trailing incoming node particles down the data gravity pipeline
-if (recordButton) {
-    recordButton.addEventListener('click', () => {
-        const sealRecord = captureSealSnapshot();
-        if (sealRecord) {
-            const levelDisplay = document.getElementById('levelDisplay');
-            const statusBox = document.getElementById('vacuum-status');
-            if (levelDisplay) levelDisplay.innerText = sealRecord.level;
-            if (statusBox) statusBox.innerText = `> SEAL CAPTURED AND STORED IN MEMORY (${sealRecord.totalSeals})`;
-            recordButton.innerText = `GEN ${sealRecord.totalSeals} SEALED`;
-            recordButton.style.borderColor = '#39ff14';
-            recordButton.style.color = '#39ff14';
-            setTimeout(() => {
-                recordButton.innerText = 'GENERATE SOUL SEAL';
-                recordButton.style.borderColor = 'var(--matrix-orange)';
-                recordButton.style.color = 'var(--matrix-orange)';
-            }, 1800);
-        }
-    });
-}
-
-function updateStarParticles() {
-    for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i];
-        p.position.x -= (p.position.x) * 0.04;
-        p.position.y -= (p.position.y) * 0.04;
-        p.position.z -= (p.position.z) * 0.04;
-
-        if (p.position.length() < 6.0) {
-            scene.remove(p);
-            particles.splice(i, 1);
-            
-            // Trigger structural mass modifications on impact, but cap the growth to prevent runaway scaling.
-            totalValueGained = Math.min(totalValueGained + 25, 200);
-            const statusBox = document.getElementById('vacuum-status');
-            const vibeDisplay = document.getElementById('vibeDisplay');
-
-            if (totalValueGained > 200) {
-                mirrorMaterial.color.setHex(0x39ff14); // Lock emerald green
-                if (statusBox) statusBox.innerText = `> RECLAIMED VALUE SECURED TO SOVEREIGN VAULT`;
-                if (statusBox) statusBox.style.color = "#39ff14";
-                if (vibeDisplay) vibeDisplay.innerText = "CONNECTED";
-            } else if (totalValueGained > 75) {
-                mirrorMaterial.color.setHex(0xff5e00); // Lock orange
-                if (statusBox) statusBox.innerText = `> PORTAL LEDGER STABILIZING HARMONIC FLOW`;
-                if (statusBox) statusBox.style.color = "#ff5e00";
-            }
-        }
+    if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;
+    if (document.getElementById('resDisplay')) document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
+    
+    const rootEl = document.getElementById('rootDisplay');
+    if (rootEl) {
+        const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
+        rootEl.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
     }
 }
 
-// Render Loops
+// --- 5.8. PREDICTIVE EMOTIONAL TRACKING LEDGER ---
+// Pulls your historic entries out of the device storage registry
+let evoHistory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger')) || {
+    totalSeals: 0,
+    averageHue: 230,
+    accumulatedResonance: 0.18,
+    moodLogs: { high_energy: 0, grounded: 0, processing: 0 }
+};
+
+// Sovereign Dictionary of Resonance System Advice Tables
+const sovereignAdviceMatrix = {
+    high_energy: [
+        "⚠️ SCALING SURGE: Your frequency is spiking into elevated ranges. Ground your current matrix channels via steady, extended screen hold contact.",
+        "⚡ COMPLETION RESONANCE: Key 9 energetic threshold achieved. A perfect window for creative output generation or immediate vault archiving."
+    ],
+    grounded: [
+        "💎 EQUILIBRIUM STABLE: Deep, centered root frequencies detected. Your current matrix shows low variance—excellent state for analytical processing.",
+        "🌌 VOID HARMONY: Your physical touch vectors match your telemetry breath coordinates flawlessly. The signature matrix is running at maximum efficiency."
+    ],
+    processing: [
+        "🌀 EVOLUTION RECONFIGURING: Your profile indicates an intermediary transition pattern. Continue voice projection loops to clarify the root signature.",
+        "🛡️ SECURITY HOLD: Introspective vibration metrics active. Allow the twisting wireframe lattice to re-center baseline dimensions automatically."
+    ]
+};
+
+// --- 5.9. SOVEREIGN MATRIX IMAGE CAPTURE & ANALYTICS SYSTEM ---
+const recordButton = document.getElementById('recordButton');
+if (recordButton) {
+    recordButton.innerText = "GENERATE SOUL SEAL";
+    recordButton.addEventListener('click', () => {
+        renderer.render(scene, camera);
+        const dataUrl = document.querySelector('#bg').toDataURL('image/png');
+        
+        const currentHue = Math.round(colorAccumulator * 360.0);
+        const currentRes = parseFloat(document.getElementById('resDisplay')?.innerText || '0.18');
+        const currentRoot = document.getElementById('rootDisplay')?.innerText || '-';
+        
+        // ─── RUN NATIVE MOOD INFERENCE FACTORING ───
+        let activeVibe = "processing";
+        if (currentRes > 1.2) {
+            activeVibe = "high_energy";
+            evoHistory.moodLogs.high_energy += 1;
+        } else if (currentRes < 0.7 && isInteracting) {
+            activeVibe = "grounded";
+            evoHistory.moodLogs.grounded += 1;
+        } else {
+            evoHistory.moodLogs.processing += 1;
+        }
+        
+        // ─── PREDICTIVE TREND ANALYSIS ───
+        // Calculate the dominant overall mood in your history to generate custom advice
+        const totalLogs = evoHistory.moodLogs.high_energy + evoHistory.moodLogs.grounded + evoHistory.moodLogs.processing;
+        let predictionAlert = "Mirror memory state initializing.";
+        
+        if (totalLogs >= 3) {
+            const maxMood = Object.keys(evoHistory.moodLogs).reduce((a, b) => evoHistory.moodLogs[a] > evoHistory.moodLogs[b] ? a : b);
+            const selectedPhrases = sovereignAdviceMatrix[maxMood];
+            predictionAlert = `🔮 PREDICTIVE PATTERN [Dominant: ${maxMood.toUpperCase()}]: ${selectedPhrases[Math.floor(Math.random() * selectedPhrases.length)]}`;
+        } else {
+            // Early fallback advice while collecting initial telemetry points
+            const currentPhrases = sovereignAdviceMatrix[activeVibe];
+            predictionAlert = `✨ SEED ANALYSIS [Current State: ${activeVibe.toUpperCase()}]: ${currentPhrases[0]}`;
+        }
+
+        // Update local ledger file properties
+        evoHistory.totalSeals += 1;
+        evoHistory.averageHue = Math.round((evoHistory.averageHue + currentHue) / 2);
+        evoHistory.accumulatedResonance = (evoHistory.accumulatedResonance + currentRes) / 2.0;
+        
+        localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(evoHistory));
+
+        // Update UI Panel Display text fields instantly
+        if (document.getElementById('vibeDisplay')) {
+            document.getElementById('vibeDisplay').innerText = activeVibe.toUpperCase();
+        }
+        if (document.getElementById('adviceDisplay')) {
+            document.getElementById('adviceDisplay').innerText = predictionAlert;
+        }
+        const lvlEl = document.getElementById('levelDisplay');
+        if (lvlEl) lvlEl.innerText = 55 + evoHistory.totalSeals;
+
+        // Check if the user is on a mobile device
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // Convert dataURL to a real system blob file object to preserve your custom file names on phones
+            fetch(dataUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const customFilename = `AuEvo_Seal_Gen${evoHistory.totalSeals}_Vibe_${activeVibe}.png`;
+                    const file = new File([blob], customFilename, { type: 'image/png' });
+                    
+                    // Fire the phone's native sharing dashboard panel if supported
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: `AuEvo Soul Seal Gen ${evoHistory.totalSeals}`,
+                            text: `Sovereign Matrix Record - Level ${55 + evoHistory.totalSeals}`
+                        }).catch(err => {
+                            // Quick location replacement fallback if share panel is closed out
+                            window.location.href = dataUrl;
+                        });
+                    } else {
+                        // Fallback option for legacy mobile browser environments
+                        window.location.href = dataUrl;
+                    }
+                });
+        } else {
+            // Force browser image download pipeline assets (Standard seamless download for PC)
+            const downloadLink = document.createElement('a');
+            downloadLink.download = `AuEvo_Seal_Gen${evoHistory.totalSeals}_Vibe_${activeVibe}.png`;
+            downloadLink.href = dataUrl;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+        
+        // Button UI Confirmation states
+        const originalText = recordButton.innerText;
+        recordButton.innerText = `GEN ${evoHistory.totalSeals} RECORDED`;
+        recordButton.style.borderColor = "#00ffaa";
+        recordButton.style.color = "#00ffaa";
+        
+        
+        setTimeout(() => {
+            recordButton.innerText = originalText;
+            recordButton.style.borderColor = "#ffaa00";
+            recordButton.style.color = "#ffaa00";
+        }, 2500);
+    });
+}
+
+// --- 6. ANIMATION MATRIX ENGINE ENGINE (ADVANCED RESONANT WARP) ---
 function animate() {
     requestAnimationFrame(animate);
-    const viewport = getViewportState();
+    
     touchVelocity = THREE.MathUtils.lerp(touchVelocity, targetVelocity, 0.08);
     targetVelocity *= 0.94;
 
     processVocalTelemetry();
-    updateStarParticles();
 
     const time = Date.now() * 0.001;
-    const positionAttribute = geometry.attributes.position;
-    const basePositionAttribute = baseGeometry.attributes.position;
+    
+    // Core Handshake Equation Variables (Calculated 9Hz Offset Link)
+    const frequencyOffset9Hz = 9.0;
 
-    // Magical multi-wave deforming math calculations mapping frequency shifts
+    // --- MAGICAL FLUID VERTEX WAVE ENGINE ---
+    const positionAttribute = geometry.attributes.position;
+    
     for (let i = 0; i < positionAttribute.count; i++) {
-        const bx = baseVertices.getX(i), by = baseVertices.getY(i), bz = baseVertices.getZ(i);
-        const waveX = Math.sin(by * 0.18 + time * 3.0) * (0.35 + touchVelocity * 0.55);
-        const waveY = Math.cos(bx * 0.18 + time * 2.4) * (0.28 + dynamicFactor * 0.45);
-        const waveZ = Math.sin((bx + by) * 0.14 + time * 2.0) * (0.18 + touchVelocity * 0.25);
-        positionAttribute.setXYZ(i, bx + waveX, by + waveY, bz + waveZ);
+        // Fetch baseline unaltered coordinate vectors
+        const bx = baseVertices.getX(i);
+        const by = baseVertices.getY(i);
+        const bz = baseVertices.getZ(i);
+
+        // Generate dynamic multi-wave ripples across the shape body
+        // Links your 9Hz value directly into the sine-wave telemetry math loop
+        const waveX = Math.sin(by * 0.25 + time * 3.0 + (frequencyOffset9Hz * 0.1)) * (0.4 + touchVelocity * 0.8);
+        const waveY = Math.cos(bx * 0.25 + time * 2.5) * (0.3 + dynamicFactor * 0.5);
+        const waveZ = Math.sin(bz * 0.30 + time * 4.0) * (0.4 + touchVelocity * 0.8);
+
+        // Apply interactive spatial magnetism pulling vertices softly toward finger interactions
+        const distToTouchX = bx - (touchVector.x * 15.0);
+        const distToTouchY = by - (touchVector.y * 15.0);
+        const magnetPull = Math.sin(time + i) * (touchVelocity * 0.15);
+
+        // Commit newly computed atmospheric calculations back to the vertex item index arrays
+        positionAttribute.setXYZ(
+            i, 
+            bx + waveX + (distToTouchX * magnetPull), 
+            by + waveY + (distToTouchY * magnetPull), 
+            bz + waveZ
+        );
     }
-    positionAttribute.needsUpdate = true;
+    positionAttribute.needsUpdate = true; // Tells Three.js to re-compile the mesh architecture canvas natively
     geometry.computeVertexNormals();
 
-    baseCylinder.rotation.y += 0.001 + touchVelocity * 0.003;
-    baseCylinder.scale.set(1.0 + dynamicFactor * 0.02, 1.0 + dynamicFactor * 0.03, 1.0 + dynamicFactor * 0.02);
-
-    camera.position.x += (touchVector.x * 6.5 - camera.position.x) * 0.05;
-    camera.position.y += (touchVector.y * 6.5 - camera.position.y) * 0.05;
+    // Parallax Spatial Camera Track
+    camera.position.x += (touchVector.x * 7.0 - camera.position.x) * 0.04;
+    camera.position.y += (touchVector.y * 7.0 - camera.position.y) * 0.04;
     camera.lookAt(0.0, 0.0, 0.0);
 
-    const basePulse = 1.25 + (dynamicFactor * 0.18) + (touchVelocity * 0.10);
-    const finalScale = Math.min(basePulse + (totalValueGained * 0.0012), 2.45) * viewport.scaleBias;
-    mirrorSphere.scale.set(finalScale, finalScale, finalScale);
-    mirrorSphere.rotation.y += 0.0035 + (touchVelocity * 0.008);
-    mirrorSphere.rotation.x += 0.0014 + (dynamicFactor * 0.0025);
+    // Apply global base dimensions to frame the vertical pillar proportions
+    const finalScale = 1.0 + (analyser ? dynamicFactor * 0.05 : 0.0);
+    mirrorSphere.scale.set(0.65 * finalScale, 1.85 * finalScale, 0.65 * finalScale);
 
-    const glowPulse = 0.92 + dynamicFactor * 0.03 + Math.sin(Date.now() * 0.00035) * 0.015;
-    auraSphere.scale.set(glowPulse * viewport.scaleBias, glowPulse * viewport.scaleBias, glowPulse * viewport.scaleBias);
-    auraSphere.rotation.y *= 0.96;
-    auraSphere.rotation.x *= 0.96;
+    // Continuous Toroidal Twisting Spins
+    mirrorSphere.rotation.y += 0.003 + (touchVelocity * 0.02);
+    mirrorSphere.rotation.z = (Math.sin(time * 0.4) * 0.04) + (touchVector.x * 0.1);
 
-    enclosureRing.rotation.x += 0.001 + touchVelocity * 0.0008;
-    enclosureRing.rotation.y += 0.0012 + dynamicFactor * 0.0006;
-
+    // Coordinate parallax calculations across background star vectors
     if (starfield) {
         starfield.rotation.y += 0.0001;
         starfield.position.x = THREE.MathUtils.lerp(starfield.position.x, touchVector.x * -2.0, 0.05);
+        starfield.position.y = THREE.MathUtils.lerp(starfield.position.y, touchVector.y * -2.0, 0.05);
     }
+
     renderer.render(scene, camera);
 }
 animate();
 
+// --- RESIZE LIFECYCLE ---
 function resizeRenderer() {
-    const viewport = getViewportState();
-    scene.fog = new THREE.FogExp2(0x000002, viewport.fogDensity);
-    camera.aspect = viewport.aspect;
-    camera.fov = viewport.isLandscape ? 56 : 64;
-    camera.position.z = viewport.cameraDistance;
+    const width = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+    const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+    renderer.setSize(width, height, false);
 }
 window.addEventListener('resize', resizeRenderer);
-window.addEventListener('orientationchange', resizeRenderer);
-resizeRenderer();
+if (window.visualViewport) window.visualViewport.addEventListener('resize', resizeRenderer);
