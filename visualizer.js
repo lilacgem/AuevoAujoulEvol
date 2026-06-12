@@ -101,34 +101,55 @@ const micStatusEl = document.getElementById('micStatus');
 const awarenessDisplayEl = document.getElementById('awarenessDisplay');
 const stateDisplayEl = document.getElementById('stateDisplay');
 
+let micStream = null;
+
 if (micButton) {
     micButton.addEventListener('click', async () => {
-        if (!audioContext) {
-            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-            audioContext = new AudioContextClass();
-        }
-        if (audioContext.state === 'suspended') await audioContext.resume();
+        try {
+            if (!audioContext) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContextClass();
+            }
+            if (audioContext.state === 'suspended') await audioContext.resume();
 
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then((stream) => {
-                    if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; }
-                    if (awarenessDisplayEl) awarenessDisplayEl.innerText = "INTEGRATED";
-                    if (stateDisplayEl) stateDisplayEl.innerText = "ACTIVE";
-                    
-                    micButton.innerText = "MIRROR ACTIVE";
-                    micButton.style.borderColor = "#00ffaa";
-                    micButton.style.color = "#00ffaa";
-                    
-                    if (document.getElementById('recordButton')) {
-                        document.getElementById('recordButton').disabled = false;
-                    }
-                    const source = audioContext.createMediaStreamSource(stream);
-                    analyser = audioContext.createAnalyser();
-                    analyser.fftSize = 256;
-                    dataArray = new Uint8Array(analyser.frequencyBinCount);
-                    source.connect(analyser);
-                });
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                if (micStatusEl) { micStatusEl.innerText = "UNAVAILABLE"; micStatusEl.style.color = "#ff5e00"; }
+                return;
+            }
+
+            micStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    channelCount: 1
+                },
+                video: false
+            });
+
+            if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; }
+            if (awarenessDisplayEl) awarenessDisplayEl.innerText = "INTEGRATED";
+            if (stateDisplayEl) stateDisplayEl.innerText = "ACTIVE";
+
+            micButton.innerText = "MIRROR ACTIVE";
+            micButton.style.borderColor = "#00ffaa";
+            micButton.style.color = "#00ffaa";
+
+            if (document.getElementById('recordButton')) {
+                document.getElementById('recordButton').disabled = false;
+            }
+
+            const source = audioContext.createMediaStreamSource(micStream);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.85;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            source.connect(analyser);
+        } catch (err) {
+            if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; }
+            if (awarenessDisplayEl) awarenessDisplayEl.innerText = "PERMISSION";
+            if (stateDisplayEl) stateDisplayEl.innerText = "WAITING";
+            console.warn('Mic activation failed:', err);
         }
     });
 }
