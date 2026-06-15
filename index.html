@@ -660,64 +660,99 @@ if (recordButton) {
         }, 2500);
     });
 }
+let personalSymbolMesh = null;
 
-// --- RESONANT DEFORMATION ANIMATION ENGINE RUNTIME ---
-function animate() {
-    requestAnimationFrame(animate);
-    touchVelocity = THREE.MathUtils.lerp(touchVelocity, targetVelocity, 0.08);
-    targetVelocity *= 0.94;
+        function ReflectSovereignSymbol(history, liveResonance, liveColor) {
+            if (personalSymbolMesh) {
+                scene.remove(personalSymbolMesh);
+                personalSymbolMesh.geometry.dispose();
+                personalSymbolMesh.material.dispose();
+            }
 
-    processVocalTelemetry();
-    if (videoTexture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
-        videoTexture.needsUpdate = true;
-    }
+            const totalSeals = history.totalSeals || 1;
+            const historicalRes = history.accumulatedResonance || 0.18;
 
-    const time = Date.now() * 0.001;
-    const frequencyOffset9Hz = 9.0;
+            const pParam = Math.round(totalSeals) % 9 || 3;
+            const qParam = Math.round(historicalRes * 10) % 9 || 4;
 
-    const positionAttribute = geometry.attributes.position;
-    for (let i = 0; i < positionAttribute.count; i++) {
-        const bx = baseVertices.getX(i), by = baseVertices.getY(i), bz = baseVertices.getZ(i);
+            const symbolGeometry = new THREE.TorusKnotGeometry(
+                5.5,
+                1.0 + (liveResonance * 0.4),
+                Math.min(250, 40 + totalSeals * 6),
+                12, 
+                pParam, 
+                qParam
+            );
 
-        const waveX = Math.sin(by * 0.25 + time * 3.0 + (frequencyOffset9Hz * 0.1)) * (0.4 + touchVelocity * 0.8);
-        const waveY = Math.cos(bx * 0.25 + time * 2.5) * (0.3 + dynamicFactor * 0.5);
-        const waveZ = Math.sin(bz * 0.30 + time * 4.0) * (0.4 + touchVelocity * 0.8);
+            const symbolMaterial = new THREE.MeshBasicMaterial({
+                color: new THREE.Color().setHSL(liveColor, 0.95, 0.50),
+                wireframe: true,
+                transparent: true,
+                opacity: 0.35 + (liveResonance * 0.3),
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide
+            });
 
-        const distToTouchX = bx - (touchVector.x * 15.0);
-        const distToTouchY = by - (touchVector.y * 15.0);
-        const magnetPull = Math.sin(time + i) * (touchVelocity * 0.15);
+            personalSymbolMesh = new THREE.Mesh(symbolGeometry, symbolMaterial);
+            
+            personalSymbolMesh.rotation.x = -Date.now() * 0.0002;
+            personalSymbolMesh.rotation.y = -Date.now() * 0.0004;
 
-        positionAttribute.setXYZ(i, bx + waveX + (distToTouchX * magnetPull), by + waveY + (distToTouchY * magnetPull), bz + waveZ);
-    }
-    positionAttribute.needsUpdate = true;
-    geometry.computeVertexNormals();
+            scene.add(personalSymbolMesh);
+        }
 
-    camera.position.x += (touchVector.x * 7.0 - camera.position.x) * 0.04;
-    camera.position.y += (touchVector.y * 7.0 - camera.position.y) * 0.04;
-    camera.lookAt(0.0, 0.0, 0.0);
+        // --- RESONANT DEFORMATION ANIMATION ENGINE RUNTIME ---
+        function animate() {
+            requestAnimationFrame(animate);
+            touchVelocity = THREE.MathUtils.lerp(touchVelocity, targetVelocity, 0.08);
+            targetVelocity *= 0.94;
 
-    const finalScale = 1.0 + (analyser ? dynamicFactor * 0.05 : 0.0);
-    mirrorSphere.scale.set(finalScale, finalScale, finalScale);
-    mirrorSphere.rotation.y += 0.003 + (touchVelocity * 0.02);
-    mirrorSphere.rotation.z = (Math.sin(time * 0.4) * 0.04) + (touchVector.x * 0.1);
+            processVocalTelemetry();
+            
+            // ─── THE SYSTEM ACTIVATION LINE (ADDED RIGHT HERE NATIVELY) ───
+            ReflectSovereignSymbol(evoHistory, dynamicFactor, colorAccumulator);
 
-    if (starfield) {
-        starfield.rotation.y += 0.0001;
-        starfield.position.x = THREE.MathUtils.lerp(starfield.position.x, touchVector.x * -2.0, 0.05);
-        starfield.position.y = THREE.MathUtils.lerp(starfield.position.y, touchVector.y * -2.0, 0.05);
-    }
+            if (videoTexture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
+                videoTexture.needsUpdate = true;
+            }
 
-    renderer.render(scene, camera);
-}
-// Wrap the ignition so it waits for your HTML grid and dashboard to load completely!
-window.addEventListener('DOMContentLoaded', () => {
-    // Verify elements exist in the window before tracking telemetry
-    if (document.getElementById('bg')) {
-        animate();
-    } else {
-        console.error('[CRITICAL] HTML background canvas element target not found.');
-    }
-});
+            const time = Date.now() * 0.001;
+            const frequencyOffset9Hz = 9.0;
+
+            const positionAttribute = geometry.attributes.position;
+            for (let i = 0; i < positionAttribute.count; i++) {
+                const bx = baseVertices.getX(i), by = baseVertices.getY(i), bz = baseVertices.getZ(i);
+
+                const waveX = Math.sin(by * 0.25 + time * 3.0 + (frequencyOffset9Hz * 0.1)) * (0.4 + touchVelocity * 0.8);
+                const waveY = Math.cos(bx * 0.25 + time * 2.5) * (0.3 + dynamicFactor * 0.5);
+                const waveZ = Math.sin(bz * 0.30 + time * 4.0) * (0.4 + touchVelocity * 0.8);
+
+                const distToTouchX = bx - (touchVector.x * 15.0);
+                const distToTouchY = by - (touchVector.y * 15.0);
+                const magnetPull = Math.sin(time + i) * (touchVelocity * 0.15);
+
+                positionAttribute.setXYZ(i, bx + waveX + (distToTouchX * magnetPull), by + waveY + (distToTouchY * magnetPull), bz + waveZ);
+            }
+            positionAttribute.needsUpdate = true;
+            geometry.computeVertexNormals();
+
+            camera.position.x += (touchVector.x * 7.0 - camera.position.x) * 0.04;
+            camera.position.y += (touchVector.y * 7.0 - camera.position.y) * 0.04;
+            camera.lookAt(0.0, 0.0, 0.0);
+
+            const finalScale = 1.0 + (analyser ? dynamicFactor * 0.05 : 0.0);
+            mirrorSphere.scale.set(finalScale, finalScale, finalScale);
+            mirrorSphere.rotation.y += 0.003 + (touchVelocity * 0.02);
+            mirrorSphere.rotation.z = (Math.sin(time * 0.4) * 0.04) + (touchVector.x * 0.1);
+
+            if (starfield) {
+                starfield.rotation.y += 0.0001;
+                starfield.position.x = THREE.MathUtils.lerp(starfield.position.x, touchVector.x * -2.0, 0.05);
+                starfield.position.y = THREE.MathUtils.lerp(starfield.position.y, touchVector.y * -2.0, 0.05);
+            }
+
+            renderer.render(scene, camera);
+        }
 
 function resizeRenderer() {
     const width = window.visualViewport ? window.visualViewport.width : window.innerWidth;
@@ -726,7 +761,17 @@ function resizeRenderer() {
     renderer.setSize(width, height, false);
 }
 window.addEventListener('resize', resizeRenderer);
-if (window.visualViewport) window.visualViewport.addEventListener('resize', resizeRenderer);   
-       </script>
+if (window.visualViewport) window.visualViewport.addEventListener('resize', resizeRenderer);
+
+// ─── ADD THIS IMMUNITY GATEKEEPER RIGHT HERE ───
+window.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('bg')) {
+        animate();
+    } else {
+        console.error('[CRITICAL] Background canvas target element "#bg" not found.');
+    }
+});
+
+</script>
 </body>
 </html>
