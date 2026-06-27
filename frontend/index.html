@@ -511,68 +511,82 @@ let micStream = null;
 if (micButton) {
     micButton.addEventListener('click', async () => {
         try {
+            // 1. FORCIBLY BOOT/RESUME THE AUDIO ENGINE IMMEDIATELY
             if (!audioContext) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 audioContext = new AudioContextClass();
             }
-            if (audioContext.state === 'suspended') await audioContext.resume();
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            console.log("🔊 [AUDIO ENGINE]: Context running state:", audioContext.state);
 
-            // Fire video rendering sequence alongside hardware activation
-            videoElement.setAttribute('crossOrigin', 'anonymous');
-            videoElement.muted = false;
-            videoElement.volume = 1.0;
-            videoElement.load();
-            await videoElement.play();
+            // 2. ACTIVATING HTML VIDEO SURFACES
+            if (videoElement) {
+                videoElement.setAttribute('crossOrigin', 'anonymous');
+                videoElement.muted = false;
+                videoElement.volume = 1.0;
+                videoElement.load();
+                await videoElement.play().catch(e => console.warn("Video autoplay delayed:", e));
+            }
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 if (micStatusEl) { micStatusEl.innerText = "UNAVAILABLE"; micStatusEl.style.color = "#ff5e00"; }
                 return;
             }
 
+            // 3. CAPTURE SOUND CHANNELS IMMEDIATELY ON BUTTON CLICK
             micStream = await navigator.mediaDevices.getUserMedia({
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
                 video: false
             });
 
-            if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; }
-            if (awarenessDisplayEl) awarenessDisplayEl.innerText = "INTEGRATED";
-            if (stateDisplayEl) stateDisplayEl.innerText = "ACTIVE";
+            // 4. INSTANTLY BUILD AND LINK THE ANALYSER NODES
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.85;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            // Wire the live microphone input straight into the active stream tracker
+            const source = audioContext.createMediaStreamSource(micStream);
+            source.connect(analyser);
+            
+            console.log("🎙️ [RESONANCE TRACKER]: Microphone nodes connected to canvas matrix successfully.");
+
+            // Update user interface panels to show everything is fully linked
+            if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
+            if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
+            if (stateDisplayEl) { stateDisplayEl.style.display = "inline"; stateDisplayEl.innerText = "ACTIVE"; }
 
             micButton.innerText = "MIRROR ACTIVE";
             micButton.style.borderColor = "#00ffaa";
             micButton.style.color = "#00ffaa";
 
-            if (document.getElementById('recordButton')) document.getElementById('recordButton').disabled = false;
+            if (document.getElementById('recordButton')) {
+                document.getElementById('recordButton').disabled = false;
+            }
 
-            const source = audioContext.createMediaStreamSource(micStream);
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            analyser.smoothingTimeConstant = 0.85;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            source.connect(analyser);
-            // ─── NATIVE VOID INTENSITY BOUNDARY FILTER ───
-    const standardRangeMin = 0.25;
-    const standardRangeMax = 1.45;
+            // Execute the system boundary filter check instantly
+            const standardRangeMin = 0.25;
+            const standardRangeMax = 1.45;
 
-    if (dynamicFactor < standardRangeMin || dynamicFactor > standardRangeMax) {
-        // 6. THE VOID ENERGETIC TRANSITION
-        if (document.getElementById('adviceDisplay')) {
-            document.getElementById('adviceDisplay').innerText = "⚠️ FREQUENCY MATRIX: OUT OF BOUNDS · ACCESSING THE VOID";
-        }
-        mirrorMaterial.color.setHex(0xff5e00); // Shift mesh to Void intensity orange
-    } else {
-        // 3. THE KNOWN: Grounded symmetry
-        mirrorMaterial.color.setHex(0x39ff14); // Locked in matrix green
-    }
+            if (dynamicFactor < standardRangeMin || dynamicFactor > standardRangeMax) {
+                if (document.getElementById('adviceDisplay')) {
+                    document.getElementById('adviceDisplay').innerText = "⚠️ FREQUENCY MATRIX: OUT OF BOUNDS · ACCESSING THE VOID";
+                }
+                if (mirrorMaterial) mirrorMaterial.color.setHex(0xff5e00);
+            } else {
+                if (mirrorMaterial) mirrorMaterial.color.setHex(0x39ff14);
+            }
+
         } catch (err) {
-            if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; }
-            if (awarenessDisplayEl) awarenessDisplayEl.innerText = "PERMISSION";
-            if (stateDisplayEl) stateDisplayEl.innerText = "WAITING";
+            if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; micStatusEl.style.display = "inline"; }
+            if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "PERMISSION"; awarenessDisplayEl.style.display = "inline"; }
+            if (stateDisplayEl) { stateDisplayEl.style.display = "inline"; stateDisplayEl.innerText = "WAITING"; }
             console.warn('Mic activation failed:', err);
         }
     });
 }
-
 function processVocalTelemetry() {
     let totalVolume = 0.0, normalizedVol = 0.0;
     if (analyser && dataArray) {
