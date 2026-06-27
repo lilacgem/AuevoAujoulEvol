@@ -335,7 +335,17 @@
             <div class="mini-note" id="adviceDisplay">Mirror memory state initializing.</div>
         </section>
     </div>
-
+<div id="history-vault-container" style="margin-top: 30px; padding: 25px; border: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.85); border-radius: 12px; backdrop-filter: blur(10px);">
+    <h3 style="color: #fff; font-family: monospace; letter-spacing: 3px; margin-top: 0; display: flex; justify-content: space-between; align-items: center;">
+        <span>🗃️ IMMUTABLE SYSTEM ARCHIVE</span>
+        <span style="font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 1px;">SOVEREIGN USER DATA ONLY</span>
+    </h3>
+    <p style="font-family: monospace; font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 20px; line-height: 1.5;">
+        Click on any historical archive card below to reverse-engineer its metrics and re-project that generation's specific light matrix coordinates directly back onto your main active 3D spectral orb.
+    </p>
+    <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; margin-top: 15px;">
+        </div>
+</div>
     <script>
         const ABCAuEvoAujouleAuEvoAujoulEvolvE = {
             identity: {
@@ -651,8 +661,12 @@ if (recordButton) {
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Sovereign Seal vaulted natively:", data.status);
-        })
+    console.log("Sovereign Seal vaulted natively:", data.status);
+    // Refresh the visual logs automatically upon generation success
+    if (typeof loadVaultHistory === "function") {
+        loadVaultHistory();
+    }
+})
         .catch(err => console.warn("Vault pipeline standby (Server offline):", err));
         const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
        
@@ -821,7 +835,79 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error('[CRITICAL] Background canvas target element "#bg" not found.');
     }
 });
+// Fetch all database records and display them as interactive cards
+async function loadVaultHistory() {
+    try {
+        const response = await fetch('http://localhost:3000/api/seal/history');
+        const historyData = await response.json();
+        const grid = document.getElementById('gallery-grid');
+        if (!grid) return;
+        grid.innerHTML = ''; 
 
+        if (historyData.length === 0) {
+            grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Vault currently empty. Awaiting first sovereign signature generation...</p>`;
+            return;
+        }
+
+        // Loop backwards so newest generation cards display first
+        [...historyData].reverse().forEach(entry => {
+            const card = document.createElement('div');
+            
+            // Extract python calculations safely if it has completed processing
+            const analytics = entry.python_analytics_telemetry || {
+                biometric_state_classification: "AWAITING_CORE_SCAN",
+                clinical_bio_marker_note: "Running data pipelines...",
+                spectral_entropy_score: "N/A"
+            };
+
+            card.style = `
+                background: rgba(255,255,255,0.02); 
+                border: 1px solid rgba(255,255,255,0.07); 
+                padding: 16px; 
+                border-radius: 6px; 
+                font-family: monospace; 
+                font-size: 11px; 
+                color: #ccc; 
+                cursor: pointer; 
+                transition: all 0.25s ease;
+            `;
+            
+            card.onmouseover = () => { card.style.background = "rgba(255,255,255,0.06)"; card.style.borderColor = "rgba(255,215,0,0.4)"; };
+            card.onmouseout = () => { card.style.background = "rgba(255,255,255,0.02)"; card.style.borderColor = "rgba(255,255,255,0.07)"; };
+            
+            // Re-project color onto your main 3D orb mesh when clicked
+            card.onclick = () => {
+                if (window.meshMaterial) {
+                    window.meshMaterial.color.setHSL(entry.matrix_coordinates.hue / 360, 1, 0.5);
+                    console.log(`♻️ [RE-PROJECTED]: Loaded Hue ${entry.matrix_coordinates.hue}° from archive.`);
+                } else if (typeof updateMeshColor === "function") {
+                    updateMeshColor(entry.matrix_coordinates.hue);
+                }
+            };
+
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                    <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates.total_seals || 'X'}</span>
+                    <span style="color: rgba(255,215,0,0.7); font-size: 9px;">${analytics.biometric_state_classification}</span>
+                </div>
+                <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates.hue}° / R:${entry.matrix_coordinates.resonance}</div>
+                <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
+                <div style="margin: 5px 0 0 0; font-size: 10px; color: rgba(255,255,255,0.5); font-style: italic; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 4px;">
+                    🧠 <b>BIOMETRIC:</b> ${analytics.clinical_bio_marker_note}
+                </div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 10px; text-align: right;">
+                    ${new Date(entry.server_vault_timestamp).toLocaleString()}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    } catch (err) {
+        console.error("Failed to compile historical archive logs:", err);
+    }
+}
+
+// Initial loading check when the interface mounts
+window.addEventListener('DOMContentLoaded', loadVaultHistory);
 </script>
 </body>
 </html>
