@@ -89,16 +89,18 @@ const server = http.createServer((req, res) => {
                 console.log(`💾 [SUCCESS]: Soul Seal archived in audio_database.json`);
 
                 // --- 6. THE VOID TRACKING SYSTEM: Automatic Python Analysis Trigger ---
-                // If an audio source file is ready to be analyzed, run your March Python script
-                console.log("🤖 [AUTOMATION]: Initializing Librosa scanning pipeline...");
-                exec('"C:\\Users\\Lisaj\\AppData\\Local\\Programs\\Python\\Python314\\python.exe" analyze_library.py', (error, stdout, stderr) => {
-                    if (error) {
-                        console.error(`⚠️ [Python Pipeline Error]: ${error.message}`);
-                        return;
-                    }
-                    if (stderr) console.warn(`[Python Diagnostic]: ${stderr}`);
-                    console.log(`📊 [Python Engine Output]:\n${stdout}`);
-                });
+console.log("🤖 [AUTOMATION]: Initializing Librosa scanning pipeline...");
+
+const pythonPath = '"C:\\Users\\Lisaj\\AppData\\Local\\Programs\\Python\\Python314\\python.exe"';
+
+exec(`${pythonPath} analyze_library.py`, { env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }, (error, stdout, stderr) => {
+    if (error) {
+        console.error(`⚠️ [Python Pipeline Error]: ${error.message}`);
+        return;
+    }
+    if (stderr) console.warn(`[Python Diagnostic]: ${stderr}`);
+    console.log(`📊 [Python Engine Output]:\n${stdout}`);
+});
 
                 // --- 9. THE EQUAL RESPONSE: Handshaking back to the UI screen ---
                 res.writeHead(200, { 'Content-Type': 'application/json' });

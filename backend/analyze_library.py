@@ -4,11 +4,11 @@ import json
 import math
 
 def run_sonic_extraction():
-    print("\n🔍 [PYTHON CORE]: Accessing sovereign audio database stream...")
-    
+    print("\n>>> [PYTHON CORE]: Accessing sovereign audio database stream...")
+
     # Path to our localized ledger file
     db_path = os.path.join("..", "data_storage", "audio_database.json")
-    
+
     if not os.path.exists(db_path):
         print("⚠️ [DATA ERROR]: Primary database file not found.")
         return
