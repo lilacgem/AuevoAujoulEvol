@@ -317,7 +317,6 @@
                 <span id="awarenessDisplay" style="display: none;">WAITING</span>
                 <span id="stateDisplay" style="display: none;">WAITING</span>
             </div>
-<!-- START AUDIO SOURCE MODULE -->
 <div class="audio-stream-container" style="padding: 4px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 6px;">
     <p style="color: var(--matrix-green); font-size: 8px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
         ⚡ SONIC PATTERN ROOT: aujoulevol.wav
@@ -326,8 +325,7 @@
         <source src="aujoulevol.wav" type="audio/wav">
     </audio>
 </div>
-<!-- END AUDIO SOURCE MODULE -->
-            <div class="control-row">
+<div class="control-row">
                 <button id="micButton" class="btn-core secondary" type="button">ENABLE MIRROR</button>
                 <button id="recordButton" class="btn-core primary" type="button" disabled>GENERATE SOUL SEAL</button>
             </div>
@@ -498,6 +496,9 @@ const mirrorMaterial = new THREE.MeshBasicMaterial({
 });
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
 scene.add(mirrorSphere);
+
+// Expose the material globally so clicking historical archive cards can access it natively
+window.meshMaterial = mirrorMaterial;
 
 // --- AUDIO CAPTURE LAYER BINDINGS ---
 let audioContext, analyser, dataArray;
