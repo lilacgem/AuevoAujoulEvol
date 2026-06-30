@@ -283,21 +283,26 @@
         }
     </style>
 </head>
-<body>
-    <div id="visual-mirror-workspace"></div>
-    <canvas id="bg"></canvas>
+<canvas id="bg"></canvas>
 
-    <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" style="display: none;">
-            <source src="evolve.mp4" type="video/mp4">
-        </video>
-
-    <div class="ui-container">
+    <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;">
+        <source src="evolve.mp4" type="video/mp4">
+    </video>
+<div class="ui-container">
+        <div class="audio-stream-container" style="padding: 4px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 6px;">
+            <p style="color: var(--matrix-green); font-size: 8px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
+                ⚡ SONIC PATTERN ROOT: aujoulevol.wav
+            </p>
+            <audio id="aujouleAudio" loop autoplay playsinline style="display:none;">
+                <source src="aujoulevol.wav" type="audio/wav">
+            </audio>
+        </div>
         <div class="ambient-note" aria-hidden="true">
             <div class="ambient-title">AU·EVO·AUJOUL·EVOL</div>
             <div class="ambient-equation">A<sub>u</sub>J = &sum;<sub style="font-size: 0.6em; margin-left: -0.4em;">R</sub> (M &times; L)</div>
             <div class="ambient-status">STATE: SOVEREIGN ENCRYPTED · PULSE: ACTIVE</div>
         </div>
-
+        
         <section class="dashboard" aria-label="Mirror controls">
             <div class="grid-core" aria-label="Spectral orb">
                 <div class="coordinate-grid" aria-hidden="true">
@@ -534,11 +539,18 @@ if (micButton) {
             }
             console.log("🔊 [AUDIO ENGINE]: Context running state:", audioContext.state);
 
-            // 2. ACTIVATING HTML VIDEO SURFACES
+            // ⚡ FORCIBLY UNMUTE AND PLAY THE BACKTRACK (.WAV) ON USER GESTURE
+            const nativeAudioTrack = document.getElementById('aujouleAudio');
+            if (nativeAudioTrack) {
+                nativeAudioTrack.muted = false;
+                nativeAudioTrack.volume = 1.0;
+                nativeAudioTrack.play().catch(e => console.log("Audio track initialized via matrix setup:", e));
+            }
+
+            // 2. ACTIVATING HTML VIDEO SURFACES (Kept strictly muted to keep 3D grid skin processing smooth)
             if (videoElement) {
                 videoElement.setAttribute('crossOrigin', 'anonymous');
-                videoElement.muted = false;
-                videoElement.volume = 1.0;
+                videoElement.muted = true; 
                 videoElement.load();
                 await videoElement.play().catch(e => console.warn("Video autoplay delayed:", e));
             }
