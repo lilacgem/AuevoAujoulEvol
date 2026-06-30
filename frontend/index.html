@@ -32,13 +32,14 @@
             --text-muted: #666666;
         }
 
-        html, body {
+       html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     min-width: 100vw;
     min-height: 100dvh;
-    overflow-x: hidden; /* 🔒 Prevents the sideways glitching completely */
+    overflow-x: hidden;
+    overflow-y: auto; /* Allows safe vertical scrolling on mobile */
     background-color: var(--bg-color);
     font-family: 'Courier New', Courier, monospace;
     -webkit-user-select: none;
@@ -46,9 +47,6 @@
     color: #ffffff;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
-    touch-action: none;
-    display: flex; /* Flexbox system layout activation */
-    flex-direction: row;
 }
 
         canvas {
@@ -63,22 +61,19 @@
         }
 
         .ui-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            min-height: 100dvh;
-            z-index: 10;
-            background: transparent;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: max(12px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom)) 14px;
-            box-sizing: border-box;
-        }
+    position: relative; /* Prevents freezing overlay layers on mobile viewports */
+    width: 100%;
+    min-height: 100dvh;
+    z-index: 10;
+    background: transparent;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: max(12px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom)) 14px;
+    box-sizing: border-box;
+}
 /* ⚡ ADD THIS NEW CONTAINER WRAPPER AT THE BOTTOM OF YOUR CSS RULES */
 #visual-mirror-workspace {
     position: relative;
@@ -302,7 +297,7 @@
             <div class="ambient-equation">A<sub>u</sub>J = &sum;<sub style="font-size: 0.6em; margin-left: -0.4em;">R</sub> (M &times; L)</div>
             <div class="ambient-status">STATE: SOVEREIGN ENCRYPTED · PULSE: ACTIVE</div>
         </div>
-        
+
         <section class="dashboard" aria-label="Mirror controls">
             <div class="grid-core" aria-label="Spectral orb">
                 <div class="coordinate-grid" aria-hidden="true">
