@@ -33,23 +33,21 @@
         }
 
         html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-width: 100vw;
-    min-height: 100dvh;
-    overflow-x: hidden; /* 🔒 Prevents the sideways glitching completely */
-    background-color: var(--bg-color);
-    font-family: 'Courier New', Courier, monospace;
-    -webkit-user-select: none;
-    user-select: none;
-    color: #ffffff;
-    -webkit-tap-highlight-color: transparent;
-    overscroll-behavior: none;
-    touch-action: none;
-    display: flex; /* Flexbox system layout activation */
-    flex-direction: row;
-}
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-width: 100vw;
+            min-height: 100dvh;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Courier New', Courier, monospace;
+            -webkit-user-select: none;
+            user-select: none;
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
 
         canvas {
             display: block;
@@ -79,13 +77,7 @@
             padding: max(12px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom)) 14px;
             box-sizing: border-box;
         }
-/* ⚡ ADD THIS NEW CONTAINER WRAPPER AT THE BOTTOM OF YOUR CSS RULES */
-#visual-mirror-workspace {
-    position: relative;
-    flex: 1; /* Automatically takes up all available central space */
-    height: 100vh;
-    overflow: hidden;
-}
+
         .ambient-note {
             position: absolute;
             top: 10px;
@@ -134,7 +126,7 @@
             -webkit-backdrop-filter: blur(6px);
             backdrop-filter: blur(6px);
             pointer-events: auto;
-            margin-top: auto; /* Pin cleanly to the bottom container area */
+            margin-top: auto; 
             opacity: 0.82;
             box-shadow: 0 0 18px rgba(255,255,255,0.03);
         }
@@ -284,13 +276,12 @@
     </style>
 </head>
 <body>
-    <div id="visual-mirror-workspace"></div>
+
     <canvas id="bg"></canvas>
 
     <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" style="display: none;">
-            <source src="evolve.mp4" type="video/mp4">
-        </video>
-
+        <source src="evolve.mp4" type="video/mp4">
+    </video>
     <div class="ui-container">
         <div class="ambient-note" aria-hidden="true">
             <div class="ambient-title">AU·EVO·AUJOUL·EVOL</div>
@@ -326,35 +317,21 @@
                 <span id="awarenessDisplay" style="display: none;">WAITING</span>
                 <span id="stateDisplay" style="display: none;">WAITING</span>
             </div>
-
-          <div class="audio-stream-container" style="padding: 4px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 6px;">
-                    <p style="color: var(--matrix-green); font-size: 8px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
-                        ⚡ SONIC PATTERN ROOT: aujoulevol.wav
-                    </p>
-                    <audio controls style="width: 100%; height: 32px; filter: invert(1) hue-rotate(90deg); opacity: 0.78;">
-                        <source src="aujoulevol.wav" type="audio/wav">
-                    </audio>
-                </div>
- 
-
-         <div class="control-row">
+<div class="audio-stream-container" style="padding: 4px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 6px;">
+    <p style="color: var(--matrix-green); font-size: 8px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
+        ⚡ SONIC PATTERN ROOT: aujoulevol.wav
+    </p>
+    <audio id="aujoulevolAudio" controls style="width: 100%; height: 32px; filter: invert(1) hue-rotate(90deg); opacity: 0.78;">
+        <source src="aujoulevol.wav" type="audio/wav">
+    </audio>
+</div>
+<div class="control-row">
                 <button id="micButton" class="btn-core secondary" type="button">ENABLE MIRROR</button>
                 <button id="recordButton" class="btn-core primary" type="button" disabled>GENERATE SOUL SEAL</button>
             </div>
 
-          <div class="mini-note" id="adviceDisplay">Mirror memory state initializing.</div>
-            </section>
-        </div>
-    
-       <div id="history-vault-container" style="width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 20; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.92); padding: 25px; box-sizing: border-box; backdrop-filter: blur(10px); flex-shrink: 0;">
-        <h3 style="color: #fff; font-family: monospace; letter-spacing: 3px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-            <span>🗃️ IMMUTABLE ARCHIVE</span>
-        </h3>
-        <p style="font-family: monospace; font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 20px; line-height: 1.5;">
-            Click on any historical archive card below to reverse-engineer its metrics and re-project that generation's specific light matrix coordinates directly back onto your main active 3D spectral orb.
-        </p>
-        <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;">
-            </div>
+            <div class="mini-note" id="adviceDisplay">Mirror memory state initializing.</div>
+        </section>
     </div>
 
     <script>
@@ -510,76 +487,54 @@ const mirrorMaterial = new THREE.MeshBasicMaterial({
 const mirrorSphere = new THREE.Mesh(geometry, mirrorMaterial);
 scene.add(mirrorSphere);
 
-// Expose the material globally so clicking historical archive cards can access it natively
-window.meshMaterial = mirrorMaterial;
-
-// --- AUDIO CAPTURE LAYER BINDINGS ---
-let audioContext, analyser, dataArray;
+// --- AUDIO TRACK INITIALIZATION LAYER ---
+let audioContext, analyser, dataArray, source;
 const micButton = document.getElementById('micButton');
+const audioTrack = document.getElementById('aujoulevolAudio');
 const micStatusEl = document.getElementById('micStatus');
 const awarenessDisplayEl = document.getElementById('awarenessDisplay');
 const stateDisplayEl = document.getElementById('stateDisplay');
-let micStream = null;
 
 if (micButton) {
     micButton.addEventListener('click', async () => {
         try {
-            // 1. FORCIBLY BOOT/RESUME THE AUDIO ENGINE IMMEDIATELY
             if (!audioContext) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 audioContext = new AudioContextClass();
             }
-            if (audioContext.state === 'suspended') {
-                await audioContext.resume();
-            }
-            console.log("🔊 [AUDIO ENGINE]: Context running state:", audioContext.state);
+            if (audioContext.state === 'suspended') await audioContext.resume();
 
-            // 2. ACTIVATING HTML VIDEO SURFACES
-            if (videoElement) {
-                videoElement.setAttribute('crossOrigin', 'anonymous');
-                videoElement.muted = false;
-                videoElement.volume = 1.0;
-                videoElement.load();
-                await videoElement.play().catch(e => console.warn("Video autoplay delayed:", e));
-            }
+            // Force video rendering sequence alongside hardware activation
+            videoElement.setAttribute('crossOrigin', 'anonymous');
+            videoElement.muted = false;
+            videoElement.volume = 1.0;
+            videoElement.load();
+            await videoElement.play();
 
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (micStatusEl) { micStatusEl.innerText = "UNAVAILABLE"; micStatusEl.style.color = "#ff5e00"; }
-                return;
-            }
+            // PLAY AUDIO ELEMENT DIRECTLY ON INTERACTION
+            await audioTrack.play();
 
-            // 3. CAPTURE SOUND CHANNELS IMMEDIATELY ON BUTTON CLICK
-            micStream = await navigator.mediaDevices.getUserMedia({
-                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
-                video: false
-            });
-
-            // 4. INSTANTLY BUILD AND LINK THE ANALYSER NODES
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            analyser.smoothingTimeConstant = 0.85;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-            // Wire the live microphone input straight into the active stream tracker
-            const source = audioContext.createMediaStreamSource(micStream);
-            source.connect(analyser);
-            
-            console.log("🎙️ [RESONANCE TRACKER]: Microphone nodes connected to canvas matrix successfully.");
-
-            // Update user interface panels to show everything is fully linked
-            if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
-            if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
-            if (stateDisplayEl) { stateDisplayEl.style.display = "inline"; stateDisplayEl.innerText = "ACTIVE"; }
+            if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; }
+            if (awarenessDisplayEl) awarenessDisplayEl.innerText = "INTEGRATED";
+            if (stateDisplayEl) stateDisplayEl.innerText = "ACTIVE";
 
             micButton.innerText = "MIRROR ACTIVE";
             micButton.style.borderColor = "#00ffaa";
             micButton.style.color = "#00ffaa";
 
-            if (document.getElementById('recordButton')) {
-                document.getElementById('recordButton').disabled = false;
+            if (document.getElementById('recordButton')) document.getElementById('recordButton').disabled = false;
+
+            // BIND THE AUDIO ELEMENT SOUND PATTERN DIRECTLY TO ANALYSER MATRICES
+            if (!source) {
+                source = audioContext.createMediaElementSource(audioTrack);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.85;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
             }
 
-            // Execute the system boundary filter check instantly
             const standardRangeMin = 0.25;
             const standardRangeMax = 1.45;
 
@@ -587,19 +542,19 @@ if (micButton) {
                 if (document.getElementById('adviceDisplay')) {
                     document.getElementById('adviceDisplay').innerText = "⚠️ FREQUENCY MATRIX: OUT OF BOUNDS · ACCESSING THE VOID";
                 }
-                if (mirrorMaterial) mirrorMaterial.color.setHex(0xff5e00);
+                mirrorMaterial.color.setHex(0xff5e00);
             } else {
-                if (mirrorMaterial) mirrorMaterial.color.setHex(0x39ff14);
+                mirrorMaterial.color.setHex(0x39ff14);
             }
-
         } catch (err) {
-            if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; micStatusEl.style.display = "inline"; }
-            if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "PERMISSION"; awarenessDisplayEl.style.display = "inline"; }
-            if (stateDisplayEl) { stateDisplayEl.style.display = "inline"; stateDisplayEl.innerText = "WAITING"; }
-            console.warn('Mic activation failed:', err);
+            if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; }
+            if (awarenessDisplayEl) awarenessDisplayEl.innerText = "PERMISSION";
+            if (stateDisplayEl) stateDisplayEl.innerText = "WAITING";
+            console.warn('Audio mirror connection update:', err);
         }
     });
 }
+
 function processVocalTelemetry() {
     let totalVolume = 0.0, normalizedVol = 0.0;
     if (analyser && dataArray) {
@@ -665,7 +620,7 @@ if (recordButton) {
     recordButton.addEventListener('click', () => {
         renderer.render(scene, camera);
         const dataUrl = document.querySelector('#bg').toDataURL('image/png');
-        // ─── NATIVE SOVEREIGN DATA STREAM HOOK ───
+        
         const secureSoulPayload = {
             identity_metadata: {
                 author: "AuEvoAuJoulEvol LLC",
@@ -681,7 +636,6 @@ if (recordButton) {
             visual_seal_string: dataUrl
         };
 
-        // Throwing the net to your backend server vault
         fetch('http://localhost:3000/api/seal/crystallize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -689,12 +643,8 @@ if (recordButton) {
         })
         .then(response => response.json())
         .then(data => {
-    console.log("Sovereign Seal vaulted natively:", data.status);
-    // Refresh the visual logs automatically upon generation success
-    if (typeof loadVaultHistory === "function") {
-        loadVaultHistory();
-    }
-})
+            console.log("Sovereign Seal vaulted natively:", data.status);
+        })
         .catch(err => console.warn("Vault pipeline standby (Server offline):", err));
         const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
        
@@ -801,7 +751,6 @@ let personalSymbolMesh = null;
 
             processVocalTelemetry();
             
-            // ─── THE SYSTEM ACTIVATION LINE (ADDED RIGHT HERE NATIVELY) ───
             ReflectSovereignSymbol(evoHistory, dynamicFactor, colorAccumulator);
 
             if (videoTexture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
@@ -855,7 +804,6 @@ function resizeRenderer() {
 window.addEventListener('resize', resizeRenderer);
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resizeRenderer);
 
-// ─── ADD THIS IMMUNITY GATEKEEPER RIGHT HERE ───
 window.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('bg')) {
         animate();
@@ -863,79 +811,7 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error('[CRITICAL] Background canvas target element "#bg" not found.');
     }
 });
-// Fetch all database records and display them as interactive cards
-async function loadVaultHistory() {
-    try {
-        const response = await fetch('http://localhost:3000/api/seal/history');
-        const historyData = await response.json();
-        const grid = document.getElementById('gallery-grid');
-        if (!grid) return;
-        grid.innerHTML = ''; 
 
-        if (historyData.length === 0) {
-            grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Vault currently empty. Awaiting first sovereign signature generation...</p>`;
-            return;
-        }
-
-        // Loop backwards so newest generation cards display first
-        [...historyData].reverse().forEach(entry => {
-            const card = document.createElement('div');
-            
-            // Extract python calculations safely if it has completed processing
-            const analytics = entry.python_analytics_telemetry || {
-                biometric_state_classification: "AWAITING_CORE_SCAN",
-                clinical_bio_marker_note: "Running data pipelines...",
-                spectral_entropy_score: "N/A"
-            };
-
-            card.style = `
-                background: rgba(255,255,255,0.02); 
-                border: 1px solid rgba(255,255,255,0.07); 
-                padding: 16px; 
-                border-radius: 6px; 
-                font-family: monospace; 
-                font-size: 11px; 
-                color: #ccc; 
-                cursor: pointer; 
-                transition: all 0.25s ease;
-            `;
-            
-            card.onmouseover = () => { card.style.background = "rgba(255,255,255,0.06)"; card.style.borderColor = "rgba(255,215,0,0.4)"; };
-            card.onmouseout = () => { card.style.background = "rgba(255,255,255,0.02)"; card.style.borderColor = "rgba(255,255,255,0.07)"; };
-            
-            // Re-project color onto your main 3D orb mesh when clicked
-            card.onclick = () => {
-                if (window.meshMaterial) {
-                    window.meshMaterial.color.setHSL(entry.matrix_coordinates.hue / 360, 1, 0.5);
-                    console.log(`♻️ [RE-PROJECTED]: Loaded Hue ${entry.matrix_coordinates.hue}° from archive.`);
-                } else if (typeof updateMeshColor === "function") {
-                    updateMeshColor(entry.matrix_coordinates.hue);
-                }
-            };
-
-            card.innerHTML = `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
-                    <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates.total_seals || 'X'}</span>
-                    <span style="color: rgba(255,215,0,0.7); font-size: 9px;">${analytics.biometric_state_classification}</span>
-                </div>
-                <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates.hue}° / R:${entry.matrix_coordinates.resonance}</div>
-                <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
-                <div style="margin: 5px 0 0 0; font-size: 10px; color: rgba(255,255,255,0.5); font-style: italic; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 4px;">
-                    🧠 <b>BIOMETRIC:</b> ${analytics.clinical_bio_marker_note}
-                </div>
-                <div style="font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 10px; text-align: right;">
-                    ${new Date(entry.server_vault_timestamp).toLocaleString()}
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-    } catch (err) {
-        console.error("Failed to compile historical archive logs:", err);
-    }
-}
-
-// Initial loading check when the interface mounts
-window.addEventListener('DOMContentLoaded', loadVaultHistory);
 </script>
 </body>
 </html>
