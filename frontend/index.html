@@ -480,9 +480,7 @@
             side: THREE.DoubleSide
         });
 
-        // UNIFIED LOCAL + GLOBAL FREQUENCY MANIFESTATION ENGINE
         function ReflectSovereignSymbol(history, liveResonance, liveColor, currentBass, currentMid, currentHigh) {
-            // Combines individual local history with the cumulative database of all global seals
             const totalSeals = (history.totalSeals || 1) + (globalMatrix.totalSeals || 0);
             const historicalRes = ((history.accumulatedResonance || 0.18) + (globalMatrix.avgResonance || 0.18)) / 2.0;
 
@@ -519,6 +517,37 @@
 
         scene.add(sacredGroup);
 
+        // --- AMBIENT STARDUST AURA ENGINE ---
+        const stardustCount = 250;
+        const stardustGeo = new THREE.BufferGeometry();
+        const stardustPositions = new Float32Array(stardustCount * 3);
+        const stardustLifes = new Float32Array(stardustCount);
+        const stardustVelocities = [];
+
+        for (let i = 0; i < stardustCount; i++) {
+            stardustPositions[i * 3] = (Math.random() - 0.5) * 10.0;
+            stardustPositions[i * 3 + 1] = 11.0 + (Math.random() - 0.5) * 10.0;
+            stardustPositions[i * 3 + 2] = (Math.random() - 0.5) * 10.0;
+            stardustLifes[i] = Math.random();
+            stardustVelocities.push({
+                x: (Math.random() - 0.5) * 0.03,
+                y: 0.02 + Math.random() * 0.04,
+                z: (Math.random() - 0.5) * 0.03
+            });
+        }
+
+        stardustGeo.setAttribute('position', new THREE.BufferAttribute(stardustPositions, 3));
+        const stardustMat = new THREE.PointsMaterial({
+            color: 0x00f3ff,
+            size: 0.45,
+            transparent: true,
+            opacity: 0.65,
+            blending: THREE.AdditiveBlending
+        });
+
+        const stardustMesh = new THREE.Points(stardustGeo, stardustMat);
+        scene.add(stardustMesh);
+
         // --- AUDIO CAPTURE & CAMERA BIOMETRICS ---
         let audioContext, analyser, dataArray, audioDestinationNode;
         let cameraMetric = 0.0;
@@ -550,7 +579,6 @@
                         dataArray = new Uint8Array(analyser.frequencyBinCount);
                     }
 
-                    // ROUTE LIVE MICROPHONE INTO AUDIO CONTEXT & RECORDER
                     try {
                         micStream = await navigator.mediaDevices.getUserMedia({
                             audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
@@ -565,8 +593,8 @@
                         }
 
                         const micSource = audioContext.createMediaStreamSource(micStream);
-                        micSource.connect(analyser);                // Drives geometry from voice
-                        micSource.connect(audioDestinationNode);    // Record voice into Video Clip
+                        micSource.connect(analyser);
+                        micSource.connect(audioDestinationNode);
 
                     } catch (micErr) {
                         console.warn("Microphone access unavailable:", micErr);
@@ -719,7 +747,6 @@
                     visual_seal_string: dataUrl
                 };
 
-                // UPLOAD DIRECTLY TO CENTRAL RENDER DATABASE VAULT
                 fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/crystallize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -867,6 +894,54 @@
 
             const time = Date.now() * 0.0012;
 
+            // --- STARDUST PARTICLES ANIMATION ---
+            stardustMat.color.setHSL(colorAccumulator, 0.95, 0.65);
+            const pPos = stardustGeo.attributes.position;
+
+            for (let i = 0; i < stardustCount; i++) {
+                stardustLifes[i] -= 0.008 + (midVal + highVal) * 0.015;
+
+                if (stardustLifes[i] <= 0) {
+                    stardustLifes[i] = 1.0;
+                    let spawnX = sacredGroup.position.x + (Math.random() - 0.5) * 5.0;
+                    let spawnY = sacredGroup.position.y + (Math.random() - 0.5) * 5.0;
+                    let spawnZ = sacredGroup.position.z + (Math.random() - 0.5) * 5.0;
+
+                    if (personalSymbolMesh && personalSymbolMesh.geometry) {
+                        const posAttr = personalSymbolMesh.geometry.attributes.position;
+                        if (posAttr && posAttr.count > 0) {
+                            const rndIdx = Math.floor(Math.random() * posAttr.count);
+                            const v = new THREE.Vector3(
+                                posAttr.getX(rndIdx),
+                                posAttr.getY(rndIdx),
+                                posAttr.getZ(rndIdx)
+                            );
+                            v.applyMatrix4(personalSymbolMesh.matrixWorld);
+                            spawnX = v.x;
+                            spawnY = v.y;
+                            spawnZ = v.z;
+                        }
+                    }
+
+                    pPos.setXYZ(i, spawnX, spawnY, spawnZ);
+                    stardustVelocities[i].x = (Math.random() - 0.5) * (0.04 + highVal * 0.08);
+                    stardustVelocities[i].y = 0.02 + Math.random() * 0.05 + bassVal * 0.06;
+                    stardustVelocities[i].z = (Math.random() - 0.5) * (0.04 + highVal * 0.08);
+                } else {
+                    const curX = pPos.getX(i);
+                    const curY = pPos.getY(i);
+                    const curZ = pPos.getZ(i);
+
+                    pPos.setXYZ(
+                        i,
+                        curX + stardustVelocities[i].x + Math.sin(time * 2.0 + i) * 0.015,
+                        curY + stardustVelocities[i].y,
+                        curZ + stardustVelocities[i].z
+                    );
+                }
+            }
+            pPos.needsUpdate = true;
+
             // --- OCEAN PLANE GRID ANIMATION ---
             const posAttr = wiregridGeometry.attributes.position;
 
@@ -939,7 +1014,6 @@
                     return;
                 }
 
-                // Calculate Global Matrix Coherence & Collective Color Baseline
                 let sumHue = 0;
                 let sumRes = 0;
                 historyData.forEach(entry => {
@@ -951,7 +1025,6 @@
                 globalMatrix.avgHue = Math.round(sumHue / historyData.length);
                 globalMatrix.avgResonance = sumRes / historyData.length;
 
-                // Dynamically set starting matrix color to match the world's collective aura!
                 colorAccumulator = globalMatrix.avgHue / 360.0;
                 console.log(`🌍 [GLOBAL MATRIX COHERENCE LOADED]: ${globalMatrix.totalSeals} Seals Worldwide | Collective Hue: ${globalMatrix.avgHue}°`);
 
