@@ -233,7 +233,6 @@
 
     <canvas id="bg"></canvas>
 
-    <!-- INVISIBLE BACKEND BIOMETRIC CAMERA ENGINE -->
     <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;"></video>
     <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
 
@@ -572,14 +571,13 @@
                         dataArray = new Uint8Array(analyser.frequencyBinCount);
                     }
 
-                    // UNFILTERED AUDIO CONSTRAINTS (CAPTURES APPLE MUSIC + VOICE TOGETHER)
+                    // STABLE iOS WebAudio CONSTRAINTS
                     try {
                         micStream = await navigator.mediaDevices.getUserMedia({
                             audio: { 
-                                echoCancellation: false, 
-                                noiseSuppression: false, 
-                                autoGainControl: false, 
-                                channelCount: 1 
+                                echoCancellation: true, 
+                                noiseSuppression: true, 
+                                autoGainControl: true 
                             },
                             video: { 
                                 width: { ideal: 640 }, 
@@ -791,7 +789,7 @@
             });
         }
 
-        // --- LIVE VIDEO & AUDIO CLIP RECORDING ENGINE (FIXED iOS END FREEZE) ---
+        // --- LIVE VIDEO RECORDING ENGINE (FAIL-SAFE iOS STALL RECOVERY) ---
         let mediaRecorder = null;
         let recordedChunks = [];
         let isRecordingVideo = false;
@@ -815,11 +813,16 @@
             const canvasStream = canvasElement.captureStream(30);
 
             let combinedStream;
-            if (audioDestinationNode && audioDestinationNode.stream.getAudioTracks().length > 0) {
-                combinedStream = new MediaStream([
-                    ...canvasStream.getVideoTracks(),
-                    ...audioDestinationNode.stream.getAudioTracks()
-                ]);
+            if (audioDestinationNode && audioDestinationNode.stream && audioDestinationNode.stream.getAudioTracks().length > 0) {
+                const audioTracks = audioDestinationNode.stream.getAudioTracks().filter(t => t.readyState === 'live');
+                if (audioTracks.length > 0) {
+                    combinedStream = new MediaStream([
+                        ...canvasStream.getVideoTracks(),
+                        ...audioTracks
+                    ]);
+                } else {
+                    combinedStream = canvasStream;
+                }
             } else {
                 combinedStream = canvasStream;
             }
@@ -831,7 +834,7 @@
             try {
                 mediaRecorder = new MediaRecorder(combinedStream, { mimeType: mimeType });
             } catch (e) {
-                mediaRecorder = new MediaRecorder(combinedStream);
+                mediaRecorder = new MediaRecorder(canvasStream);
             }
 
             mediaRecorder.ondataavailable = (e) => {
@@ -854,7 +857,7 @@
                 }
             };
 
-            mediaRecorder.start(1000); // Continuous 1s data slicing for smooth iOS video rendering
+            mediaRecorder.start(500); // 500ms data slicing protects iOS frame buffers from stalling
             isRecordingVideo = true;
 
             if (videoRecordBtn) {
@@ -867,6 +870,7 @@
                     if (timeLeft > 0) {
                         videoRecordBtn.innerText = `⏺ REC (${timeLeft}s)`;
                     } else {
+                        clearInterval(recordingCountdownTimer);
                         stopVideoRecording();
                     }
                 }, 1000);
@@ -874,23 +878,27 @@
         }
 
         function stopVideoRecording() {
-            if (mediaRecorder && isRecordingVideo) {
-                isRecordingVideo = false;
-                if (recordingCountdownTimer) clearInterval(recordingCountdownTimer);
-                
-                // FLUSH iOS CANVAS BUFFER BEFORE FINALIZING FILE
+            if (!isRecordingVideo && (!mediaRecorder || mediaRecorder.state === 'inactive')) return;
+            isRecordingVideo = false;
+            if (recordingCountdownTimer) clearInterval(recordingCountdownTimer);
+
+            // FORCE FLUSH DATA FOR SAFARI
+            try {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.requestData();
+                }
+            } catch(e) {}
+
+            // HARD TIMEOUT GUARANTEE: Never gets stuck at 1s!
+            setTimeout(() => {
                 try {
-                    if (mediaRecorder.state === 'recording') {
-                        mediaRecorder.requestData();
-                    }
-                } catch(e) {}
-                
-                setTimeout(() => {
                     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                         mediaRecorder.stop();
                     }
-                }, 400);
-            }
+                } catch(err) {
+                    console.warn("Forced recorder finalization notice:", err);
+                }
+            }, 300);
         }
 
         // --- ANIMATION & AUDIO-REACTIVE SACRED MATRIX ENGINE ---
