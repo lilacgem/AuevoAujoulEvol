@@ -406,7 +406,7 @@
 
         // --- THREE.JS SCENE SETUP ---
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000002, 0.010);
+        scene.fog = new THREE.FogExp2(0x000002, 0.008);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000.0);
         
@@ -426,11 +426,11 @@
             camera.aspect = w / h;
             
             if (w < 600) {
-                camera.fov = 70;
-                camera.position.set(0.0, -2.0, 38.0);
+                camera.fov = 75;
+                camera.position.set(0.0, -1.0, 42.0);
             } else {
-                camera.fov = 55;
-                camera.position.set(0.0, -2.0, 34.0);
+                camera.fov = 60;
+                camera.position.set(0.0, -1.0, 36.0);
             }
             camera.updateProjectionMatrix();
         }
@@ -477,9 +477,9 @@
         const starfield = new THREE.Points(starGeometry, starMaterial);
         scene.add(starfield);
 
-        // --- HERO WIREGRID MATRIX GEOMETRY ---
-        const gridWidth = 80, gridHeight = 80;
-        const gridSegments = 95;
+        // --- FULL-SCREEN EXPANDED WIREGRID MATRIX GEOMETRY ---
+        const gridWidth = 120, gridHeight = 120;
+        const gridSegments = 100;
         const wiregridGeometry = new THREE.PlaneGeometry(gridWidth, gridHeight, gridSegments, gridSegments);
         const baseGridVertices = wiregridGeometry.attributes.position.clone();
 
@@ -492,35 +492,34 @@
             map: videoTexture, 
             color: 0x39ff14,
             transparent: true,
-            opacity: 0.85,
+            opacity: 0.88,
             wireframe: true,
             side: THREE.DoubleSide
         });
 
         const wiregridMesh = new THREE.Mesh(wiregridGeometry, wiregridMaterial);
-        wiregridMesh.rotation.x = -Math.PI / 2.6;
+        wiregridMesh.rotation.x = -Math.PI / 2.3;
         scene.add(wiregridMesh);
 
         window.meshMaterial = wiregridMaterial;
 
         // --- ELEVATED & FLOATING MERKABA SACRED GEOMETRY GROUP ---
         const sacredGroup = new THREE.Group();
-        // Base elevation high above bottom dashboard
-        sacredGroup.position.set(0.0, 12.0, 0.0);
+        sacredGroup.position.set(0.0, 11.0, 0.0);
 
         const merkabaGeo1 = new THREE.TetrahedronGeometry(4.2, 1);
-        const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.60 });
+        const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.65 });
         const merkabaMesh1 = new THREE.Mesh(merkabaGeo1, merkabaMat1);
         sacredGroup.add(merkabaMesh1);
 
         const merkabaGeo2 = new THREE.TetrahedronGeometry(4.2, 1);
-        const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.50 });
+        const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.55 });
         const merkabaMesh2 = new THREE.Mesh(merkabaGeo2, merkabaMat2);
         merkabaMesh2.rotation.z = Math.PI;
         sacredGroup.add(merkabaMesh2);
 
         const torusGeo = new THREE.TorusGeometry(8.0, 0.35, 16, 64);
-        const torusMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.35 });
+        const torusMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.38 });
         const torusMesh = new THREE.Mesh(torusGeo, torusMat);
         torusMesh.rotation.x = Math.PI / 2;
         sacredGroup.add(torusMesh);
@@ -603,7 +602,7 @@
         }
 
         let bassVal = 0, midVal = 0, highVal = 0;
-        let lastOracleTime = 0; // Throttling timer for Oracle text stabilization
+        let lastOracleTime = 0;
         
         function processVocalTelemetry() {
             if (analyser && dataArray) {
@@ -648,7 +647,6 @@
                 rootEl.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
             }
 
-            // --- STABILIZED ORACLE TEXT (3.5-SECOND READABILITY HOLD) ---
             const now = Date.now();
             if (now - lastOracleTime > 3500) {
                 lastOracleTime = now;
@@ -702,8 +700,7 @@
                 renderer.render(scene, camera);
                 const dataUrl = document.querySelector('#bg').toDataURL('image/png');
 
-                // CAPTURE ACTIVE ORACLE REVELATION TEXT
-                const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNONW ✦";
+                const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNOWN ✦";
                 const activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
 
                 const secureSoulPayload = {
@@ -762,7 +759,7 @@
             });
         }
 
-        // --- ANIMATION & SACRED MATRIX ENGINE ---
+        // --- ANIMATION & AUDIO-REACTIVE SACRED MATRIX ENGINE ---
         function animate() {
             requestAnimationFrame(animate);
             touchVelocity = THREE.MathUtils.lerp(touchVelocity, targetVelocity, 0.08);
@@ -786,13 +783,13 @@
                 const waveX = Math.sin(by * 0.22 + time * 3.0) * (0.8 + bassVal * 4.0);
                 const waveY = Math.cos(bx * 0.22 + time * 2.5) * (0.8 + midVal * 3.0);
 
-                const distToTouch = Math.sqrt(Math.pow(bx - touchVector.x * 25, 2) + Math.pow(by - touchVector.y * 25, 2));
+                const distToTouch = Math.sqrt(Math.pow(bx - touchVector.x * 35, 2) + Math.pow(by - touchVector.y * 35, 2));
                 const touchRipple = Math.sin(distToTouch * 0.4 - time * 6.0) * (touchVelocity * 1.5);
 
                 const camDisplace = Math.sin(bx * 0.1 + time) * (cameraMetric * 2.0);
 
                 const distFromCenter = Math.sqrt(bx * bx + by * by);
-                const vortexFunnel = Math.max(0, (14.0 - distFromCenter * 0.38)) * (0.4 + bassVal * 1.2);
+                const vortexFunnel = Math.max(0, (16.0 - distFromCenter * 0.35)) * (0.4 + bassVal * 1.4);
 
                 posAttr.setZ(i, bz + waveX + waveY + touchRipple + camDisplace + vortexFunnel);
             }
@@ -801,25 +798,34 @@
             wiregridGeometry.computeVertexNormals();
 
             // --- MERKABA DYNAMIC 3D FLOATING & DRIFTING MOTION ---
-            sacredGroup.position.y = 12.0 + Math.sin(time * 1.2) * 1.8;
-            sacredGroup.position.x = Math.cos(time * 0.6) * 2.2;
+            sacredGroup.position.y = 11.0 + Math.sin(time * 1.2) * 1.8;
+            sacredGroup.position.x = Math.cos(time * 0.6) * 2.5;
 
-            const rotationSpeed = 0.012 + (touchVelocity * 0.02) + (bassVal * 0.03);
+            // VOCAL / MID FREQUENCY DRIVES COUNTER-ROTATION ACCELERATION
+            const midVocalRotationBoost = midVal * 0.08;
+            const rotationSpeed = 0.010 + (touchVelocity * 0.02) + (bassVal * 0.02) + midVocalRotationBoost;
+            
             merkabaMesh1.rotation.y += rotationSpeed;
             merkabaMesh1.rotation.x += rotationSpeed * 0.5;
 
-            merkabaMesh2.rotation.y -= rotationSpeed * 1.2;
-            merkabaMesh2.rotation.z += rotationSpeed * 0.4;
+            merkabaMesh2.rotation.y -= rotationSpeed * 1.3;
+            merkabaMesh2.rotation.z += rotationSpeed * 0.6;
 
             torusMesh.rotation.z += 0.005;
 
-            const pulseScale = 1.0 + (bassVal * 0.4) + (dynamicFactor * 0.2);
-            sacredGroup.scale.set(pulseScale, pulseScale, pulseScale);
+            // BASS FREQUENCY PUMPS SRI YANTRA TORUS SCALE
+            const torusPulse = 1.0 + (bassVal * 0.85);
+            torusMesh.scale.set(torusPulse, torusPulse, torusPulse);
 
-            // Camera looking smoothly up at the floating sacred group
+            // HIGH FREQUENCY & VOCAL DENSITY PULSES INNER MERKABA STAR
+            const starPulse = 1.0 + (highVal * 0.6) + (dynamicFactor * 0.15);
+            merkabaMesh1.scale.set(starPulse, starPulse, starPulse);
+            merkabaMesh2.scale.set(starPulse, starPulse, starPulse);
+
+            // Camera looking smoothly at floating sacred group
             camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
             camera.position.y += (touchVector.y * 5.0 - 2.0 - camera.position.y) * 0.04;
-            camera.lookAt(0.0, 9.0, 0.0);
+            camera.lookAt(0.0, 8.0, 0.0);
 
             if (starfield) {
                 starfield.rotation.y += 0.0001;
@@ -836,7 +842,6 @@
             if (document.getElementById('bg')) animate();
         });
 
-        // --- LOAD VAULT HISTORY WITH SAVED ORACLE DESCRIPTIONS ---
         async function loadVaultHistory() {
             try {
                 const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
