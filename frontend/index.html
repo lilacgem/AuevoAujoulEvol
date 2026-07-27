@@ -110,7 +110,7 @@
         }
 
         .dashboard {
-            width: min(94vw, 440px);
+            width: min(94vw, 460px);
             background: rgba(4, 5, 9, 0.50);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 20px;
@@ -225,27 +225,32 @@
         }
 
         .control-row {
-            display: flex;
-            gap: 6px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
         }
 
         .btn-core {
-            flex: 1;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: rgba(255, 255, 255, 0.88);
-            padding: 10px 8px;
+            padding: 10px 4px;
             font-family: inherit;
-            font-size: 9px;
-            letter-spacing: 1.2px;
+            font-size: 8px;
+            letter-spacing: 0.8px;
             border-radius: 999px;
             cursor: pointer;
             transition: all 0.3s ease;
             min-height: 38px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-core.primary { border-color: var(--matrix-green); color: var(--matrix-green); }
         .btn-core.secondary { border-color: var(--cyan-glow); color: var(--cyan-glow); }
+        .btn-core.recording-btn { border-color: var(--matrix-orange); color: var(--matrix-orange); }
 
         .btn-core:hover:not(:disabled) {
             background: rgba(255,255,255,0.1);
@@ -257,6 +262,19 @@
             cursor: not-allowed;
             border-color: #333 !important;
             color: #333 !important;
+        }
+
+        @keyframes pulseRecording {
+            0% { box-shadow: 0 0 0 0 rgba(255, 94, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 94, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 94, 0, 0); }
+        }
+
+        .active-rec {
+            animation: pulseRecording 1.2s infinite;
+            background: rgba(255, 94, 0, 0.2) !important;
+            border-color: #ff5e00 !important;
+            color: #ffffff !important;
         }
 
         .toggle-vault-btn {
@@ -277,7 +295,7 @@
 
         @media (max-width: 600px) {
             .dashboard { padding: 8px; gap: 5px; }
-            .btn-core { padding: 8px 6px; font-size: 8px; min-height: 36px; }
+            .btn-core { padding: 8px 2px; font-size: 7.5px; min-height: 36px; }
             .spectrum-monitor { height: 26px; }
         }
     </style>
@@ -350,8 +368,9 @@
             </div>
 
             <div class="control-row">
-                <button id="micButton" class="btn-core secondary" type="button">COMMUNE WITH MIRROR</button>
-                <button id="recordButton" class="btn-core primary" type="button" disabled>CRYSTALLIZE SOUL SEAL</button>
+                <button id="micButton" class="btn-core secondary" type="button">COMMUNE</button>
+                <button id="recordButton" class="btn-core primary" type="button" disabled>SOUL SEAL</button>
+                <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>RECORD CLIP</button>
             </div>
         </section>
     </div>
@@ -526,8 +545,8 @@
 
         scene.add(sacredGroup);
 
-        // --- AUDIO CAPTURE & CAMERA BIOMETRICS ---
-        let audioContext, analyser, dataArray;
+        // --- AUDIO CAPTURE, CAMERA & AUDIO DESTINATION FOR RECORDING ---
+        let audioContext, analyser, dataArray, audioDestinationNode;
         let cameraMetric = 0.0;
         const camCanvas = document.getElementById('camAnalysisCanvas');
         const camCtx = camCanvas.getContext('2d');
@@ -546,6 +565,8 @@
                         audioContext = new AudioContextClass();
                     }
                     if (audioContext.state === 'suspended') await audioContext.resume();
+
+                    audioDestinationNode = audioContext.createMediaStreamDestination();
 
                     const nativeAudioTrack = document.getElementById('aujouleAudio');
                     if (nativeAudioTrack) {
@@ -569,17 +590,20 @@
                     analyser.fftSize = 256;
                     analyser.smoothingTimeConstant = 0.82;
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    
                     source.connect(analyser);
+                    source.connect(audioDestinationNode); // Route audio to recording stream
 
                     if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
                     if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
                     if (stateDisplayEl) { stateDisplayEl.innerText = "ACTIVE"; stateDisplayEl.style.display = "inline"; }
 
-                    micButton.innerText = "MIRROR COMMUNICATING";
+                    micButton.innerText = "COMMUNING";
                     micButton.style.borderColor = "#00f3ff";
                     micButton.style.color = "#00f3ff";
 
                     if (document.getElementById('recordButton')) document.getElementById('recordButton').disabled = false;
+                    if (document.getElementById('videoRecordButton')) document.getElementById('videoRecordButton').disabled = false;
 
                 } catch (err) {
                     if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; }
@@ -694,7 +718,7 @@
 
         const recordButton = document.getElementById('recordButton');
         if (recordButton) {
-            recordButton.innerText = "CRYSTALLIZE SOUL SEAL";
+            recordButton.innerText = "SOUL SEAL";
             recordButton.disabled = false;
             recordButton.addEventListener('click', () => {
                 renderer.render(scene, camera);
@@ -754,9 +778,107 @@
                 downloadLink.href = dataUrl;
                 document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
                 
-                recordButton.innerText = `GEN ${evoHistory.totalSeals} CRYSTALLIZED`;
-                setTimeout(() => { recordButton.innerText = "CRYSTALLIZE SOUL SEAL"; }, 2500);
+                recordButton.innerText = `GEN ${evoHistory.totalSeals} SEALED`;
+                setTimeout(() => { recordButton.innerText = "SOUL SEAL"; }, 2500);
             });
+        }
+
+        // --- LIVE VIDEO & AUDIO CLIP RECORDING ENGINE ---
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecordingVideo = false;
+        let recordingCountdownTimer = null;
+
+        const videoRecordBtn = document.getElementById('videoRecordButton');
+        if (videoRecordBtn) {
+            videoRecordBtn.disabled = false;
+            videoRecordBtn.addEventListener('click', () => {
+                if (!isRecordingVideo) {
+                    startVideoRecording();
+                } else {
+                    stopVideoRecording();
+                }
+            });
+        }
+
+        function startVideoRecording() {
+            recordedChunks = [];
+            const canvasElement = document.querySelector('#bg');
+            const canvasStream = canvasElement.captureStream(30);
+
+            let combinedStream;
+            if (audioDestinationNode && audioDestinationNode.stream.getAudioTracks().length > 0) {
+                combinedStream = new MediaStream([
+                    ...canvasStream.getVideoTracks(),
+                    ...audioDestinationNode.stream.getAudioTracks()
+                ]);
+            } else {
+                combinedStream = canvasStream;
+            }
+
+            let mimeType = 'video/webm;codecs=vp9,opus';
+            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
+
+            try {
+                mediaRecorder = new MediaRecorder(combinedStream, { mimeType: mimeType });
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(combinedStream);
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
+                
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `AuEvo_Resonance_Clip_${stampTag}.webm`;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+
+                if (videoRecordBtn) {
+                    videoRecordBtn.innerText = "CLIP SAVED!";
+                    videoRecordBtn.classList.remove('active-rec');
+                    setTimeout(() => { videoRecordBtn.innerText = "RECORD CLIP"; }, 2500);
+                }
+            };
+
+            mediaRecorder.start();
+            isRecordingVideo = true;
+
+            if (videoRecordBtn) {
+                videoRecordBtn.classList.add('active-rec');
+                let timeLeft = 15;
+                videoRecordBtn.innerText = `⏺ REC (${timeLeft}s)`;
+
+                recordingCountdownTimer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft > 0) {
+                        videoRecordBtn.innerText = `⏺ REC (${timeLeft}s)`;
+                    } else {
+                        stopVideoRecording();
+                    }
+                }, 1000);
+            }
+        }
+
+        function stopVideoRecording() {
+            if (mediaRecorder && isRecordingVideo) {
+                isRecordingVideo = false;
+                if (recordingCountdownTimer) clearInterval(recordingCountdownTimer);
+                mediaRecorder.stop();
+            }
         }
 
         // --- ANIMATION & AUDIO-REACTIVE SACRED MATRIX ENGINE ---
@@ -797,11 +919,10 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
-            // --- MERKABA DYNAMIC 3D FLOATING & DRIFTING MOTION ---
+            // MERKABA DYNAMIC 3D FLOATING & DRIFTING MOTION
             sacredGroup.position.y = 11.0 + Math.sin(time * 1.2) * 1.8;
             sacredGroup.position.x = Math.cos(time * 0.6) * 2.5;
 
-            // VOCAL / MID FREQUENCY DRIVES COUNTER-ROTATION ACCELERATION
             const midVocalRotationBoost = midVal * 0.08;
             const rotationSpeed = 0.010 + (touchVelocity * 0.02) + (bassVal * 0.02) + midVocalRotationBoost;
             
@@ -813,16 +934,13 @@
 
             torusMesh.rotation.z += 0.005;
 
-            // BASS FREQUENCY PUMPS SRI YANTRA TORUS SCALE
             const torusPulse = 1.0 + (bassVal * 0.85);
             torusMesh.scale.set(torusPulse, torusPulse, torusPulse);
 
-            // HIGH FREQUENCY & VOCAL DENSITY PULSES INNER MERKABA STAR
             const starPulse = 1.0 + (highVal * 0.6) + (dynamicFactor * 0.15);
             merkabaMesh1.scale.set(starPulse, starPulse, starPulse);
             merkabaMesh2.scale.set(starPulse, starPulse, starPulse);
 
-            // Camera looking smoothly at floating sacred group
             camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
             camera.position.y += (touchVector.y * 5.0 - 2.0 - camera.position.y) * 0.04;
             camera.lookAt(0.0, 8.0, 0.0);
