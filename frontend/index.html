@@ -279,9 +279,6 @@
         <span id="micStatus">OFFLINE</span>
         <span id="awarenessDisplay">WAITING</span>
         <span id="stateDisplay">WAITING</span>
-        <audio id="aujouleAudio" loop autoplay playsinline>
-            <source src="aujoulevol.wav" type="audio/wav">
-        </audio>
     </div>
     
     <div id="history-vault-container" style="position: fixed; right: 0; top: 0; width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 40; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.95); padding: 25px; box-sizing: border-box; backdrop-filter: blur(12px); display: none;">
@@ -332,12 +329,11 @@
         }
         Aueo();
 
-        // --- UNIVERSAL FILE DOWNLOAD HELPER (DESKTOP DIRECT DOWNLOAD / MOBILE SHARE) ---
+        // --- UNIVERSAL FILE DOWNLOAD HELPER ---
         async function triggerSovereignDownload(fileBlob, fileName, titleText) {
             const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             const file = new File([fileBlob], fileName, { type: fileBlob.type });
 
-            // Trigger Mobile Share Sheet ONLY on Mobile Devices
             if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
@@ -351,7 +347,6 @@
                 }
             }
 
-            // Direct File Download for Laptop / Desktop Browsers
             const blobUrl = URL.createObjectURL(fileBlob);
             const link = document.createElement('a');
             link.href = blobUrl;
@@ -478,7 +473,6 @@
             side: THREE.DoubleSide
         });
 
-        // SINGLE UNIFIED FREQUENCY MANIFESTATION ENGINE
         function ReflectSovereignSymbol(history, liveResonance, liveColor, currentBass, currentMid, currentHigh) {
             const totalSeals = history.totalSeals || 1;
             const historicalRes = history.accumulatedResonance || 0.18;
@@ -519,6 +513,7 @@
         // --- AUDIO CAPTURE & CAMERA BIOMETRICS ---
         let audioContext, analyser, dataArray, audioDestinationNode;
         let cameraMetric = 0.0;
+
         const camCanvas = document.getElementById('camAnalysisCanvas');
         const camCtx = camCanvas.getContext('2d');
 
@@ -539,33 +534,34 @@
 
                     audioDestinationNode = audioContext.createMediaStreamDestination();
 
-                    const nativeAudioTrack = document.getElementById('aujouleAudio');
-                    if (nativeAudioTrack) {
-                        nativeAudioTrack.muted = false;
-                        nativeAudioTrack.volume = 1.0;
-                        nativeAudioTrack.play().catch(e => console.log("Audio track initialized:", e));
+                    if (!analyser) {
+                        analyser = audioContext.createAnalyser();
+                        analyser.fftSize = 256;
+                        analyser.smoothingTimeConstant = 0.75;
+                        dataArray = new Uint8Array(analyser.frequencyBinCount);
                     }
 
-                    micStream = await navigator.mediaDevices.getUserMedia({
-                        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
-                        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
-                    });
+                    // ROUTE LIVE MICROPHONE INTO AUDIO CONTEXT & RECORDER
+                    try {
+                        micStream = await navigator.mediaDevices.getUserMedia({
+                            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+                            video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
+                        });
 
-                    videoElement.srcObject = micStream;
-                    await videoElement.play().catch(e => console.warn("Video play notice:", e));
-                    if (document.getElementById('camDisplay')) {
-                        document.getElementById('camDisplay').innerText = "LIVE";
-                        document.getElementById('camDisplay').style.color = "#00f3ff";
+                        videoElement.srcObject = micStream;
+                        await videoElement.play().catch(e => console.warn("Video play notice:", e));
+                        if (document.getElementById('camDisplay')) {
+                            document.getElementById('camDisplay').innerText = "LIVE";
+                            document.getElementById('camDisplay').style.color = "#00f3ff";
+                        }
+
+                        const micSource = audioContext.createMediaStreamSource(micStream);
+                        micSource.connect(analyser);                // Drives geometry from voice
+                        micSource.connect(audioDestinationNode);    // Record voice into Video Clip
+
+                    } catch (micErr) {
+                        console.warn("Microphone access unavailable:", micErr);
                     }
-
-                    const source = audioContext.createMediaStreamSource(micStream);
-                    analyser = audioContext.createAnalyser();
-                    analyser.fftSize = 256;
-                    analyser.smoothingTimeConstant = 0.75;
-                    dataArray = new Uint8Array(analyser.frequencyBinCount);
-                    
-                    source.connect(analyser);
-                    source.connect(audioDestinationNode);
 
                     if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
                     if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
@@ -886,7 +882,6 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
-            // Floating 3D Group Motion
             sacredGroup.position.y = 11.0 + Math.sin(time * 1.2) * 1.8;
             sacredGroup.position.x = Math.cos(time * 0.6) * 2.5;
 
