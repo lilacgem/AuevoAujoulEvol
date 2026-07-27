@@ -260,8 +260,8 @@
         </div>
 
         <div class="control-row">
-            <button id="micButton" class="btn-core secondary" type="button">COMMUNE</button>
-            <button id="recordButton" class="btn-core primary" type="button" disabled>SOUL SEAL</button>
+            <button id="micButton" class="btn-core secondary" type="button">CONNECT MIC</button>
+            <button id="recordButton" class="btn-core primary" type="button" disabled>SAVE SEAL</button>
             <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>RECORD CLIP</button>
         </div>
     </section>
@@ -571,19 +571,10 @@
                         dataArray = new Uint8Array(analyser.frequencyBinCount);
                     }
 
-                    // STABLE iOS WebAudio CONSTRAINTS
                     try {
                         micStream = await navigator.mediaDevices.getUserMedia({
-                            audio: { 
-                                echoCancellation: true, 
-                                noiseSuppression: true, 
-                                autoGainControl: true 
-                            },
-                            video: { 
-                                width: { ideal: 640 }, 
-                                height: { ideal: 480 }, 
-                                facingMode: "user" 
-                            }
+                            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+                            video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
                         });
 
                         videoElement.srcObject = micStream;
@@ -606,7 +597,7 @@
                     if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
                     if (stateDisplayEl) { stateDisplayEl.innerText = "ACTIVE"; stateDisplayEl.style.display = "inline"; }
 
-                    micButton.innerText = "COMMUNING";
+                    micButton.innerText = "MIC ACTIVE";
                     micButton.style.borderColor = "#00f3ff";
                     micButton.style.color = "#00f3ff";
 
@@ -723,7 +714,7 @@
 
         const recordButton = document.getElementById('recordButton');
         if (recordButton) {
-            recordButton.innerText = "SOUL SEAL";
+            recordButton.innerText = "SAVE SEAL";
             recordButton.disabled = false;
             recordButton.addEventListener('click', async () => {
                 renderer.render(scene, camera);
@@ -746,9 +737,20 @@
                         oracle_realm: activeRealm,
                         oracle_message: activeMessage
                     },
-                    visual_seal_string: dataUrl
+                    visual_seal_string: dataUrl,
+                    server_vault_timestamp: new Date().toISOString()
                 };
 
+                // DUAL-LAYER STORAGE: SAVE TO PHONE'S LOCAL MEMORY PERMANENTLY
+                try {
+                    let localVault = JSON.parse(localStorage.getItem('AuEvo_Local_Seals')) || [];
+                    localVault.push(secureSoulPayload);
+                    localStorage.setItem('AuEvo_Local_Seals', JSON.stringify(localVault));
+                } catch(e) {
+                    console.warn("Local storage fallback notice:", e);
+                }
+
+                // SAVE TO RENDER CLOUD DATABASE
                 fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/crystallize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -784,12 +786,13 @@
                 
                 await triggerSovereignDownload(imageBlob, imageFileName, 'AuEvo Soul Seal Image');
                 
-                recordButton.innerText = `GEN ${evoHistory.totalSeals} SEALED`;
-                setTimeout(() => { recordButton.innerText = "SOUL SEAL"; }, 2500);
+                recordButton.innerText = `SEAL SAVED!`;
+                if (typeof loadVaultHistory === "function") loadVaultHistory();
+                setTimeout(() => { recordButton.innerText = "SAVE SEAL"; }, 2500);
             });
         }
 
-        // --- LIVE VIDEO RECORDING ENGINE (FAIL-SAFE iOS STALL RECOVERY) ---
+        // --- LIVE VIDEO RECORDING ENGINE ---
         let mediaRecorder = null;
         let recordedChunks = [];
         let isRecordingVideo = false;
@@ -857,7 +860,7 @@
                 }
             };
 
-            mediaRecorder.start(500); // 500ms data slicing protects iOS frame buffers from stalling
+            mediaRecorder.start(500);
             isRecordingVideo = true;
 
             if (videoRecordBtn) {
@@ -882,14 +885,12 @@
             isRecordingVideo = false;
             if (recordingCountdownTimer) clearInterval(recordingCountdownTimer);
 
-            // FORCE FLUSH DATA FOR SAFARI
             try {
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.requestData();
                 }
             } catch(e) {}
 
-            // HARD TIMEOUT GUARANTEE: Never gets stuck at 1s!
             setTimeout(() => {
                 try {
                     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -1024,87 +1025,108 @@
             if (document.getElementById('bg')) animate();
         });
 
+        // PERMANENT DUAL-LAYER VAULT LOADER (COMBINES PHONE LOCAL MEMORY + CLOUD SERVER)
         async function loadVaultHistory() {
+            const grid = document.getElementById('gallery-grid');
+            if (!grid) return;
+
+            let localSeals = JSON.parse(localStorage.getItem('AuEvo_Local_Seals')) || [];
+            let cloudSeals = [];
+
             try {
                 const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
-                const historyData = await response.json();
-                const grid = document.getElementById('gallery-grid');
-                if (!grid) return;
-                grid.innerHTML = ''; 
-
-                if (historyData.length === 0) {
-                    grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Vault currently empty. Awaiting first sovereign signature generation...</p>`;
-                    return;
+                if (response.ok) {
+                    cloudSeals = await response.json();
                 }
-
-                let sumHue = 0;
-                let sumRes = 0;
-                historyData.forEach(entry => {
-                    sumHue += (entry.matrix_coordinates.hue || 0);
-                    sumRes += (entry.matrix_coordinates.res || entry.matrix_coordinates.resonance || 0.18);
-                });
-
-                globalMatrix.totalSeals = historyData.length;
-                globalMatrix.avgHue = Math.round(sumHue / historyData.length);
-                globalMatrix.avgResonance = sumRes / historyData.length;
-
-                colorAccumulator = globalMatrix.avgHue / 360.0;
-                console.log(`🌍 [GLOBAL MATRIX COHERENCE LOADED]: ${globalMatrix.totalSeals} Seals Worldwide | Collective Hue: ${globalMatrix.avgHue}°`);
-
-                [...historyData].reverse().forEach(entry => {
-                    const card = document.createElement('div');
-                    
-                    const analytics = entry.python_analytics_telemetry || {
-                        biometric_state_classification: "AWAITING_CORE_SCAN",
-                        clinical_bio_marker_note: "Running data pipelines...",
-                        spectral_entropy_score: "N/A"
-                    };
-
-                    const savedRealm = entry.matrix_coordinates.oracle_realm || "✦ SACRED MATRIX ✦";
-                    const savedMessage = entry.matrix_coordinates.oracle_message || "Aura resonance locked.";
-
-                    card.style = `
-                        background: rgba(255,255,255,0.02); 
-                        border: 1px solid rgba(255,255,255,0.07); 
-                        padding: 16px; 
-                        border-radius: 8px; 
-                        font-family: monospace; 
-                        font-size: 11px; 
-                        color: #ccc; 
-                        cursor: pointer; 
-                        transition: all 0.25s ease;
-                    `;
-                    
-                    card.onmouseover = () => { card.style.background = "rgba(255,255,255,0.06)"; card.style.borderColor = "rgba(255,215,0,0.4)"; };
-                    card.onmouseout = () => { card.style.background = "rgba(255,255,255,0.02)"; card.style.borderColor = "rgba(255,255,255,0.07)"; };
-                    
-                    card.onclick = () => {
-                        if (window.meshMaterial) {
-                            window.meshMaterial.color.setHSL(entry.matrix_coordinates.hue / 360, 1, 0.5);
-                            console.log(`♻️ [RE-PROJECTED]: Loaded Hue ${entry.matrix_coordinates.hue}° from archive.`);
-                        }
-                    };
-
-                    card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
-                            <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates.total_seals || 'X'}</span>
-                            <span style="color: rgba(255,215,0,0.7); font-size: 9px;">${analytics.biometric_state_classification}</span>
-                        </div>
-                        <div style="color: #00f3ff; font-size: 9px; margin-bottom: 4px; font-weight: bold;">${savedRealm}</div>
-                        <div style="color: rgba(255,255,255,0.85); font-size: 9.5px; font-style: italic; background: rgba(0,243,255,0.04); padding: 6px; border-radius: 4px; margin-bottom: 8px; border-left: 2px solid #00f3ff;">
-                            "${savedMessage}"
-                        </div>
-                        <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates.hue}° / R:${entry.matrix_coordinates.res || entry.matrix_coordinates.resonance}</div>
-                        <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
-                        <div style="font-size: 9px; color: rgba(255,255,255,0.25); margin-top: 8px; text-align: right;">
-                            ${new Date(entry.server_vault_timestamp).toLocaleString()}
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
             } catch (err) {
-                console.error("Failed to compile historical archive logs:", err);
+                console.warn("Backend sleeping or offline, defaulting to phone local vault.");
             }
+
+            // MERGE CLOUD & LOCAL SEALS TO ENSURE DRAWER IS NEVER EMPTY
+            let combinedMap = new Map();
+
+            localSeals.forEach((entry, idx) => {
+                const key = entry.server_vault_timestamp || `local_${idx}`;
+                combinedMap.set(key, entry);
+            });
+
+            if (Array.isArray(cloudSeals)) {
+                cloudSeals.forEach(entry => {
+                    const key = entry.server_vault_timestamp || Math.random();
+                    combinedMap.set(key, entry);
+                });
+            }
+
+            const finalSeals = Array.from(combinedMap.values());
+            grid.innerHTML = ''; 
+
+            if (finalSeals.length === 0) {
+                grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Vault currently empty. Tap 'SAVE SEAL' to capture your first generation!</p>`;
+                return;
+            }
+
+            let sumHue = 0;
+            let sumRes = 0;
+            finalSeals.forEach(entry => {
+                sumHue += (entry.matrix_coordinates?.hue || 0);
+                sumRes += (entry.matrix_coordinates?.res || entry.matrix_coordinates?.resonance || 0.18);
+            });
+
+            globalMatrix.totalSeals = finalSeals.length;
+            globalMatrix.avgHue = Math.round(sumHue / finalSeals.length);
+            globalMatrix.avgResonance = sumRes / finalSeals.length;
+
+            [...finalSeals].reverse().forEach(entry => {
+                const card = document.createElement('div');
+                
+                const analytics = entry.python_analytics_telemetry || {
+                    biometric_state_classification: "AWAITING_CORE_SCAN",
+                    clinical_bio_marker_note: "Running data pipelines...",
+                    spectral_entropy_score: "N/A"
+                };
+
+                const savedRealm = entry.matrix_coordinates?.oracle_realm || "✦ SACRED MATRIX ✦";
+                const savedMessage = entry.matrix_coordinates?.oracle_message || "Aura resonance locked.";
+
+                card.style = `
+                    background: rgba(255,255,255,0.02); 
+                    border: 1px solid rgba(255,255,255,0.07); 
+                    padding: 16px; 
+                    border-radius: 8px; 
+                    font-family: monospace; 
+                    font-size: 11px; 
+                    color: #ccc; 
+                    cursor: pointer; 
+                    transition: all 0.25s ease;
+                `;
+                
+                card.onmouseover = () => { card.style.background = "rgba(255,255,255,0.06)"; card.style.borderColor = "rgba(255,215,0,0.4)"; };
+                card.onmouseout = () => { card.style.background = "rgba(255,255,255,0.02)"; card.style.borderColor = "rgba(255,255,255,0.07)"; };
+                
+                card.onclick = () => {
+                    if (window.meshMaterial && entry.matrix_coordinates?.hue) {
+                        window.meshMaterial.color.setHSL(entry.matrix_coordinates.hue / 360, 1, 0.5);
+                        console.log(`♻️ [RE-PROJECTED]: Loaded Hue ${entry.matrix_coordinates.hue}° from archive.`);
+                    }
+                };
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+                        <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates?.total_seals || 'X'}</span>
+                        <span style="color: rgba(255,215,0,0.7); font-size: 9px;">${analytics.biometric_state_classification}</span>
+                    </div>
+                    <div style="color: #00f3ff; font-size: 9px; margin-bottom: 4px; font-weight: bold;">${savedRealm}</div>
+                    <div style="color: rgba(255,255,255,0.85); font-size: 9.5px; font-style: italic; background: rgba(0,243,255,0.04); padding: 6px; border-radius: 4px; margin-bottom: 8px; border-left: 2px solid #00f3ff;">
+                        "${savedMessage}"
+                    </div>
+                    <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates?.hue || 0}° / R:${entry.matrix_coordinates?.res || entry.matrix_coordinates?.resonance || 0.18}</div>
+                    <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
+                    <div style="font-size: 9px; color: rgba(255,255,255,0.25); margin-top: 8px; text-align: right;">
+                        ${new Date(entry.server_vault_timestamp || Date.now()).toLocaleString()}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
         window.addEventListener('DOMContentLoaded', loadVaultHistory);
