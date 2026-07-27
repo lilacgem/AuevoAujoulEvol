@@ -462,22 +462,25 @@
 
         window.meshMaterial = wiregridMaterial;
 
-        // --- ELEVATED SACRED GEOMETRY GROUP (MERKABA + EVOLVED MORPHING KNOT MESH) ---
+        // --- ELEVATED SACRED GEOMETRY GROUP (INTEGRATED FLUID MERKABA & KNOT CORE) ---
         const sacredGroup = new THREE.Group();
         sacredGroup.position.set(0.0, 11.0, 0.0);
 
+        // Dynamic Breathing MerKaBa Stars
         const merkabaGeo1 = new THREE.TetrahedronGeometry(4.2, 1);
-        const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.65 });
+        const baseMerkaba1Verts = merkabaGeo1.attributes.position.clone();
+        const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.65, blending: THREE.AdditiveBlending });
         const merkabaMesh1 = new THREE.Mesh(merkabaGeo1, merkabaMat1);
         sacredGroup.add(merkabaMesh1);
 
         const merkabaGeo2 = new THREE.TetrahedronGeometry(4.2, 1);
-        const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.55 });
+        const baseMerkaba2Verts = merkabaGeo2.attributes.position.clone();
+        const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending });
         const merkabaMesh2 = new THREE.Mesh(merkabaGeo2, merkabaMat2);
         merkabaMesh2.rotation.z = Math.PI;
         sacredGroup.add(merkabaMesh2);
 
-        // --- EVOLVED DYNAMIC P/Q KNOT MESH SYSTEM ---
+        // Dynamic P/Q Torus Knot Mesh System
         let personalSymbolMesh = null;
         let lastP = -1, lastQ = -1;
 
@@ -489,17 +492,15 @@
             side: THREE.DoubleSide
         });
 
-        // Evolved Sovereign Symbol Generator (from Legacy Source Code)
+        // Fused Sovereign Symbol Generator
         function ReflectSovereignSymbol(history, liveResonance, liveColor, currentBass, currentMid, currentHigh) {
             const totalSeals = history.totalSeals || 1;
             const historicalRes = history.accumulatedResonance || 0.18;
 
-            // Evolved P and Q parameters driven by Live Voice Pitch & Audio Spectrum
             const vocalHarmonicShift = Math.floor(currentMid * 4.0 + currentHigh * 3.0);
-            const pParam = ((Math.round(totalSeals) + vocalHarmonicShift) % 7) || 3; // Modulates between 3,4,5,6,7 knot lobes
-            const qParam = ((Math.round((historicalRes + currentBass) * 10)) % 8) || 4; // Modulates cross depth
+            const pParam = ((Math.round(totalSeals) + vocalHarmonicShift) % 7) || 3;
+            const qParam = ((Math.round((historicalRes + currentBass) * 10)) % 8) || 4;
 
-            // Regenerate geometry when mathematical parameters shift
             if (!personalSymbolMesh || lastP !== pParam || lastQ !== qParam) {
                 if (personalSymbolMesh) {
                     sacredGroup.remove(personalSymbolMesh);
@@ -523,7 +524,6 @@
                 lastQ = qParam;
             }
 
-            // Update Material Hue & Opacity dynamically
             torusMat.color.copy(new THREE.Color().setHSL(liveColor, 0.95, 0.50));
             torusMat.opacity = 0.35 + (liveResonance * 0.35);
         }
@@ -869,7 +869,6 @@
             processVocalTelemetry();
             processCameraBiometrics();
 
-            // TRIGGER EVOLVED SOVEREIGN KNOT SYMBOL RE-CALCULATION
             ReflectSovereignSymbol(evoHistory, dynamicFactor + touchVelocity, colorAccumulator, bassVal, midVal, highVal);
 
             if (videoTexture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
@@ -877,6 +876,31 @@
             }
 
             const time = Date.now() * 0.0012;
+
+            // --- FLUID MERKABA VERTEX DEFORMATION ENGINE ---
+            const m1Pos = merkabaGeo1.attributes.position;
+            const m2Pos = merkabaGeo2.attributes.position;
+            const deformation = (midVal * 1.8 + highVal * 1.5) + (touchVelocity * 0.4);
+
+            for (let i = 0; i < m1Pos.count; i++) {
+                const bx1 = baseMerkaba1Verts.getX(i);
+                const by1 = baseMerkaba1Verts.getY(i);
+                const bz1 = baseMerkaba1Verts.getZ(i);
+                const wave1 = Math.sin(by1 * 0.8 + time * 4.0) * deformation;
+                m1Pos.setXYZ(i, bx1 + wave1, by1 + wave1, bz1 + wave1);
+
+                const bx2 = baseMerkaba2Verts.getX(i);
+                const by2 = baseMerkaba2Verts.getY(i);
+                const bz2 = baseMerkaba2Verts.getZ(i);
+                const wave2 = Math.cos(bx2 * 0.8 + time * 3.5) * deformation;
+                m2Pos.setXYZ(i, bx2 + wave2, by2 + wave2, bz2 + wave2);
+            }
+            m1Pos.needsUpdate = true;
+            m2Pos.needsUpdate = true;
+            merkabaGeo1.computeVertexNormals();
+            merkabaGeo2.computeVertexNormals();
+
+            // --- OCEAN PLANE GRID ANIMATION ---
             const posAttr = wiregridGeometry.attributes.position;
 
             for (let i = 0; i < posAttr.count; i++) {
@@ -901,7 +925,7 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
-            // --- MERKABA DYNAMIC 3D FLOATING & DRIFTING MOTION ---
+            // Floating 3D Group Motion
             sacredGroup.position.y = 11.0 + Math.sin(time * 1.2) * 1.8;
             sacredGroup.position.x = Math.cos(time * 0.6) * 2.5;
 
@@ -919,7 +943,7 @@
                 personalSymbolMesh.rotation.x += 0.002;
             }
 
-            const starPulse = 1.0 + (highVal * 0.6) + (dynamicFactor * 0.15);
+            const starPulse = 1.0 + (bassVal * 0.5) + (highVal * 0.4) + (dynamicFactor * 0.15);
             merkabaMesh1.scale.set(starPulse, starPulse, starPulse);
             merkabaMesh2.scale.set(starPulse, starPulse, starPulse);
 
