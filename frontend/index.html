@@ -634,7 +634,7 @@
                     visual_seal_string: dataUrl
                 };
 
-                fetch('http://localhost:3000/api/seal/crystallize', {
+                fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/crystallize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(secureSoulPayload)
@@ -787,7 +787,7 @@
         // Fetch all database records and display them as interactive cards
         async function loadVaultHistory() {
             try {
-                const response = await fetch('http://localhost:3000/api/seal/history');
+                const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
                 const historyData = await response.json();
                 const grid = document.getElementById('gallery-grid');
                 if (!grid) return;
