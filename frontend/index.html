@@ -73,73 +73,72 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: max(12px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom)) 14px;
+            padding: max(10px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) 12px;
             box-sizing: border-box;
         }
 
         .ambient-note {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(92vw, 560px);
+            position: relative;
+            margin-top: 4px;
+            width: min(94vw, 560px);
             text-align: center;
             color: rgba(255, 255, 255, 0.86);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.12);
             pointer-events: none;
             z-index: 20;
         }
 
         .ambient-title {
-            font-size: 0.86rem;
+            font-size: Clamp(0.7rem, 2.5vw, 0.86rem);
             letter-spacing: 0.35em;
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.92);
         }
 
         .ambient-equation {
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             font-family: 'Times New Roman', Times, serif;
             color: var(--gold-luxe);
             margin-top: 2px;
         }
 
         .ambient-status {
-            font-size: 0.62rem;
+            font-size: clamp(0.5rem, 1.8vw, 0.62rem);
             letter-spacing: 0.18em;
             color: rgba(220, 220, 220, 0.68);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .dashboard {
-            width: min(92vw, 420px);
-            background: rgba(4, 5, 9, 0.32);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: min(94vw, 420px);
+            background: rgba(4, 5, 9, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 18px;
-            padding: 12px;
+            padding: 10px;
             box-sizing: border-box;
             display: grid;
-            gap: 10px;
+            gap: 8px;
             font-size: 9px;
             letter-spacing: 0.5px;
-            -webkit-backdrop-filter: blur(8px);
-            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
             pointer-events: auto;
             margin-top: auto;
-            opacity: 0.92;
-            box-shadow: 0 0 24px rgba(0,243,255,0.04);
+            margin-bottom: max(4px, env(safe-area-inset-bottom));
+            opacity: 0.95;
+            box-shadow: 0 0 28px rgba(0, 0, 0, 0.8);
         }
 
         .spectrum-monitor {
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
-            height: 44px;
-            padding: 8px 14px;
-            border-radius: 14px;
+            height: 36px;
+            padding: 6px 12px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            gap: 6px;
+            gap: 5px;
         }
 
         .spectrum-bar {
@@ -153,10 +152,10 @@
         .coordinate-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            gap: 4px;
             padding: 4px;
-            border-radius: 16px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-radius: 14px;
+            background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.04);
         }
 
@@ -164,28 +163,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 20px;
+            min-height: 18px;
             border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.08);
             color: rgba(255,255,255,0.72);
             background: rgba(255,255,255,0.02);
-            font-size: 8px;
-            letter-spacing: 0.25em;
+            font-size: 7.5px;
+            letter-spacing: 0.2em;
         }
 
         .mini-metrics {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 4px;
         }
 
         .metric-chip {
-            padding: 6px 8px;
+            padding: 5px 6px;
             border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.02);
             color: rgba(255,255,255,0.8);
-            font-size: 8px;
+            font-size: 7.5px;
             text-transform: uppercase;
             text-align: center;
         }
@@ -197,37 +196,37 @@
 
         .control-row {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .mini-note {
-            font-size: 8px;
+            font-size: 7.5px;
             color: rgba(255, 170, 0, 0.85);
-            line-height: 1.3;
+            line-height: 1.2;
             text-align: center;
         }
 
         .btn-core {
             flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: rgba(255, 255, 255, 0.88);
-            padding: 14px 10px;
+            padding: 12px 8px;
             font-family: inherit;
-            font-size: 10px;
-            letter-spacing: 1.5px;
+            font-size: 9.5px;
+            letter-spacing: 1.2px;
             border-radius: 999px;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 46px;
+            min-height: 42px;
         }
 
         .btn-core.primary { border-color: var(--matrix-green); color: var(--matrix-green); }
         .btn-core.secondary { border-color: var(--cyan-glow); color: var(--cyan-glow); }
 
         .btn-core:hover:not(:disabled) {
-            background: rgba(255,255,255,0.08);
-            box-shadow: 0 0 14px rgba(0,243,255,0.2);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 0 14px rgba(0,243,255,0.25);
         }
 
         .btn-core:disabled {
@@ -239,18 +238,24 @@
 
         .toggle-vault-btn {
             position: fixed;
-            top: 14px;
-            right: 14px;
+            top: 12px;
+            right: 12px;
             z-index: 25;
             background: rgba(4,5,9,0.85);
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.18);
             color: #fff;
-            padding: 8px 14px;
+            padding: 7px 12px;
             border-radius: 999px;
-            font-size: 10px;
+            font-size: 9px;
             font-family: monospace;
             cursor: pointer;
             backdrop-filter: blur(6px);
+        }
+
+        @media (max-width: 600px) {
+            .dashboard { padding: 8px; gap: 6px; }
+            .btn-core { padding: 10px 6px; font-size: 8.5px; min-height: 38px; }
+            .spectrum-monitor { height: 28px; }
         }
     </style>
 </head>
@@ -258,7 +263,6 @@
 
     <canvas id="bg"></canvas>
 
-    <!-- Video & Canvas for Camera Processing -->
     <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;">
         <source src="evolve.mp4" type="video/mp4">
     </video>
@@ -267,15 +271,6 @@
     <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ VAULT ARCHIVE</button>
 
     <div class="ui-container">
-        <div class="audio-stream-container" style="padding: 4px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 6px;">
-            <p style="color: var(--matrix-green); font-size: 8px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
-                ⚡ SONIC PATTERN ROOT: aujoulevol.wav
-            </p>
-            <audio id="aujouleAudio" loop autoplay playsinline style="display:none;">
-                <source src="aujoulevol.wav" type="audio/wav">
-            </audio>
-        </div>
-
         <div class="ambient-note" aria-hidden="true">
             <div class="ambient-title">AU·EVO·AUJOUL·EVOL</div>
             <div class="ambient-equation">A<sub>u</sub>J = &sum;<sub style="font-size: 0.6em; margin-left: -0.4em;">R</sub> (M &times; L)</div>
@@ -313,11 +308,14 @@
                 <span id="stateDisplay" style="display: none;">WAITING</span>
             </div>
 
-            <div class="audio-stream-container" style="padding: 4px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 6px;">
-                <p style="color: var(--matrix-green); font-size: 8px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
+            <div class="audio-stream-container" style="padding: 2px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 4px;">
+                <p style="color: var(--matrix-green); font-size: 7.5px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
                     ⚡ SONIC PATTERN ROOT: aujoulevol.wav
                 </p>
-                <audio controls style="width: 100%; height: 32px; filter: invert(1) hue-rotate(90deg); opacity: 0.78;">
+                <audio controls style="width: 100%; height: 26px; filter: invert(1) hue-rotate(90deg); opacity: 0.78;">
+                    <source src="aujoulevol.wav" type="audio/wav">
+                </audio>
+                <audio id="aujouleAudio" loop autoplay playsinline style="display:none;">
                     <source src="aujoulevol.wav" type="audio/wav">
                 </audio>
             </div>
@@ -327,17 +325,17 @@
                 <button id="recordButton" class="btn-core primary" type="button" disabled>GENERATE SOUL SEAL</button>
             </div>
 
-            <div class="mini-note" id="adviceDisplay">Mirror memory state initializing. Touch screen or speak to morph the Sacred Wiregrid.</div>
+            <div class="mini-note" id="adviceDisplay">Touch screen or speak to morph the Sacred Wiregrid.</div>
         </section>
     </div>
     
-    <div id="history-vault-container" style="position: fixed; right: 0; top: 0; width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 20; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.94); padding: 25px; box-sizing: border-box; backdrop-filter: blur(12px); display: none;">
+    <div id="history-vault-container" style="position: fixed; right: 0; top: 0; width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 30; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.94); padding: 25px; box-sizing: border-box; backdrop-filter: blur(12px); display: none;">
         <h3 style="color: #fff; font-family: monospace; letter-spacing: 3px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
             <span>🗃️ IMMUTABLE ARCHIVE</span>
             <button onclick="toggleVault()" style="background:none; border:none; color:#ff5e00; cursor:pointer; font-size: 16px;">✕</button>
         </h3>
         <p style="font-family: monospace; font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 20px; line-height: 1.5;">
-            Click on any historical archive card below to reverse-engineer its metrics and re-project that generation's specific light matrix coordinates directly back onto your active 3D wiregrid matrix.
+            Click on any historical archive card below to reverse-engineer its metrics and re-project that generation's light matrix coordinates directly back onto your active 3D wiregrid matrix.
         </p>
         <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;"></div>
     </div>
@@ -381,11 +379,10 @@
 
         // --- THREE.JS SCENE SETUP ---
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000002, 0.012);
+        scene.fog = new THREE.FogExp2(0x000002, 0.010);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000.0);
-        camera.position.set(0.0, -10.0, 32.0);
-
+        
         const renderer = new THREE.WebGLRenderer({
             canvas: document.querySelector('#bg'),
             alpha: false,
@@ -396,7 +393,25 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
         renderer.setClearColor(0x000002, 1.0);
 
-        // Interaction Dynamics
+        // Responsive Camera framing
+        function updateCameraPerspective() {
+            const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+            const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            camera.aspect = w / h;
+            
+            // Adjust camera distance & field of view so MerKaBa stays framed high on vertical mobile screens
+            if (w < 600) {
+                camera.fov = 70;
+                camera.position.set(0.0, -4.0, 36.0);
+            } else {
+                camera.fov = 55;
+                camera.position.set(0.0, -4.0, 32.0);
+            }
+            camera.updateProjectionMatrix();
+        }
+        updateCameraPerspective();
+
+        // Touch & Motion Dynamics
         let touchVector = { x: 0.0, y: 0.0 };
         let lastTouchVector = { x: 0.0, y: 0.0 };
         let touchVelocity = 0.0, targetVelocity = 0.0;
@@ -464,26 +479,27 @@
 
         window.meshMaterial = wiregridMaterial;
 
-        // --- SACRED GEOMETRY SYSTEM: COUNTER-ROTATING MERKABA & TORUS FIELD ---
+        // --- SACRED GEOMETRY SYSTEM: ELEVATED COUNTER-ROTATING MERKABA & TORUS FIELD ---
         const sacredGroup = new THREE.Group();
-        sacredGroup.position.set(0, 3.5, 2.0);
+        // ELEVATED: Y set to 8.5 so it floats clearly above the lower dashboard
+        sacredGroup.position.set(0.0, 8.5, 0.0);
 
         // MerKaBa Star 1 (Male/Electric Tetrahedron)
-        const merkabaGeo1 = new THREE.TetrahedronGeometry(4.5, 1);
-        const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.55 });
+        const merkabaGeo1 = new THREE.TetrahedronGeometry(4.2, 1);
+        const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.60 });
         const merkabaMesh1 = new THREE.Mesh(merkabaGeo1, merkabaMat1);
         sacredGroup.add(merkabaMesh1);
 
         // MerKaBa Star 2 (Female/Magnetic Counter-Inverted Tetrahedron)
-        const merkabaGeo2 = new THREE.TetrahedronGeometry(4.5, 1);
-        const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.45 });
+        const merkabaGeo2 = new THREE.TetrahedronGeometry(4.2, 1);
+        const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.50 });
         const merkabaMesh2 = new THREE.Mesh(merkabaGeo2, merkabaMat2);
         merkabaMesh2.rotation.z = Math.PI;
         sacredGroup.add(merkabaMesh2);
 
         // Sri Yantra Orbital Torus Ring
-        const torusGeo = new THREE.TorusGeometry(8.5, 0.35, 16, 64);
-        const torusMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.30 });
+        const torusGeo = new THREE.TorusGeometry(8.0, 0.35, 16, 64);
+        const torusMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.35 });
         const torusMesh = new THREE.Mesh(torusGeo, torusMat);
         torusMesh.rotation.x = Math.PI / 2;
         sacredGroup.add(torusMesh);
@@ -693,24 +709,20 @@
             const time = Date.now() * 0.0012;
             const posAttr = wiregridGeometry.attributes.position;
 
-            // --- DEFORM PLANE GRID WITH LIQUID TOROIDAL VORTEX FUNNEL ---
+            // Deform Plane Grid with Liquid Toroidal Vortex Funnel
             for (let i = 0; i < posAttr.count; i++) {
                 const bx = baseGridVertices.getX(i);
                 const by = baseGridVertices.getY(i);
                 const bz = baseGridVertices.getZ(i);
 
-                // Sound waves
                 const waveX = Math.sin(by * 0.22 + time * 3.0) * (0.8 + bassVal * 4.0);
                 const waveY = Math.cos(bx * 0.22 + time * 2.5) * (0.8 + midVal * 3.0);
 
-                // Touch ripples
                 const distToTouch = Math.sqrt(Math.pow(bx - touchVector.x * 25, 2) + Math.pow(by - touchVector.y * 25, 2));
                 const touchRipple = Math.sin(distToTouch * 0.4 - time * 6.0) * (touchVelocity * 1.5);
 
-                // Camera metric displacement
                 const camDisplace = Math.sin(bx * 0.1 + time) * (cameraMetric * 2.0);
 
-                // TOROIDAL VORTEX FUNNEL: Pulls grid UP into base of MerKaBa core
                 const distFromCenter = Math.sqrt(bx * bx + by * by);
                 const vortexFunnel = Math.max(0, (14.0 - distFromCenter * 0.38)) * (0.4 + bassVal * 1.2);
 
@@ -720,7 +732,7 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
-            // --- COUNTER-ROTATING MERKABA ANIMATION ---
+            // Counter-Rotating MerKaBa Animation
             const rotationSpeed = 0.012 + (touchVelocity * 0.02) + (bassVal * 0.03);
             merkabaMesh1.rotation.y += rotationSpeed;
             merkabaMesh1.rotation.x += rotationSpeed * 0.5;
@@ -730,14 +742,14 @@
 
             torusMesh.rotation.z += 0.005;
 
-            // Flex MerKaBa size to audio bass
+            // Pulse scale
             const pulseScale = 1.0 + (bassVal * 0.4) + (dynamicFactor * 0.2);
             sacredGroup.scale.set(pulseScale, pulseScale, pulseScale);
 
-            // Parallax Camera Sway
-            camera.position.x += (touchVector.x * 6.0 - camera.position.x) * 0.04;
-            camera.position.y += (touchVector.y * 6.0 - 10.0 - camera.position.y) * 0.04;
-            camera.lookAt(0.0, 2.0, 0.0);
+            // Camera Target Focused High above Dashboard (Y = 6.5)
+            camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
+            camera.position.y += (touchVector.y * 5.0 - 4.0 - camera.position.y) * 0.04;
+            camera.lookAt(0.0, 6.5, 0.0);
 
             if (starfield) {
                 starfield.rotation.y += 0.0001;
@@ -748,13 +760,7 @@
             renderer.render(scene, camera);
         }
 
-        function resizeRenderer() {
-            const width = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-            const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-            camera.aspect = width / height; camera.updateProjectionMatrix();
-            renderer.setSize(width, height, false);
-        }
-        window.addEventListener('resize', resizeRenderer);
+        window.addEventListener('resize', updateCameraPerspective);
 
         window.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('bg')) animate();
