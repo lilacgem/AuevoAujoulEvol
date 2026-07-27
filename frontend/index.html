@@ -39,6 +39,7 @@
             padding: 0;
             width: 100%;
             min-width: 100vw;
+            height: 100%;
             min-height: 100dvh;
             overflow: hidden;
             background-color: var(--bg-color);
@@ -61,43 +62,34 @@
             pointer-events: auto;
         }
 
-        .ui-container {
+        .ambient-header {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 10;
-            background: transparent;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) 12px;
-            box-sizing: border-box;
-        }
-
-        .ambient-note {
-            position: relative;
-            margin-top: 4px;
-            width: min(94vw, 560px);
+            top: max(10px, env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92vw, 560px);
             text-align: center;
-            color: rgba(255, 255, 255, 0.86);
+            color: rgba(255, 255, 255, 0.88);
             text-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
             pointer-events: none;
             z-index: 20;
         }
 
         .ambient-title {
-            font-size: clamp(0.65rem, 2.2vw, 0.8rem);
+            font-size: clamp(0.6rem, 2vw, 0.78rem);
             letter-spacing: 0.35em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.90);
+            color: rgba(255, 255, 255, 0.92);
         }
 
+        /* ANCHORED SAFE-ZONE DASHBOARD FOR IPHONES & DESKTOP */
         .dashboard {
-            width: min(94vw, 420px);
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92vw, 420px);
+            z-index: 25;
             background: transparent;
             border: none;
             padding: 0;
@@ -107,19 +99,17 @@
             gap: 8px;
             font-size: 9px;
             pointer-events: auto;
-            margin-top: auto;
-            margin-bottom: max(6px, env(safe-area-inset-bottom));
         }
 
         .spectrum-monitor {
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
-            height: 24px;
+            height: 22px;
             padding: 2px 8px;
             border-radius: 999px;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             gap: 4px;
@@ -134,32 +124,32 @@
         }
 
         .oracle-box {
-            background: rgba(0, 0, 0, 0.40);
-            border: 1px solid rgba(0, 243, 255, 0.2);
+            background: rgba(0, 0, 0, 0.50);
+            border: 1px solid rgba(0, 243, 255, 0.25);
             border-radius: 14px;
             padding: 8px 12px;
             text-align: center;
             font-family: 'Courier New', Courier, monospace;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
         }
 
         .oracle-realm {
-            font-size: 8px;
-            letter-spacing: 0.25em;
+            font-size: 7.5px;
+            letter-spacing: 0.22em;
             color: var(--gold-luxe);
             text-transform: uppercase;
             font-weight: bold;
         }
 
         .oracle-text {
-            font-size: 8.5px;
+            font-size: 8px;
             color: rgba(255, 255, 255, 0.95);
             line-height: 1.35;
             margin-top: 3px;
             font-style: italic;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
         }
 
         .control-row {
@@ -169,17 +159,17 @@
         }
 
         .btn-core {
-            background: rgba(0, 0, 0, 0.50);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: rgba(255, 255, 255, 0.90);
-            padding: 8px 4px;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            color: rgba(255, 255, 255, 0.92);
+            padding: 10px 4px;
             font-family: inherit;
             font-size: 8px;
             letter-spacing: 0.8px;
             border-radius: 999px;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 34px;
+            min-height: 36px;
             text-align: center;
             display: flex;
             align-items: center;
@@ -193,8 +183,8 @@
         .btn-core.recording-btn { border-color: var(--matrix-orange); color: var(--matrix-orange); }
 
         .btn-core:hover:not(:disabled) {
-            background: rgba(255,255,255,0.15);
-            box-shadow: 0 0 14px rgba(0,243,255,0.3);
+            background: rgba(255,255,255,0.18);
+            box-shadow: 0 0 14px rgba(0,243,255,0.35);
         }
 
         .btn-core:disabled {
@@ -212,25 +202,31 @@
 
         .active-rec {
             animation: pulseRecording 1.2s infinite;
-            background: rgba(255, 94, 0, 0.3) !important;
+            background: rgba(255, 94, 0, 0.35) !important;
             border-color: #ff5e00 !important;
             color: #ffffff !important;
         }
 
         .toggle-vault-btn {
             position: fixed;
-            top: 12px;
+            top: max(10px, env(safe-area-inset-top));
             right: 12px;
-            z-index: 25;
-            background: rgba(4,5,9,0.75);
-            border: 1px solid rgba(255,255,255,0.18);
+            z-index: 30;
+            background: rgba(4,5,9,0.85);
+            border: 1px solid rgba(255,255,255,0.2);
             color: #fff;
             padding: 6px 12px;
             border-radius: 999px;
-            font-size: 8.5px;
+            font-size: 8px;
             font-family: monospace;
             cursor: pointer;
             backdrop-filter: blur(8px);
+        }
+
+        @media (max-width: 600px) {
+            .dashboard { width: 92vw; bottom: max(16px, env(safe-area-inset-bottom)); gap: 6px; }
+            .btn-core { padding: 9px 2px; font-size: 7.5px; min-height: 34px; }
+            .oracle-text { font-size: 7.5px; }
         }
     </style>
 </head>
@@ -245,54 +241,51 @@
 
     <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ VAULT ARCHIVE</button>
 
-    <div class="ui-container">
-        <div class="ambient-note" aria-hidden="true">
-            <div class="ambient-title">AU·EVO·AUJOUL·EVOL</div>
+    <div class="ambient-header" aria-hidden="true">
+        <div class="ambient-title">AU·EVO·AUJOUL·EVOL</div>
+    </div>
+
+    <section class="dashboard" aria-label="Mirror controls">
+        <div class="spectrum-monitor" id="spectrumMonitor">
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
         </div>
 
-        <section class="dashboard" aria-label="Mirror controls">
-            <div class="spectrum-monitor" id="spectrumMonitor">
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-                <div class="spectrum-bar"></div>
-            </div>
-
-            <!-- DYNAMIC ETHEREAL SHAMANIC ORACLE -->
-            <div class="oracle-box">
-                <div class="oracle-realm" id="oracleRealm">✦ REALM: INITIALIZING MATRIX... ✦</div>
-                <div class="oracle-text" id="oracleText">Touch screen or speak to allow the wiregrid ocean to decode your frequency...</div>
-            </div>
-
-            <div class="control-row">
-                <button id="micButton" class="btn-core secondary" type="button">COMMUNE</button>
-                <button id="recordButton" class="btn-core primary" type="button" disabled>SOUL SEAL</button>
-                <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>RECORD CLIP</button>
-            </div>
-        </section>
-
-        <!-- PRESERVED HIDDEN DOM ELEMENTS FOR LOGIC AND VAULT API INTEGRITY -->
-        <div style="display: none;">
-            <span id="hueDisplay">0°</span>
-            <span id="resDisplay">0.180</span>
-            <span id="rootDisplay">9</span>
-            <span id="camDisplay">OFF</span>
-            <span id="bassDisplay">0</span>
-            <span id="stampDisplay">READY</span>
-            <span id="micStatus">OFFLINE</span>
-            <span id="awarenessDisplay">WAITING</span>
-            <span id="stateDisplay">WAITING</span>
-            <audio id="aujouleAudio" loop autoplay playsinline>
-                <source src="aujoulevol.wav" type="audio/wav">
-            </audio>
+        <div class="oracle-box">
+            <div class="oracle-realm" id="oracleRealm">✦ REALM: INITIALIZING MATRIX... ✦</div>
+            <div class="oracle-text" id="oracleText">Touch screen or speak to allow the wiregrid ocean to decode your frequency...</div>
         </div>
+
+        <div class="control-row">
+            <button id="micButton" class="btn-core secondary" type="button">COMMUNE</button>
+            <button id="recordButton" class="btn-core primary" type="button" disabled>SOUL SEAL</button>
+            <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>RECORD CLIP</button>
+        </div>
+    </section>
+
+    <!-- PRESERVED HIDDEN DOM ELEMENTS FOR API LOGIC AND RENDER VAULT INTEGRITY -->
+    <div style="display: none;">
+        <span id="hueDisplay">0°</span>
+        <span id="resDisplay">0.180</span>
+        <span id="rootDisplay">9</span>
+        <span id="camDisplay">OFF</span>
+        <span id="bassDisplay">0</span>
+        <span id="stampDisplay">READY</span>
+        <span id="micStatus">OFFLINE</span>
+        <span id="awarenessDisplay">WAITING</span>
+        <span id="stateDisplay">WAITING</span>
+        <audio id="aujouleAudio" loop autoplay playsinline>
+            <source src="aujoulevol.wav" type="audio/wav">
+        </audio>
     </div>
     
-    <div id="history-vault-container" style="position: fixed; right: 0; top: 0; width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 30; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.94); padding: 25px; box-sizing: border-box; backdrop-filter: blur(12px); display: none;">
+    <div id="history-vault-container" style="position: fixed; right: 0; top: 0; width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 40; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.95); padding: 25px; box-sizing: border-box; backdrop-filter: blur(12px); display: none;">
         <h3 style="color: #fff; font-family: monospace; letter-spacing: 3px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
             <span>🗃️ IMMUTABLE ARCHIVE</span>
             <button onclick="toggleVault()" style="background:none; border:none; color:#ff5e00; cursor:pointer; font-size: 16px;">✕</button>
@@ -524,7 +517,7 @@
 
                     micStream = await navigator.mediaDevices.getUserMedia({
                         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
-                        video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" }
+                        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
                     });
 
                     videoElement.srcObject = micStream;
@@ -537,7 +530,7 @@
                     const source = audioContext.createMediaStreamSource(micStream);
                     analyser = audioContext.createAnalyser();
                     analyser.fftSize = 256;
-                    analyser.smoothingTimeConstant = 0.82;
+                    analyser.smoothingTimeConstant = 0.75;
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
                     
                     source.connect(analyser);
@@ -586,16 +579,17 @@
                 for (let i = 8; i < 40; i++) midSum += dataArray[i];
                 for (let i = 40; i < 128; i++) highSum += dataArray[i];
 
-                bassVal = bassSum / (8 * 255.0);
-                midVal = midSum / (32 * 255.0);
-                highVal = highSum / (88 * 255.0);
+                // Boosted FFT Gain for Laptop & Mobile Mics
+                bassVal = Math.min(1.0, (bassSum / (8 * 255.0)) * 2.2);
+                midVal = Math.min(1.0, (midSum / (32 * 255.0)) * 2.0);
+                highVal = Math.min(1.0, (highSum / (88 * 255.0)) * 2.0);
 
                 dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, (bassVal * 2.5 + midVal * 1.5) + 0.15, 0.2);
 
                 const bars = document.querySelectorAll('.spectrum-bar');
                 bars.forEach((bar, idx) => {
-                    const sample = dataArray[idx * 3] / 255.0;
-                    bar.style.height = `${Math.max(12, sample * 100)}%`;
+                    const sample = (dataArray[idx * 3] / 255.0) * 1.8;
+                    bar.style.height = `${Math.max(12, Math.min(100, sample * 100))}%`;
                 });
             } else {
                 dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, 0.18, 0.05);
