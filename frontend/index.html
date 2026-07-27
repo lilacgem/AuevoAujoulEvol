@@ -89,7 +89,7 @@
         }
 
         .ambient-title {
-            font-size: Clamp(0.7rem, 2.5vw, 0.86rem);
+            font-size: clamp(0.7rem, 2.5vw, 0.86rem);
             letter-spacing: 0.35em;
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.92);
@@ -110,23 +110,23 @@
         }
 
         .dashboard {
-            width: min(94vw, 420px);
-            background: rgba(4, 5, 9, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 18px;
-            padding: 10px;
+            width: min(94vw, 440px);
+            background: rgba(4, 5, 9, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 12px;
             box-sizing: border-box;
             display: grid;
             gap: 8px;
             font-size: 9px;
             letter-spacing: 0.5px;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
             pointer-events: auto;
             margin-top: auto;
             margin-bottom: max(4px, env(safe-area-inset-bottom));
-            opacity: 0.95;
-            box-shadow: 0 0 28px rgba(0, 0, 0, 0.8);
+            opacity: 0.96;
+            box-shadow: 0 0 32px rgba(0, 0, 0, 0.85);
         }
 
         .spectrum-monitor {
@@ -147,6 +147,31 @@
             height: 15%;
             border-radius: 2px;
             transition: height 0.05s ease;
+        }
+
+        .oracle-box {
+            background: rgba(0, 243, 255, 0.03);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 12px;
+            padding: 8px 10px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .oracle-realm {
+            font-size: 8px;
+            letter-spacing: 0.25em;
+            color: var(--gold-luxe);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .oracle-text {
+            font-size: 8.5px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.35;
+            margin-top: 3px;
+            font-style: italic;
         }
 
         .coordinate-grid {
@@ -199,13 +224,6 @@
             gap: 6px;
         }
 
-        .mini-note {
-            font-size: 7.5px;
-            color: rgba(255, 170, 0, 0.85);
-            line-height: 1.2;
-            text-align: center;
-        }
-
         .btn-core {
             flex: 1;
             background: rgba(255, 255, 255, 0.04);
@@ -213,7 +231,7 @@
             color: rgba(255, 255, 255, 0.88);
             padding: 12px 8px;
             font-family: inherit;
-            font-size: 9.5px;
+            font-size: 9px;
             letter-spacing: 1.2px;
             border-radius: 999px;
             cursor: pointer;
@@ -254,7 +272,7 @@
 
         @media (max-width: 600px) {
             .dashboard { padding: 8px; gap: 6px; }
-            .btn-core { padding: 10px 6px; font-size: 8.5px; min-height: 38px; }
+            .btn-core { padding: 10px 6px; font-size: 8px; min-height: 38px; }
             .spectrum-monitor { height: 28px; }
         }
     </style>
@@ -289,6 +307,12 @@
                 <div class="spectrum-bar"></div>
             </div>
 
+            <!-- DYNAMIC ETHEREAL SHAMANIC ORACLE -->
+            <div class="oracle-box">
+                <div class="oracle-realm" id="oracleRealm">✦ REALM: INITIALIZING MATRIX... ✦</div>
+                <div class="oracle-text" id="oracleText">Touch the screen or speak into the microphone to allow the wiregrid ocean to calculate your aura frequency.</div>
+            </div>
+
             <div class="coordinate-grid" aria-hidden="true">
                 <span class="coord">GRID-X</span>
                 <span class="coord">GRID-Y</span>
@@ -297,10 +321,10 @@
             </div>
 
             <div class="mini-metrics">
-                <span class="metric-chip">HUE <strong id="hueDisplay">0°</strong></span>
-                <span class="metric-chip">RES <strong id="resDisplay">0.180</strong></span>
-                <span class="metric-chip">ROOT <strong id="rootDisplay">9</strong></span>
-                <span class="metric-chip">CAM <strong id="camDisplay">OFF</strong></span>
+                <span class="metric-chip">SPECTRUM <strong id="hueDisplay">0°</strong></span>
+                <span class="metric-chip">DENSITY <strong id="resDisplay">0.180</strong></span>
+                <span class="metric-chip">369 ROOT <strong id="rootDisplay">9</strong></span>
+                <span class="metric-chip">EYE <strong id="camDisplay">OFF</strong></span>
                 <span class="metric-chip">BASS <strong id="bassDisplay">0</strong></span>
                 <span class="metric-chip">STAMP <strong id="stampDisplay">READY</strong></span>
                 <span id="micStatus" style="display: none;">OFFLINE</span>
@@ -321,11 +345,9 @@
             </div>
 
             <div class="control-row">
-                <button id="micButton" class="btn-core secondary" type="button">ENABLE MIRROR</button>
-                <button id="recordButton" class="btn-core primary" type="button" disabled>GENERATE SOUL SEAL</button>
+                <button id="micButton" class="btn-core secondary" type="button">COMMUNE WITH MIRROR</button>
+                <button id="recordButton" class="btn-core primary" type="button" disabled>CRYSTALLIZE SOUL SEAL</button>
             </div>
-
-            <div class="mini-note" id="adviceDisplay">Touch screen or speak to morph the Sacred Wiregrid.</div>
         </section>
     </div>
     
@@ -393,13 +415,11 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
         renderer.setClearColor(0x000002, 1.0);
 
-        // Responsive Camera framing
         function updateCameraPerspective() {
             const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
             const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
             camera.aspect = w / h;
             
-            // Adjust camera distance & field of view so MerKaBa stays framed high on vertical mobile screens
             if (w < 600) {
                 camera.fov = 70;
                 camera.position.set(0.0, -4.0, 36.0);
@@ -411,7 +431,6 @@
         }
         updateCameraPerspective();
 
-        // Touch & Motion Dynamics
         let touchVector = { x: 0.0, y: 0.0 };
         let lastTouchVector = { x: 0.0, y: 0.0 };
         let touchVelocity = 0.0, targetVelocity = 0.0;
@@ -481,23 +500,19 @@
 
         // --- SACRED GEOMETRY SYSTEM: ELEVATED COUNTER-ROTATING MERKABA & TORUS FIELD ---
         const sacredGroup = new THREE.Group();
-        // ELEVATED: Y set to 8.5 so it floats clearly above the lower dashboard
         sacredGroup.position.set(0.0, 8.5, 0.0);
 
-        // MerKaBa Star 1 (Male/Electric Tetrahedron)
         const merkabaGeo1 = new THREE.TetrahedronGeometry(4.2, 1);
         const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.60 });
         const merkabaMesh1 = new THREE.Mesh(merkabaGeo1, merkabaMat1);
         sacredGroup.add(merkabaMesh1);
 
-        // MerKaBa Star 2 (Female/Magnetic Counter-Inverted Tetrahedron)
         const merkabaGeo2 = new THREE.TetrahedronGeometry(4.2, 1);
         const merkabaMat2 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.50 });
         const merkabaMesh2 = new THREE.Mesh(merkabaGeo2, merkabaMat2);
         merkabaMesh2.rotation.z = Math.PI;
         sacredGroup.add(merkabaMesh2);
 
-        // Sri Yantra Orbital Torus Ring
         const torusGeo = new THREE.TorusGeometry(8.0, 0.35, 16, 64);
         const torusMat = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.35 });
         const torusMesh = new THREE.Mesh(torusGeo, torusMat);
@@ -555,7 +570,7 @@
                     if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
                     if (stateDisplayEl) { stateDisplayEl.innerText = "ACTIVE"; stateDisplayEl.style.display = "inline"; }
 
-                    micButton.innerText = "MIRROR ACTIVE";
+                    micButton.innerText = "MIRROR COMMUNICATING";
                     micButton.style.borderColor = "#00f3ff";
                     micButton.style.color = "#00f3ff";
 
@@ -582,6 +597,8 @@
         }
 
         let bassVal = 0, midVal = 0, highVal = 0;
+        
+        // --- AUTHENTIC SHAMANIC LIGHT SPECTRUM TRANSLATOR ---
         function processVocalTelemetry() {
             if (analyser && dataArray) {
                 analyser.getByteFrequencyData(dataArray);
@@ -614,15 +631,51 @@
             merkabaMat2.color.setHSL((colorAccumulator + 0.5) % 1.0, 0.95, 0.50);
             torusMat.color.copy(activeColor);
 
-            if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;            
+            const hueDeg = Math.round(colorAccumulator * 360.0);
+            if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${hueDeg}°`;            
             if (document.getElementById('resDisplay')) document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
             if (document.getElementById('bassDisplay')) document.getElementById('bassDisplay').innerText = Math.round(bassVal * 100);
 
+            const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
             const rootEl = document.getElementById('rootDisplay');
             if (rootEl) {
-                const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
                 rootEl.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
             }
+
+            // --- REAL-TIME ETHEREAL SPECTRUM & CHAKRA REVELATION LOGIC ---
+            let realmTitle = "";
+            let oracleMessage = "";
+
+            if (hueDeg >= 330 || hueDeg < 30) {
+                realmTitle = "✦ REALM: RUBY ROOT ANCHOR (PHYSICAL WILL) ✦";
+                oracleMessage = "Your aura frequency is anchoring into primeval earth density. You are building foundational strength—focus on grounding your raw willpower.";
+            } else if (hueDeg >= 30 && hueDeg < 70) {
+                realmTitle = "✦ REALM: AMBER KUNDALINI (ALCHEMICAL CREATION) ✦";
+                oracleMessage = "Creative heat is rising through your solar nexus. Unspoken passion is transforming into actionable power.";
+            } else if (hueDeg >= 70 && hueDeg < 150) {
+                realmTitle = "✦ REALM: EMERALD HEART GRID (CELLULAR HARMONY) ✦";
+                oracleMessage = "Biological coherence achieved. Your heart frequency is emitting a healing wave—restoring balance across your emotional field.";
+            } else if (hueDeg >= 150 && hueDeg < 210) {
+                realmTitle = "✦ REALM: AZURE THROAT MATRIX (SONIC TRUTH) ✦";
+                oracleMessage = "Your vocal portal is active. You carry an unexpressed truth—speak or resonate now to project sovereign sound.";
+            } else if (hueDeg >= 210 && hueDeg < 270) {
+                realmTitle = "✦ REALM: INDIGO THIRD EYE (PATTERN VISION) ✦";
+                oracleMessage = "Intuitive density shifting inward. Your mind is decoding hidden structural geometries behind your immediate reality.";
+            } else {
+                realmTitle = "✦ REALM: VIOLET CROWN (369 SOURCE CONNECTION) ✦";
+                oracleMessage = "Transcendence phase active. Your current wave matrix aligns directly with higher 3-6-9 universal completion.";
+            }
+
+            if (bassVal > 0.35) {
+                oracleMessage += " [HEAVY BASS HARMONICS: Rooting deep physical resonance.]";
+            } else if (touchVelocity > 0.4) {
+                oracleMessage += " [KINETIC SURGE: Active aura recalibration in progress.]";
+            }
+
+            const realmEl = document.getElementById('oracleRealm');
+            const textEl = document.getElementById('oracleText');
+            if (realmEl) realmEl.innerText = realmTitle;
+            if (textEl) textEl.innerText = oracleMessage;
         }
 
         // --- PREDICTIVE GENETIC LEDGER DATA ---
@@ -633,7 +686,7 @@
 
         const recordButton = document.getElementById('recordButton');
         if (recordButton) {
-            recordButton.innerText = "GENERATE SOUL SEAL";
+            recordButton.innerText = "CRYSTALLIZE SOUL SEAL";
             recordButton.disabled = false;
             recordButton.addEventListener('click', () => {
                 renderer.render(scene, camera);
@@ -688,8 +741,8 @@
                 downloadLink.href = dataUrl;
                 document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
                 
-                recordButton.innerText = `GEN ${evoHistory.totalSeals} RECORDED`;
-                setTimeout(() => { recordButton.innerText = "GENERATE SOUL SEAL"; }, 2500);
+                recordButton.innerText = `GEN ${evoHistory.totalSeals} CRYSTALLIZED`;
+                setTimeout(() => { recordButton.innerText = "CRYSTALLIZE SOUL SEAL"; }, 2500);
             });
         }
 
@@ -709,7 +762,6 @@
             const time = Date.now() * 0.0012;
             const posAttr = wiregridGeometry.attributes.position;
 
-            // Deform Plane Grid with Liquid Toroidal Vortex Funnel
             for (let i = 0; i < posAttr.count; i++) {
                 const bx = baseGridVertices.getX(i);
                 const by = baseGridVertices.getY(i);
@@ -732,7 +784,6 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
-            // Counter-Rotating MerKaBa Animation
             const rotationSpeed = 0.012 + (touchVelocity * 0.02) + (bassVal * 0.03);
             merkabaMesh1.rotation.y += rotationSpeed;
             merkabaMesh1.rotation.x += rotationSpeed * 0.5;
@@ -742,11 +793,9 @@
 
             torusMesh.rotation.z += 0.005;
 
-            // Pulse scale
             const pulseScale = 1.0 + (bassVal * 0.4) + (dynamicFactor * 0.2);
             sacredGroup.scale.set(pulseScale, pulseScale, pulseScale);
 
-            // Camera Target Focused High above Dashboard (Y = 6.5)
             camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
             camera.position.y += (touchVector.y * 5.0 - 4.0 - camera.position.y) * 0.04;
             camera.lookAt(0.0, 6.5, 0.0);
@@ -766,7 +815,6 @@
             if (document.getElementById('bg')) animate();
         });
 
-        // Load vault history records from Render backend
         async function loadVaultHistory() {
             try {
                 const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
