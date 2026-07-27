@@ -594,7 +594,7 @@
             colorAccumulator = (colorAccumulator + 0.0012 + (highVal * 0.01) + (touchVelocity * 0.003)) % 1.0;
             wiregridMaterial.color.setHSL(colorAccumulator, 0.95, 0.50);
 
-            if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;
+            if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${Math.round(colorAccumulator * 360.0)}°`;           
             if (document.getElementById('resDisplay')) document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
             if (document.getElementById('bassDisplay')) document.getElementById('bassDisplay').innerText = Math.round(bassVal * 100);
 
