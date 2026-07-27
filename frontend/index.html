@@ -332,11 +332,13 @@
         }
         Aueo();
 
-        // --- UNIVERSAL FILE DOWNLOAD / APPLE SHARE HELPER ---
+        // --- UNIVERSAL FILE DOWNLOAD HELPER (DESKTOP DIRECT DOWNLOAD / MOBILE SHARE) ---
         async function triggerSovereignDownload(fileBlob, fileName, titleText) {
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             const file = new File([fileBlob], fileName, { type: fileBlob.type });
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            // Trigger Mobile Share Sheet ONLY on Mobile Devices
+            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
                         files: [file],
@@ -345,15 +347,15 @@
                     });
                     return;
                 } catch (shareErr) {
-                    console.log("Apple Share Sheet dismissed or unhandled:", shareErr);
+                    console.log("Mobile Share Sheet dismissed or unhandled:", shareErr);
                 }
             }
 
+            // Direct File Download for Laptop / Desktop Browsers
             const blobUrl = URL.createObjectURL(fileBlob);
             const link = document.createElement('a');
             link.href = blobUrl;
             link.download = fileName;
-            link.target = '_blank';
             document.body.appendChild(link);
             link.click();
             setTimeout(() => {
@@ -465,7 +467,6 @@
         const sacredGroup = new THREE.Group();
         sacredGroup.position.set(0.0, 11.0, 0.0);
 
-        // SINGLE UNIFIED DYNAMIC MATRIX (NO Rigid Trapped Inner Star)
         let personalSymbolMesh = null;
         let lastP = -1, lastQ = -1;
 
@@ -492,7 +493,6 @@
                     personalSymbolMesh.geometry.dispose();
                 }
 
-                // Generates a single continuous, open, un-constricted sacred form
                 const symbolGeometry = new THREE.TorusKnotGeometry(
                     7.5,
                     0.75 + (liveResonance * 0.35),
@@ -853,7 +853,6 @@
             processVocalTelemetry();
             processCameraBiometrics();
 
-            // REAL-TIME SINGLE SACRED MATRIX GENERATION
             ReflectSovereignSymbol(evoHistory, dynamicFactor + touchVelocity, colorAccumulator, bassVal, midVal, highVal);
 
             if (videoTexture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
