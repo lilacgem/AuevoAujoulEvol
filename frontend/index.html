@@ -73,7 +73,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: max(10px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) 12px;
+            padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom)) 12px;
             box-sizing: border-box;
         }
 
@@ -111,20 +111,20 @@
 
         .dashboard {
             width: min(94vw, 440px);
-            background: rgba(4, 5, 9, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(4, 5, 9, 0.50);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 20px;
-            padding: 12px;
+            padding: 10px;
             box-sizing: border-box;
             display: grid;
-            gap: 8px;
+            gap: 7px;
             font-size: 9px;
             letter-spacing: 0.5px;
             -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             pointer-events: auto;
             margin-top: auto;
-            margin-bottom: max(4px, env(safe-area-inset-bottom));
+            margin-bottom: max(2px, env(safe-area-inset-bottom));
             opacity: 0.96;
             box-shadow: 0 0 32px rgba(0, 0, 0, 0.85);
         }
@@ -133,9 +133,9 @@
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
-            height: 36px;
-            padding: 6px 12px;
-            border-radius: 12px;
+            height: 32px;
+            padding: 4px 10px;
+            border-radius: 10px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.06);
             gap: 5px;
@@ -150,12 +150,16 @@
         }
 
         .oracle-box {
-            background: rgba(0, 243, 255, 0.03);
-            border: 1px solid rgba(0, 243, 255, 0.15);
+            background: rgba(0, 243, 255, 0.04);
+            border: 1px solid rgba(0, 243, 255, 0.18);
             border-radius: 12px;
             padding: 8px 10px;
             text-align: center;
             font-family: 'Courier New', Courier, monospace;
+            min-height: 52px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .oracle-realm {
@@ -168,10 +172,11 @@
 
         .oracle-text {
             font-size: 8.5px;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.92);
             line-height: 1.35;
             margin-top: 3px;
             font-style: italic;
+            transition: opacity 0.3s ease;
         }
 
         .coordinate-grid {
@@ -229,14 +234,14 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: rgba(255, 255, 255, 0.88);
-            padding: 12px 8px;
+            padding: 10px 8px;
             font-family: inherit;
             font-size: 9px;
             letter-spacing: 1.2px;
             border-radius: 999px;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-height: 42px;
+            min-height: 38px;
         }
 
         .btn-core.primary { border-color: var(--matrix-green); color: var(--matrix-green); }
@@ -271,9 +276,9 @@
         }
 
         @media (max-width: 600px) {
-            .dashboard { padding: 8px; gap: 6px; }
-            .btn-core { padding: 10px 6px; font-size: 8px; min-height: 38px; }
-            .spectrum-monitor { height: 28px; }
+            .dashboard { padding: 8px; gap: 5px; }
+            .btn-core { padding: 8px 6px; font-size: 8px; min-height: 36px; }
+            .spectrum-monitor { height: 26px; }
         }
     </style>
 </head>
@@ -310,7 +315,7 @@
             <!-- DYNAMIC ETHEREAL SHAMANIC ORACLE -->
             <div class="oracle-box">
                 <div class="oracle-realm" id="oracleRealm">✦ REALM: INITIALIZING MATRIX... ✦</div>
-                <div class="oracle-text" id="oracleText">Touch the screen or speak into the microphone to allow the wiregrid ocean to calculate your aura frequency.</div>
+                <div class="oracle-text" id="oracleText">Touch screen or speak to allow the wiregrid ocean to decode your frequency...</div>
             </div>
 
             <div class="coordinate-grid" aria-hidden="true">
@@ -332,11 +337,11 @@
                 <span id="stateDisplay" style="display: none;">WAITING</span>
             </div>
 
-            <div class="audio-stream-container" style="padding: 2px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 4px;">
+            <div class="audio-stream-container" style="padding: 2px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); text-align: center; display: flex; flex-direction: column; gap: 3px;">
                 <p style="color: var(--matrix-green); font-size: 7.5px; font-family: inherit; margin: 2px 0 0 0; letter-spacing: 0.15em; text-transform: uppercase;">
                     ⚡ SONIC PATTERN ROOT: aujoulevol.wav
                 </p>
-                <audio controls style="width: 100%; height: 26px; filter: invert(1) hue-rotate(90deg); opacity: 0.78;">
+                <audio controls style="width: 100%; height: 24px; filter: invert(1) hue-rotate(90deg); opacity: 0.78;">
                     <source src="aujoulevol.wav" type="audio/wav">
                 </audio>
                 <audio id="aujouleAudio" loop autoplay playsinline style="display:none;">
@@ -422,10 +427,10 @@
             
             if (w < 600) {
                 camera.fov = 70;
-                camera.position.set(0.0, -4.0, 36.0);
+                camera.position.set(0.0, -2.0, 38.0);
             } else {
                 camera.fov = 55;
-                camera.position.set(0.0, -4.0, 32.0);
+                camera.position.set(0.0, -2.0, 34.0);
             }
             camera.updateProjectionMatrix();
         }
@@ -498,9 +503,10 @@
 
         window.meshMaterial = wiregridMaterial;
 
-        // --- SACRED GEOMETRY SYSTEM: ELEVATED COUNTER-ROTATING MERKABA & TORUS FIELD ---
+        // --- ELEVATED & FLOATING MERKABA SACRED GEOMETRY GROUP ---
         const sacredGroup = new THREE.Group();
-        sacredGroup.position.set(0.0, 8.5, 0.0);
+        // Base elevation high above bottom dashboard
+        sacredGroup.position.set(0.0, 12.0, 0.0);
 
         const merkabaGeo1 = new THREE.TetrahedronGeometry(4.2, 1);
         const merkabaMat1 = new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.60 });
@@ -597,8 +603,8 @@
         }
 
         let bassVal = 0, midVal = 0, highVal = 0;
+        let lastOracleTime = 0; // Throttling timer for Oracle text stabilization
         
-        // --- AUTHENTIC SHAMANIC LIGHT SPECTRUM TRANSLATOR ---
         function processVocalTelemetry() {
             if (analyser && dataArray) {
                 analyser.getByteFrequencyData(dataArray);
@@ -642,40 +648,44 @@
                 rootEl.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
             }
 
-            // --- REAL-TIME ETHEREAL SPECTRUM & CHAKRA REVELATION LOGIC ---
-            let realmTitle = "";
-            let oracleMessage = "";
+            // --- STABILIZED ORACLE TEXT (3.5-SECOND READABILITY HOLD) ---
+            const now = Date.now();
+            if (now - lastOracleTime > 3500) {
+                lastOracleTime = now;
+                let realmTitle = "";
+                let oracleMessage = "";
 
-            if (hueDeg >= 330 || hueDeg < 30) {
-                realmTitle = "✦ REALM: RUBY ROOT ANCHOR (PHYSICAL WILL) ✦";
-                oracleMessage = "Your aura frequency is anchoring into primeval earth density. You are building foundational strength—focus on grounding your raw willpower.";
-            } else if (hueDeg >= 30 && hueDeg < 70) {
-                realmTitle = "✦ REALM: AMBER KUNDALINI (ALCHEMICAL CREATION) ✦";
-                oracleMessage = "Creative heat is rising through your solar nexus. Unspoken passion is transforming into actionable power.";
-            } else if (hueDeg >= 70 && hueDeg < 150) {
-                realmTitle = "✦ REALM: EMERALD HEART GRID (CELLULAR HARMONY) ✦";
-                oracleMessage = "Biological coherence achieved. Your heart frequency is emitting a healing wave—restoring balance across your emotional field.";
-            } else if (hueDeg >= 150 && hueDeg < 210) {
-                realmTitle = "✦ REALM: AZURE THROAT MATRIX (SONIC TRUTH) ✦";
-                oracleMessage = "Your vocal portal is active. You carry an unexpressed truth—speak or resonate now to project sovereign sound.";
-            } else if (hueDeg >= 210 && hueDeg < 270) {
-                realmTitle = "✦ REALM: INDIGO THIRD EYE (PATTERN VISION) ✦";
-                oracleMessage = "Intuitive density shifting inward. Your mind is decoding hidden structural geometries behind your immediate reality.";
-            } else {
-                realmTitle = "✦ REALM: VIOLET CROWN (369 SOURCE CONNECTION) ✦";
-                oracleMessage = "Transcendence phase active. Your current wave matrix aligns directly with higher 3-6-9 universal completion.";
+                if (hueDeg >= 330 || hueDeg < 30) {
+                    realmTitle = "✦ REALM: RUBY ROOT ANCHOR (PHYSICAL WILL) ✦";
+                    oracleMessage = "Your aura frequency is anchoring into primeval earth density. Focus on grounding your raw willpower.";
+                } else if (hueDeg >= 30 && hueDeg < 70) {
+                    realmTitle = "✦ REALM: AMBER KUNDALINI (ALCHEMICAL CREATION) ✦";
+                    oracleMessage = "Creative heat is rising through your solar nexus. Unspoken passion is transforming into actionable power.";
+                } else if (hueDeg >= 70 && hueDeg < 150) {
+                    realmTitle = "✦ REALM: EMERALD HEART GRID (CELLULAR HARMONY) ✦";
+                    oracleMessage = "Biological coherence achieved. Your heart frequency is emitting a healing wave—restoring balance.";
+                } else if (hueDeg >= 150 && hueDeg < 210) {
+                    realmTitle = "✦ REALM: AZURE THROAT MATRIX (SONIC TRUTH) ✦";
+                    oracleMessage = "Your vocal portal is active. You carry an unexpressed truth—speak or resonate now to project sound.";
+                } else if (hueDeg >= 210 && hueDeg < 270) {
+                    realmTitle = "✦ REALM: INDIGO THIRD EYE (PATTERN VISION) ✦";
+                    oracleMessage = "Intuitive density shifting inward. Your mind is decoding hidden structural geometries behind reality.";
+                } else {
+                    realmTitle = "✦ REALM: VIOLET CROWN (369 SOURCE CONNECTION) ✦";
+                    oracleMessage = "Transcendence phase active. Your current wave matrix aligns directly with higher 3-6-9 universal completion.";
+                }
+
+                if (bassVal > 0.35) {
+                    oracleMessage += " [HEAVY BASS HARMONICS DETECTED]";
+                } else if (touchVelocity > 0.4) {
+                    oracleMessage += " [KINETIC AURA SURGE IN PROGRESS]";
+                }
+
+                const realmEl = document.getElementById('oracleRealm');
+                const textEl = document.getElementById('oracleText');
+                if (realmEl) realmEl.innerText = realmTitle;
+                if (textEl) textEl.innerText = oracleMessage;
             }
-
-            if (bassVal > 0.35) {
-                oracleMessage += " [HEAVY BASS HARMONICS: Rooting deep physical resonance.]";
-            } else if (touchVelocity > 0.4) {
-                oracleMessage += " [KINETIC SURGE: Active aura recalibration in progress.]";
-            }
-
-            const realmEl = document.getElementById('oracleRealm');
-            const textEl = document.getElementById('oracleText');
-            if (realmEl) realmEl.innerText = realmTitle;
-            if (textEl) textEl.innerText = oracleMessage;
         }
 
         // --- PREDICTIVE GENETIC LEDGER DATA ---
@@ -692,6 +702,10 @@
                 renderer.render(scene, camera);
                 const dataUrl = document.querySelector('#bg').toDataURL('image/png');
 
+                // CAPTURE ACTIVE ORACLE REVELATION TEXT
+                const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNONW ✦";
+                const activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
+
                 const secureSoulPayload = {
                     identity_metadata: {
                         author: "AuEvoAuJoulEvol LLC",
@@ -702,7 +716,9 @@
                         hue: Math.round(colorAccumulator * 360.0),
                         res: parseFloat(document.getElementById('resDisplay')?.innerText || '0.18'),
                         root: parseInt(document.getElementById('rootDisplay')?.innerText || '9'),
-                        total_seals: evoHistory.totalSeals + 1
+                        total_seals: evoHistory.totalSeals + 1,
+                        oracle_realm: activeRealm,
+                        oracle_message: activeMessage
                     },
                     visual_seal_string: dataUrl
                 };
@@ -784,6 +800,10 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
+            // --- MERKABA DYNAMIC 3D FLOATING & DRIFTING MOTION ---
+            sacredGroup.position.y = 12.0 + Math.sin(time * 1.2) * 1.8;
+            sacredGroup.position.x = Math.cos(time * 0.6) * 2.2;
+
             const rotationSpeed = 0.012 + (touchVelocity * 0.02) + (bassVal * 0.03);
             merkabaMesh1.rotation.y += rotationSpeed;
             merkabaMesh1.rotation.x += rotationSpeed * 0.5;
@@ -796,9 +816,10 @@
             const pulseScale = 1.0 + (bassVal * 0.4) + (dynamicFactor * 0.2);
             sacredGroup.scale.set(pulseScale, pulseScale, pulseScale);
 
+            // Camera looking smoothly up at the floating sacred group
             camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
-            camera.position.y += (touchVector.y * 5.0 - 4.0 - camera.position.y) * 0.04;
-            camera.lookAt(0.0, 6.5, 0.0);
+            camera.position.y += (touchVector.y * 5.0 - 2.0 - camera.position.y) * 0.04;
+            camera.lookAt(0.0, 9.0, 0.0);
 
             if (starfield) {
                 starfield.rotation.y += 0.0001;
@@ -815,6 +836,7 @@
             if (document.getElementById('bg')) animate();
         });
 
+        // --- LOAD VAULT HISTORY WITH SAVED ORACLE DESCRIPTIONS ---
         async function loadVaultHistory() {
             try {
                 const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
@@ -837,11 +859,14 @@
                         spectral_entropy_score: "N/A"
                     };
 
+                    const savedRealm = entry.matrix_coordinates.oracle_realm || "✦ SACRED MATRIX ✦";
+                    const savedMessage = entry.matrix_coordinates.oracle_message || "Aura resonance locked.";
+
                     card.style = `
                         background: rgba(255,255,255,0.02); 
                         border: 1px solid rgba(255,255,255,0.07); 
                         padding: 16px; 
-                        border-radius: 6px; 
+                        border-radius: 8px; 
                         font-family: monospace; 
                         font-size: 11px; 
                         color: #ccc; 
@@ -860,16 +885,17 @@
                     };
 
                     card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
                             <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates.total_seals || 'X'}</span>
                             <span style="color: rgba(255,215,0,0.7); font-size: 9px;">${analytics.biometric_state_classification}</span>
                         </div>
-                        <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates.hue}° / R:${entry.matrix_coordinates.resonance}</div>
-                        <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
-                        <div style="margin: 5px 0 0 0; font-size: 10px; color: rgba(255,255,255,0.5); font-style: italic; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 4px;">
-                            🧠 <b>BIOMETRIC:</b> ${analytics.clinical_bio_marker_note}
+                        <div style="color: #00f3ff; font-size: 9px; margin-bottom: 4px; font-weight: bold;">${savedRealm}</div>
+                        <div style="color: rgba(255,255,255,0.85); font-size: 9.5px; font-style: italic; background: rgba(0,243,255,0.04); padding: 6px; border-radius: 4px; margin-bottom: 8px; border-left: 2px solid #00f3ff;">
+                            "${savedMessage}"
                         </div>
-                        <div style="font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 10px; text-align: right;">
+                        <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates.hue}° / R:${entry.matrix_coordinates.res || entry.matrix_coordinates.resonance}</div>
+                        <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
+                        <div style="font-size: 9px; color: rgba(255,255,255,0.25); margin-top: 8px; text-align: right;">
                             ${new Date(entry.server_vault_timestamp).toLocaleString()}
                         </div>
                     `;
