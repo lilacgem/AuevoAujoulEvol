@@ -379,9 +379,10 @@
             const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
             camera.aspect = w / h;
             
+            // DYNAMIC FRAMING FIX FOR MOBILE PORTRAIT SCREENS
             if (w < 600) {
-                camera.fov = 75;
-                camera.position.set(0.0, -1.0, 42.0);
+                camera.fov = 68;
+                camera.position.set(0.0, -1.0, 54.0); // Pulled back so wider mobile geometries fit entirely
             } else {
                 camera.fov = 60;
                 camera.position.set(0.0, -1.0, 36.0);
@@ -480,6 +481,10 @@
             const pParam = ((Math.round(totalSeals) + vocalHarmonicShift) % 7) || 3;
             const qParam = ((Math.round((historicalRes + currentBass) * 10)) % 8) || 4;
 
+            // RESPONSIVE BASE KNOT RADIUS (5.2 on mobile portrait to fit entire screen)
+            const isMobile = window.innerWidth < 600;
+            const baseKnotRadius = isMobile ? 5.2 : 7.5;
+
             if (!personalSymbolMesh || lastP !== pParam || lastQ !== qParam) {
                 if (personalSymbolMesh) {
                     sacredGroup.remove(personalSymbolMesh);
@@ -487,8 +492,8 @@
                 }
 
                 const symbolGeometry = new THREE.TorusKnotGeometry(
-                    7.5,
-                    0.75 + (liveResonance * 0.35),
+                    baseKnotRadius,
+                    0.65 + (liveResonance * 0.25),
                     Math.min(240, 70 + totalSeals * 3),
                     18, 
                     pParam, 
@@ -1002,7 +1007,8 @@
                 personalSymbolMesh.rotation.z += rotationSpeed;
                 personalSymbolMesh.rotation.x += rotationSpeed * 0.4;
 
-                const pulseScale = 1.0 + (bassVal * 0.6) + (highVal * 0.4) + (dynamicFactor * 0.2);
+                // CLAMPED MAXIMUM PULSE SCALE (Prevents geometry from clipping screen edges)
+                const pulseScale = Math.min(1.45, 1.0 + (bassVal * 0.35) + (highVal * 0.25) + (dynamicFactor * 0.15));
                 personalSymbolMesh.scale.set(pulseScale, pulseScale, pulseScale);
             }
 
@@ -1025,7 +1031,7 @@
             if (document.getElementById('bg')) animate();
         });
 
-        // PERMANENT DUAL-LAYER VAULT LOADER (COMBINES PHONE LOCAL MEMORY + CLOUD SERVER)
+        // PERMANENT DUAL-LAYER VAULT LOADER
         async function loadVaultHistory() {
             const grid = document.getElementById('gallery-grid');
             if (!grid) return;
@@ -1042,7 +1048,6 @@
                 console.warn("Backend sleeping or offline, defaulting to phone local vault.");
             }
 
-            // MERGE CLOUD & LOCAL SEALS TO ENSURE DRAWER IS NEVER EMPTY
             let combinedMap = new Map();
 
             localSeals.forEach((entry, idx) => {
