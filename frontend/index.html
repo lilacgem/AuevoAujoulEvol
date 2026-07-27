@@ -423,6 +423,38 @@
         }
         Aueo();
 
+        // --- UNIVERSAL FILE DOWNLOAD / APPLE SHARE HELPER ---
+        async function triggerSovereignDownload(fileBlob, fileName, titleText) {
+            const file = new File([fileBlob], fileName, { type: fileBlob.type });
+
+            // iOS / Safari Apple Web Share Integration
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: titleText || 'AuEvo Sacred Seal',
+                        text: 'AuEvo Resonant Soul Seal Matrix Generation'
+                    });
+                    return;
+                } catch (shareErr) {
+                    console.log("Apple Share Sheet dismissed or unhandled:", shareErr);
+                }
+            }
+
+            // Standard Fallback for Desktop & Android
+            const blobUrl = URL.createObjectURL(fileBlob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            }, 500);
+        }
+
         // --- THREE.JS SCENE SETUP ---
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x000002, 0.008);
@@ -545,7 +577,7 @@
 
         scene.add(sacredGroup);
 
-        // --- AUDIO CAPTURE, CAMERA & AUDIO DESTINATION FOR RECORDING ---
+        // --- AUDIO CAPTURE & CAMERA BIOMETRICS ---
         let audioContext, analyser, dataArray, audioDestinationNode;
         let cameraMetric = 0.0;
         const camCanvas = document.getElementById('camAnalysisCanvas');
@@ -592,7 +624,7 @@
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
                     
                     source.connect(analyser);
-                    source.connect(audioDestinationNode); // Route audio to recording stream
+                    source.connect(audioDestinationNode);
 
                     if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
                     if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
@@ -710,7 +742,7 @@
             }
         }
 
-        // --- PREDICTIVE GENETIC LEDGER DATA ---
+        // --- PREDICTIVE GENETIC LEDGER DATA & IMAGE SNAPSHOT SAVER ---
         let evoHistory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger')) || {
             totalSeals: 0, averageHue: 230, accumulatedResonance: 0.18, lastStampAt: null,
             moodLogs: { high_energy: 0, grounded: 0, processing: 0 }
@@ -720,7 +752,7 @@
         if (recordButton) {
             recordButton.innerText = "SOUL SEAL";
             recordButton.disabled = false;
-            recordButton.addEventListener('click', () => {
+            recordButton.addEventListener('click', async () => {
                 renderer.render(scene, camera);
                 const dataUrl = document.querySelector('#bg').toDataURL('image/png');
 
@@ -773,10 +805,12 @@
 
                 if (document.getElementById('stampDisplay')) document.getElementById('stampDisplay').innerText = `STAMP ${evoHistory.totalSeals}`;
 
-                const downloadLink = document.createElement('a');
-                downloadLink.download = `AuEvo_Sacred_Seal_Gen${evoHistory.totalSeals}_${stampTag}.png`;
-                downloadLink.href = dataUrl;
-                document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
+                // iOS Apple Native Share / Download Handler
+                const imageRes = await fetch(dataUrl);
+                const imageBlob = await imageRes.blob();
+                const imageFileName = `AuEvo_Sacred_Seal_Gen${evoHistory.totalSeals}_${stampTag}.png`;
+                
+                await triggerSovereignDownload(imageBlob, imageFileName, 'AuEvo Soul Seal Image');
                 
                 recordButton.innerText = `GEN ${evoHistory.totalSeals} SEALED`;
                 setTimeout(() => { recordButton.innerText = "SOUL SEAL"; }, 2500);
@@ -816,9 +850,9 @@
                 combinedStream = canvasStream;
             }
 
-            let mimeType = 'video/webm;codecs=vp9,opus';
+            let mimeType = 'video/mp4';
+            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp9,opus';
             if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
-            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
 
             try {
                 mediaRecorder = new MediaRecorder(combinedStream, { mimeType: mimeType });
@@ -830,22 +864,14 @@
                 if (e.data && e.data.size > 0) recordedChunks.push(e.data);
             };
 
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
-                const url = URL.createObjectURL(blob);
+            mediaRecorder.onstop = async () => {
+                const mimeTypeActual = mediaRecorder.mimeType || 'video/mp4';
+                const fileExt = mimeTypeActual.includes('mp4') ? 'mp4' : 'webm';
+                const videoBlob = new Blob(recordedChunks, { type: mimeTypeActual });
                 const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
-                
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `AuEvo_Resonance_Clip_${stampTag}.webm`;
-                document.body.appendChild(a);
-                a.click();
-                
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }, 100);
+                const videoFileName = `AuEvo_Resonance_Clip_${stampTag}.${fileExt}`;
+
+                await triggerSovereignDownload(videoBlob, videoFileName, 'AuEvo Resonance Video Clip');
 
                 if (videoRecordBtn) {
                     videoRecordBtn.innerText = "CLIP SAVED!";
@@ -919,7 +945,6 @@
             posAttr.needsUpdate = true;
             wiregridGeometry.computeVertexNormals();
 
-            // MERKABA DYNAMIC 3D FLOATING & DRIFTING MOTION
             sacredGroup.position.y = 11.0 + Math.sin(time * 1.2) * 1.8;
             sacredGroup.position.x = Math.cos(time * 0.6) * 2.5;
 
