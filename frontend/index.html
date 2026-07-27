@@ -233,9 +233,7 @@
 
     <canvas id="bg"></canvas>
 
-    <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;">
-        <source src="evolve.mp4" type="video/mp4">
-    </video>
+    <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;"></video>
     <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
 
     <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ VAULT ARCHIVE</button>
@@ -268,7 +266,6 @@
         </div>
     </section>
 
-    <!-- PRESERVED HIDDEN DOM ELEMENTS FOR API LOGIC AND RENDER VAULT INTEGRITY -->
     <div style="display: none;">
         <span id="hueDisplay">0°</span>
         <span id="resDisplay">0.180</span>
@@ -312,12 +309,7 @@
             meta: ["Aujoule", "lisajEVO", "evolve", "lisajevolving", "AuEvo", "EvoRoot", "369_Method"]
         };
 
-        // GLOBAL COLLECTIVE MATRIX ARCHITECTURE
-        let globalMatrix = {
-            totalSeals: 0,
-            avgHue: 180,
-            avgResonance: 0.18
-        };
+        let globalMatrix = { totalSeals: 0, avgHue: 180, avgResonance: 0.18 };
 
         function toggleVault() {
             const vault = document.getElementById('history-vault-container');
@@ -425,6 +417,24 @@
         }, { passive: true });
         window.addEventListener('touchend', () => { isInteracting = false; targetVelocity = 0.0; });
 
+        // --- LIVE CAMERA AURA BACKGROUND PLANE (SEE YOURSELF IN MATRIX) ---
+        const videoElement = document.getElementById('evoCoreVideo');
+        const videoTexture = new THREE.VideoTexture(videoElement);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+
+        const cameraBgGeo = new THREE.PlaneGeometry(80, 100);
+        const cameraBgMat = new THREE.MeshBasicMaterial({
+            map: videoTexture,
+            transparent: true,
+            opacity: 0.38,
+            depthWrite: false,
+            side: THREE.DoubleSide
+        });
+        const cameraBgMesh = new THREE.Mesh(cameraBgGeo, cameraBgMat);
+        cameraBgMesh.position.set(0.0, 10.0, -15.0);
+        scene.add(cameraBgMesh);
+
         // --- PARALLAX STARFIELD ARCHITECTURE ---
         const starGeometry = new THREE.BufferGeometry();
         const starCount = 1400;
@@ -444,11 +454,6 @@
         const gridSegments = 100;
         const wiregridGeometry = new THREE.PlaneGeometry(gridWidth, gridHeight, gridSegments, gridSegments);
         const baseGridVertices = wiregridGeometry.attributes.position.clone();
-
-        const videoElement = document.getElementById('evoCoreVideo');
-        const videoTexture = new THREE.VideoTexture(videoElement);
-        videoTexture.minFilter = THREE.LinearFilter;
-        videoTexture.magFilter = THREE.LinearFilter;
 
         const wiregridMaterial = new THREE.MeshBasicMaterial({
             map: videoTexture, 
@@ -579,14 +584,25 @@
                         dataArray = new Uint8Array(analyser.frequencyBinCount);
                     }
 
+                    // WIDE-SPECTRUM UNFILTERED MIC CONSTRAINTS (CAPTURES ROOM MUSIC + VOICE TOGETHER)
                     try {
                         micStream = await navigator.mediaDevices.getUserMedia({
-                            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
-                            video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
+                            audio: { 
+                                echoCancellation: false, 
+                                noiseSuppression: false, 
+                                autoGainControl: false, 
+                                channelCount: 1 
+                            },
+                            video: { 
+                                width: { ideal: 1280 }, 
+                                height: { ideal: 720 }, 
+                                facingMode: "user" 
+                            }
                         });
 
                         videoElement.srcObject = micStream;
                         await videoElement.play().catch(e => console.warn("Video play notice:", e));
+                        
                         if (document.getElementById('camDisplay')) {
                             document.getElementById('camDisplay').innerText = "LIVE";
                             document.getElementById('camDisplay').style.color = "#00f3ff";
@@ -597,7 +613,7 @@
                         micSource.connect(audioDestinationNode);
 
                     } catch (micErr) {
-                        console.warn("Microphone access unavailable:", micErr);
+                        console.warn("Microphone or camera access notice:", micErr);
                     }
 
                     if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
@@ -787,7 +803,7 @@
             });
         }
 
-        // --- LIVE VIDEO & AUDIO CLIP RECORDING ENGINE ---
+        // --- LIVE VIDEO & AUDIO CLIP RECORDING ENGINE (FIXED iOS BUFFER FREEZE) ---
         let mediaRecorder = null;
         let recordedChunks = [];
         let isRecordingVideo = false;
@@ -850,7 +866,7 @@
                 }
             };
 
-            mediaRecorder.start();
+            mediaRecorder.start(1000); // Request data slice every 1 second
             isRecordingVideo = true;
 
             if (videoRecordBtn) {
@@ -873,7 +889,17 @@
             if (mediaRecorder && isRecordingVideo) {
                 isRecordingVideo = false;
                 if (recordingCountdownTimer) clearInterval(recordingCountdownTimer);
-                mediaRecorder.stop();
+                
+                // FLUSH iOS FRAME BUFFER BEFORE STOPPING TO PREVENT END FREEZE
+                try {
+                    mediaRecorder.requestData();
+                } catch(e) {}
+                
+                setTimeout(() => {
+                    if (mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                }, 400);
             }
         }
 
@@ -1000,7 +1026,6 @@
             if (document.getElementById('bg')) animate();
         });
 
-        // RE-CALCULATE GLOBAL COLLECTIVE BASELINE FROM RENDER CLOUD DATABASE
         async function loadVaultHistory() {
             try {
                 const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
