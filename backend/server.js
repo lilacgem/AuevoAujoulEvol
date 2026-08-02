@@ -4,10 +4,16 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { exec } = require('child_process');
+const { generateSeal, getPriorEvolutionState } = require('./evoMetrics');
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE_PATH = path.join(__dirname, '..', 'data_storage', 'audio_database.json');
+
+// Only these origins are allowed to call the API. Add localhost while developing if needed.
+const ALLOWED_ORIGINS = [
+    'https://evomirror.com',
+    'https://www.evomirror.com'
+];
 
 // Ensure data storage directory exists
 const storageDir = path.join(__dirname, '..', 'data_storage');
@@ -16,9 +22,13 @@ if (!fs.existsSync(storageDir)) {
 }
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = req.headers.origin;
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Vary', 'Origin');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
@@ -40,9 +50,21 @@ const server = http.createServer((req, res) => {
 
     if (req.method === 'POST' && req.url === '/api/seal/crystallize') {
         let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        
+        let tooLarge = false;
+        const MAX_BODY_BYTES = 100 * 1024; // 100KB is plenty for this payload
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+            if (body.length > MAX_BODY_BYTES && !tooLarge) {
+                tooLarge = true;
+                res.writeHead(413, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: "Payload too large" }));
+                req.destroy();
+            }
+        });
+
         req.on('end', () => {
+            if (tooLarge) return;
             try {
                 const secureSoulPayload = JSON.parse(body);
                 console.log(`\n  [AuEvo RECEIVER]: Intercepted signature from ${secureSoulPayload.identity_metadata?.sovereign_id || 'UNKNOWN'}`);
@@ -63,10 +85,23 @@ const server = http.createServer((req, res) => {
                     dynamicMd5 = crypto.createHash('md5').update(fileBuffer).digest('hex').toUpperCase();
                 }
 
+                const { priorLeftover, sessionCount } = getPriorEvolutionState(
+                    existingDatabase,
+                    secureSoulPayload.identity_metadata?.sovereign_id
+                );
+
+                const evoMetricsResult = generateSeal({
+                    voiceEnergy: secureSoulPayload.matrix_coordinates?.voice_energy ?? 0,
+                    cameraBrightness: secureSoulPayload.matrix_coordinates?.camera_brightness ?? 0,
+                    sessionCount,
+                    priorLeftover
+                });
+
                 const finalCalculatedPayload = {
                     ...secureSoulPayload,
                     server_vault_timestamp: new Date().toISOString(),
                     status: "IMMUTABLY_VAULTED",
+                    evo_metrics: evoMetricsResult,
                     security_ledger: {
                         verified_md5: dynamicMd5,
                         verified_sha256: dynamicSha256,
@@ -78,16 +113,7 @@ const server = http.createServer((req, res) => {
                 existingDatabase.push(finalCalculatedPayload);
                 fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(existingDatabase, null, 4), 'utf8');
 
-                // Dynamic Python Path depending on OS
-                const pythonPath = process.platform === 'win32'
-                    ? '"C:\\Users\\Lisaj\\AppData\\Local\\Programs\\Python\\Python314\\python.exe"'
-                    : 'python3';
-
-                exec(`${pythonPath} analyze_library.py`, { env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }, (error, stdout, stderr) => {
-                    if (error) console.error(`  [Python Pipeline Error]: ${error.message}`);
-                    if (stderr) console.warn(`[Python Diagnostic]: ${stderr}`);
-                    if (stdout) console.log(`  [Python Engine Output]:\n${stdout}`);
-                });
+                console.log(`  [EvoMetrics]: level=${evoMetricsResult.g_root_level} root=${evoMetricsResult.digital_root} gate=${evoMetricsResult.is_gate}`);
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ 
