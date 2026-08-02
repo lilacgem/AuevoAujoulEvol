@@ -231,12 +231,36 @@
 </head>
 <body>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
     <canvas id="bg"></canvas>
 
     <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;"></video>
     <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
 
     <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ VAULT ARCHIVE</button>
+    <button class="toggle-vault-btn" id="accountButton" style="top: max(56px, calc(env(safe-area-inset-top) + 46px));" onclick="toggleAccountModal()">ACCOUNT</button>
+
+    <div id="accountModal" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.75); align-items:center; justify-content:center;">
+        <div style="background:#0a0a12; border:1px solid rgba(0,243,255,0.3); border-radius:14px; padding:24px; width:min(90vw, 340px); font-family:'Courier New', monospace; color:#fff;">
+            <div id="accountLoggedOut">
+                <div style="display:flex; gap:8px; margin-bottom:16px;">
+                    <button id="tabSignIn" onclick="setAuthTab('signin')" style="flex:1; padding:8px; background:rgba(0,243,255,0.15); border:1px solid #00f3ff; color:#00f3ff; border-radius:6px; cursor:pointer;">SIGN IN</button>
+                    <button id="tabSignUp" onclick="setAuthTab('signup')" style="flex:1; padding:8px; background:transparent; border:1px solid rgba(255,255,255,0.2); color:#aaa; border-radius:6px; cursor:pointer;">SIGN UP</button>
+                </div>
+                <input id="authEmail" type="email" placeholder="email" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:8px; background:#111; border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px;">
+                <input id="authPassword" type="password" placeholder="password" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:12px; background:#111; border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px;">
+                <button id="authSubmitBtn" onclick="submitAuth()" style="width:100%; padding:10px; background:#00f3ff; color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">SIGN IN</button>
+                <div id="authError" style="color:#ff5e00; font-size:11px; margin-top:8px; min-height:14px;"></div>
+            </div>
+            <div id="accountLoggedIn" style="display:none;">
+                <div style="font-size:12px; color:#aaa; margin-bottom:4px;">SIGNED IN AS</div>
+                <div id="accountEmail" style="color:#00f3ff; margin-bottom:16px; word-break:break-all;"></div>
+                <button onclick="signOutAccount()" style="width:100%; padding:10px; background:transparent; border:1px solid #ff5e00; color:#ff5e00; border-radius:6px; cursor:pointer;">SIGN OUT</button>
+            </div>
+            <button onclick="toggleAccountModal()" style="width:100%; margin-top:12px; padding:8px; background:transparent; border:none; color:#666; cursor:pointer;">close</button>
+        </div>
+    </div>
 
     <div class="ambient-header" aria-hidden="true">
         <div class="ambient-title" id="ambientTitle">AU·EVO·AUJOUL·EVOL</div>
@@ -290,6 +314,109 @@
     </div>
 
     <script>
+        // --- SUPABASE AUTH ---
+        const SUPABASE_URL = 'https://mwiziojeqhzwoygbcttq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_PRdPGdDmDSmdO0yiDLBDTA_6UcurViL';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentAuthUser = null; // null when not logged in
+        let authTab = 'signin';
+
+        function toggleAccountModal() {
+            const modal = document.getElementById('accountModal');
+            const isOpen = modal.style.display === 'flex';
+            modal.style.display = isOpen ? 'none' : 'flex';
+            if (!isOpen) refreshAccountModalView();
+        }
+
+        function setAuthTab(tab) {
+            authTab = tab;
+            document.getElementById('tabSignIn').style.background = tab === 'signin' ? 'rgba(0,243,255,0.15)' : 'transparent';
+            document.getElementById('tabSignIn').style.color = tab === 'signin' ? '#00f3ff' : '#aaa';
+            document.getElementById('tabSignIn').style.borderColor = tab === 'signin' ? '#00f3ff' : 'rgba(255,255,255,0.2)';
+            document.getElementById('tabSignUp').style.background = tab === 'signup' ? 'rgba(0,243,255,0.15)' : 'transparent';
+            document.getElementById('tabSignUp').style.color = tab === 'signup' ? '#00f3ff' : '#aaa';
+            document.getElementById('tabSignUp').style.borderColor = tab === 'signup' ? '#00f3ff' : 'rgba(255,255,255,0.2)';
+            document.getElementById('authSubmitBtn').innerText = tab === 'signin' ? 'SIGN IN' : 'CREATE ACCOUNT';
+            document.getElementById('authError').innerText = '';
+        }
+
+        async function submitAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const errorEl = document.getElementById('authError');
+            errorEl.innerText = '';
+
+            if (!email || !password) {
+                errorEl.innerText = 'Enter both email and password.';
+                return;
+            }
+
+            try {
+                if (authTab === 'signin') {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    currentAuthUser = data.user;
+                } else {
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+                    currentAuthUser = data.user;
+                    if (!data.session) {
+                        errorEl.style.color = '#00ffaa';
+                        errorEl.innerText = 'Check your email to confirm your account.';
+                        return;
+                    }
+                }
+                onAuthChanged();
+                refreshAccountModalView();
+            } catch (err) {
+                errorEl.style.color = '#ff5e00';
+                errorEl.innerText = err.message || 'Something went wrong.';
+            }
+        }
+
+        async function signOutAccount() {
+            await supabaseClient.auth.signOut();
+            currentAuthUser = null;
+            onAuthChanged();
+            refreshAccountModalView();
+        }
+
+        function refreshAccountModalView() {
+            const loggedOutEl = document.getElementById('accountLoggedOut');
+            const loggedInEl = document.getElementById('accountLoggedIn');
+            if (currentAuthUser) {
+                loggedOutEl.style.display = 'none';
+                loggedInEl.style.display = 'block';
+                document.getElementById('accountEmail').innerText = currentAuthUser.email || '';
+            } else {
+                loggedOutEl.style.display = 'block';
+                loggedInEl.style.display = 'none';
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+                setAuthTab('signin');
+            }
+        }
+
+        function onAuthChanged() {
+            const btn = document.getElementById('accountButton');
+            if (btn) {
+                btn.innerText = currentAuthUser ? (currentAuthUser.email || 'ACCOUNT').split('@')[0].toUpperCase() : 'ACCOUNT';
+                btn.style.borderColor = currentAuthUser ? '#00ffaa' : '';
+                btn.style.color = currentAuthUser ? '#00ffaa' : '';
+            }
+        }
+
+        // Restore session on page load, and stay in sync with auth changes
+        supabaseClient.auth.getSession().then(({ data }) => {
+            currentAuthUser = data.session ? data.session.user : null;
+            onAuthChanged();
+        });
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+            currentAuthUser = session ? session.user : null;
+            onAuthChanged();
+        });
+
         const ABCAuEvoAujouleAuEvoAujoulEvolvE = {
             identity: { signature: "AuEvoAujouleEvol", environment: "AU_SOVEREIGN" },
             domains: ["lisajevolving.com","evolvingroots.org","aujoule.com","evomirror.com"],
@@ -812,12 +939,17 @@
                 const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNOWN ✦";
                 const activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
 
-                // Each visitor needs their OWN identity for the seal to evolve
-                // with them specifically, not share state with every other user.
-                let visitorId = localStorage.getItem('AuEvo_Visitor_Id');
-                if (!visitorId) {
-                    visitorId = 'AuEvo-' + (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2)));
-                    localStorage.setItem('AuEvo_Visitor_Id', visitorId);
+                // Logged-in identity persists across devices; anonymous
+                // fallback stays local-only, same as before login existed.
+                let visitorId;
+                if (currentAuthUser) {
+                    visitorId = 'AuEvo-user-' + currentAuthUser.id;
+                } else {
+                    visitorId = localStorage.getItem('AuEvo_Visitor_Id');
+                    if (!visitorId) {
+                        visitorId = 'AuEvo-' + (crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2)));
+                        localStorage.setItem('AuEvo_Visitor_Id', visitorId);
+                    }
                 }
 
                 const secureSoulPayload = {
