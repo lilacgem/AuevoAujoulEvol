@@ -332,6 +332,67 @@
         }
         .auth-signout-btn:hover { background: rgba(255,94,0,0.1); }
 
+        .vault-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: min(380px, 100vw);
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 40;
+            border-left: 1px solid rgba(0,243,255,0.15);
+            background: rgba(6,6,10,0.97);
+            padding: max(25px, env(safe-area-inset-top)) 22px 25px;
+            box-sizing: border-box;
+            backdrop-filter: blur(14px);
+            display: none;
+            transform: translateX(20px);
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+        .vault-panel.open {
+            display: block;
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .vault-header {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.15em;
+            margin-top: 0;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .vault-close-btn {
+            background: rgba(255,94,0,0.1);
+            border: 1px solid rgba(255,94,0,0.4);
+            color: #ff5e00;
+            cursor: pointer;
+            font-size: 13px;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        .vault-close-btn:hover { background: rgba(255,94,0,0.2); }
+
+        .vault-description {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
         @media (max-width: 600px) {
             .dashboard { width: 92vw; bottom: max(16px, env(safe-area-inset-bottom)); gap: 6px; }
             .btn-core { padding: 9px 2px; font-size: 7.5px; min-height: 34px; }
@@ -444,13 +505,13 @@
         <span id="stateDisplay">WAITING</span>
     </div>
     
-    <div id="history-vault-container" style="position: fixed; right: 0; top: 0; width: min(380px, 100vw); height: 100vh; overflow-y: auto; z-index: 40; border-left: 1px solid rgba(255,255,255,0.12); background: rgba(5,5,5,0.95); padding: 25px; box-sizing: border-box; backdrop-filter: blur(12px); display: none;">
-        <h3 style="color: #fff; font-family: monospace; letter-spacing: 3px; margin-top: 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-            <span>🗃️ IMMUTABLE ARCHIVE</span>
-            <button onclick="toggleVault()" style="background:none; border:none; color:#ff5e00; cursor:pointer; font-size: 16px;">✕</button>
+    <div id="history-vault-container" class="vault-panel">
+        <h3 class="vault-header">
+            <span>🗃️ Immutable Archive</span>
+            <button onclick="toggleVault()" class="vault-close-btn" aria-label="Close archive">✕</button>
         </h3>
-        <p style="font-family: monospace; font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 20px; line-height: 1.5;">
-            Click on any historical archive card below to reverse-engineer its metrics and re-project that generation's light matrix coordinates directly back onto your active 3D wiregrid matrix.
+        <p class="vault-description">
+            Tap any seal below to bring it back into view — its shape and color are restored live on your active mirror.
         </p>
         <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;"></div>
     </div>
@@ -665,7 +726,7 @@
 
         function toggleVault() {
             const vault = document.getElementById('history-vault-container');
-            vault.style.display = vault.style.display === 'block' ? 'none' : 'block';
+            vault.classList.toggle('open');
         }
 
         function Aueo() {
@@ -1312,9 +1373,18 @@
                 combinedStream = canvasStream;
             }
 
-            let mimeType = 'video/mp4';
-            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp9,opus';
-            if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+            // Safari only reliably recognizes specific codec strings, not
+            // the bare 'video/mp4' - trying these in order gets a real,
+            // recognized MP4 far more often than the generic string alone.
+            const candidateMimeTypes = [
+                'video/mp4;codecs=avc1,mp4a.40.2',
+                'video/mp4;codecs=avc1',
+                'video/mp4',
+                'video/webm;codecs=vp9,opus',
+                'video/webm;codecs=vp8,opus',
+                'video/webm'
+            ];
+            let mimeType = candidateMimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || '';
 
             try {
                 mediaRecorder = new MediaRecorder(combinedStream, { mimeType: mimeType });
@@ -1614,10 +1684,25 @@
                 card.onmouseout = () => { card.style.background = "rgba(255,255,255,0.02)"; card.style.borderColor = "rgba(255,255,255,0.07)"; };
                 
                 card.onclick = () => {
-                    if (window.meshMaterial && entry.matrix_coordinates?.hue) {
-                        window.meshMaterial.color.setHSL(entry.matrix_coordinates.hue / 360, 1, 0.5);
-                        console.log(`♻️ [RE-PROJECTED]: Loaded Hue ${entry.matrix_coordinates.hue}° from archive.`);
+                    const hue = entry.matrix_coordinates?.hue;
+                    if (typeof hue === 'number') {
+                        torusMat.color.copy(new THREE.Color().setHSL(hue / 360, 0.95, 0.50));
                     }
+
+                    const level = entry.evo_metrics?.g_root_level;
+                    if (typeof level === 'number') {
+                        currentSealShape = getSealShapeParams(level);
+                        lastP = null; // forces the geometry to actually rebuild next frame
+                        lastQ = null;
+                    }
+
+                    const realmEl = document.getElementById('oracleRealm');
+                    const textEl = document.getElementById('oracleText');
+                    if (realmEl) realmEl.innerText = entry.matrix_coordinates?.oracle_realm || "✦ ARCHIVED SEAL ✦";
+                    if (textEl) textEl.innerText = (entry.matrix_coordinates?.oracle_message || "Aura resonance restored.") + " [VIEWING ARCHIVE]";
+
+                    toggleVault();
+                    console.log(`♻️ [RE-PROJECTED]: Restored Gen ${entry.matrix_coordinates?.total_seals || '?'} from the archive.`);
                 };
 
                 card.innerHTML = `
