@@ -222,6 +222,116 @@
             backdrop-filter: blur(8px);
         }
 
+        .account-btn {
+            position: fixed;
+            top: max(10px, env(safe-area-inset-top));
+            left: 12px;
+            z-index: 30;
+            background: rgba(4,5,9,0.85);
+            border: 1px solid rgba(0,243,255,0.4);
+            color: #00f3ff;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            font-family: monospace;
+            text-transform: uppercase;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            min-height: 32px;
+            transition: all 0.2s ease;
+        }
+        .account-btn:hover { background: rgba(0,243,255,0.12); }
+        .account-btn.logged-in { border-color: rgba(0,255,170,0.5); color: #00ffaa; }
+
+        .auth-modal-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center; justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .auth-modal-overlay.open { display: flex; }
+
+        .auth-modal-card {
+            background: linear-gradient(180deg, rgba(15,16,26,0.98), rgba(8,8,14,0.98));
+            border: 1px solid rgba(0,243,255,0.25);
+            box-shadow: 0 0 40px rgba(0,243,255,0.08), 0 20px 60px rgba(0,0,0,0.6);
+            border-radius: 16px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 340px;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+
+        .auth-modal-title {
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+        .auth-tab {
+            flex: 1; padding: 10px; background: transparent;
+            border: 1px solid rgba(255,255,255,0.15); color: #888;
+            border-radius: 8px; cursor: pointer; font-family: inherit;
+            font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+        .auth-tab.active { background: rgba(0,243,255,0.12); border-color: #00f3ff; color: #00f3ff; }
+
+        .auth-input-group { position: relative; margin-bottom: 12px; }
+        .auth-input {
+            width: 100%; box-sizing: border-box; padding: 12px 14px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; border-radius: 8px; font-family: inherit;
+            font-size: 16px; /* keeps iOS Safari from auto-zooming on focus */
+        }
+        .auth-input:focus { outline: none; border-color: #00f3ff; background: rgba(0,243,255,0.04); }
+        .auth-input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .auth-eye-btn {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; padding: 6px; display: flex; align-items: center;
+            min-width: 32px; min-height: 32px; justify-content: center;
+        }
+        .auth-eye-btn:hover { color: #00f3ff; }
+
+        .auth-submit-btn {
+            width: 100%; padding: 13px; background: #00f3ff; color: #000;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; font-family: inherit; letter-spacing: 0.1em;
+            font-size: 11px; text-transform: uppercase; margin-top: 4px;
+        }
+        .auth-submit-btn:hover { background: #33f5ff; }
+
+        .auth-error { color: #ff5e00; font-size: 11px; margin-top: 10px; min-height: 14px; text-align: center; }
+
+        .auth-close-btn {
+            width: 100%; margin-top: 16px; padding: 8px; background: transparent;
+            border: none; color: rgba(255,255,255,0.3); cursor: pointer;
+            font-family: inherit; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .auth-close-btn:hover { color: rgba(255,255,255,0.6); }
+
+        .auth-signed-in-label { font-size: 10px; letter-spacing: 0.15em; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 6px; text-align: center; }
+        .auth-signed-in-email { color: #00f3ff; margin-bottom: 20px; word-break: break-all; text-align: center; font-size: 13px; }
+
+        .auth-signout-btn {
+            width: 100%; padding: 12px; background: transparent;
+            border: 1px solid rgba(255,94,0,0.5); color: #ff5e00;
+            border-radius: 8px; cursor: pointer; font-family: inherit;
+            font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .auth-signout-btn:hover { background: rgba(255,94,0,0.1); }
+
         @media (max-width: 600px) {
             .dashboard { width: 92vw; bottom: max(16px, env(safe-area-inset-bottom)); gap: 6px; }
             .btn-core { padding: 9px 2px; font-size: 7.5px; min-height: 34px; }
@@ -239,26 +349,58 @@
     <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
 
     <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ VAULT ARCHIVE</button>
-    <button class="toggle-vault-btn" id="accountButton" style="top: max(56px, calc(env(safe-area-inset-top) + 46px));" onclick="toggleAccountModal()">ACCOUNT</button>
+    <button class="account-btn" id="accountButton" onclick="toggleAccountModal()">ACCOUNT</button>
 
-    <div id="accountModal" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.75); align-items:center; justify-content:center;">
-        <div style="background:#0a0a12; border:1px solid rgba(0,243,255,0.3); border-radius:14px; padding:24px; width:min(90vw, 340px); font-family:'Courier New', monospace; color:#fff;">
+    <div id="accountModal" class="auth-modal-overlay">
+        <div class="auth-modal-card">
             <div id="accountLoggedOut">
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <button id="tabSignIn" onclick="setAuthTab('signin')" style="flex:1; padding:8px; background:rgba(0,243,255,0.15); border:1px solid #00f3ff; color:#00f3ff; border-radius:6px; cursor:pointer;">SIGN IN</button>
-                    <button id="tabSignUp" onclick="setAuthTab('signup')" style="flex:1; padding:8px; background:transparent; border:1px solid rgba(255,255,255,0.2); color:#aaa; border-radius:6px; cursor:pointer;">SIGN UP</button>
+                <div class="auth-modal-title">Your Sovereign Identity</div>
+                <div class="auth-tabs">
+                    <button id="tabSignIn" class="auth-tab active" onclick="setAuthTab('signin')">Sign In</button>
+                    <button id="tabSignUp" class="auth-tab" onclick="setAuthTab('signup')">Sign Up</button>
                 </div>
-                <input id="authEmail" type="email" placeholder="email" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:8px; background:#111; border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px;">
-                <input id="authPassword" type="password" placeholder="password" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:12px; background:#111; border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px;">
-                <button id="authSubmitBtn" onclick="submitAuth()" style="width:100%; padding:10px; background:#00f3ff; color:#000; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">SIGN IN</button>
-                <div id="authError" style="color:#ff5e00; font-size:11px; margin-top:8px; min-height:14px;"></div>
+                <div class="auth-input-group">
+                    <input id="authEmail" class="auth-input" type="email" placeholder="email" autocomplete="email">
+                </div>
+                <div class="auth-input-group">
+                    <input id="authPassword" class="auth-input" type="password" placeholder="password" autocomplete="current-password" style="padding-right: 40px;">
+                    <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('authPassword', 'eyeIcon')" aria-label="Show password">
+                        <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                <button id="authSubmitBtn" class="auth-submit-btn" onclick="submitAuth()">Sign In</button>
+                <div id="authError" class="auth-error"></div>
+                <button id="forgotPasswordLink" class="auth-close-btn" style="margin-top:10px; color:rgba(0,243,255,0.6);" onclick="showForgotPassword()">Forgot password?</button>
             </div>
+
+            <div id="accountForgotPassword" style="display:none;">
+                <div class="auth-modal-title">Reset Your Password</div>
+                <div class="auth-input-group">
+                    <input id="resetEmail" class="auth-input" type="email" placeholder="email" autocomplete="email">
+                </div>
+                <button class="auth-submit-btn" onclick="sendPasswordReset()">Send Reset Link</button>
+                <div id="resetError" class="auth-error"></div>
+                <button class="auth-close-btn" onclick="setAuthTab('signin')">Back to sign in</button>
+            </div>
+
+            <div id="accountSetNewPassword" style="display:none;">
+                <div class="auth-modal-title">Set A New Password</div>
+                <div class="auth-input-group">
+                    <input id="newPassword" class="auth-input" type="password" placeholder="new password" autocomplete="new-password" style="padding-right: 40px;">
+                    <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('newPassword', 'newPasswordEyeIcon')" aria-label="Show password">
+                        <svg id="newPasswordEyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                <button class="auth-submit-btn" onclick="submitNewPassword()">Update Password</button>
+                <div id="newPasswordError" class="auth-error"></div>
+            </div>
+
             <div id="accountLoggedIn" style="display:none;">
-                <div style="font-size:12px; color:#aaa; margin-bottom:4px;">SIGNED IN AS</div>
-                <div id="accountEmail" style="color:#00f3ff; margin-bottom:16px; word-break:break-all;"></div>
-                <button onclick="signOutAccount()" style="width:100%; padding:10px; background:transparent; border:1px solid #ff5e00; color:#ff5e00; border-radius:6px; cursor:pointer;">SIGN OUT</button>
+                <div class="auth-signed-in-label">Signed in as</div>
+                <div id="accountEmail" class="auth-signed-in-email"></div>
+                <button class="auth-signout-btn" onclick="signOutAccount()">Sign Out</button>
             </div>
-            <button onclick="toggleAccountModal()" style="width:100%; margin-top:12px; padding:8px; background:transparent; border:none; color:#666; cursor:pointer;">close</button>
+            <button class="auth-close-btn" onclick="toggleAccountModal()">Close</button>
         </div>
     </div>
 
@@ -324,20 +466,91 @@
 
         function toggleAccountModal() {
             const modal = document.getElementById('accountModal');
-            const isOpen = modal.style.display === 'flex';
-            modal.style.display = isOpen ? 'none' : 'flex';
-            if (!isOpen) refreshAccountModalView();
+            const isOpen = modal.classList.contains('open');
+            if (isOpen) {
+                modal.classList.remove('open');
+            } else {
+                modal.classList.add('open');
+                refreshAccountModalView();
+            }
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            const showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            icon.innerHTML = showing
+                ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+                : '<path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.8 21.8 0 015.06-6.06M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a21.8 21.8 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        }
+
+        function showForgotPassword() {
+            document.getElementById('accountLoggedOut').style.display = 'none';
+            document.getElementById('accountForgotPassword').style.display = 'block';
+            document.getElementById('accountSetNewPassword').style.display = 'none';
+            document.getElementById('resetEmail').value = document.getElementById('authEmail').value || '';
+            document.getElementById('resetError').innerText = '';
+        }
+
+        async function sendPasswordReset() {
+            const email = document.getElementById('resetEmail').value.trim();
+            const errorEl = document.getElementById('resetError');
+            errorEl.style.color = '#ff5e00';
+            errorEl.innerText = '';
+
+            if (!email) {
+                errorEl.innerText = 'Enter your email first.';
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin
+                });
+                if (error) throw error;
+                errorEl.style.color = '#00ffaa';
+                errorEl.innerText = 'Check your email for a reset link.';
+            } catch (err) {
+                errorEl.style.color = '#ff5e00';
+                errorEl.innerText = err.message || 'Something went wrong.';
+            }
+        }
+
+        async function submitNewPassword() {
+            const newPass = document.getElementById('newPassword').value;
+            const errorEl = document.getElementById('newPasswordError');
+            errorEl.innerText = '';
+
+            if (!newPass || newPass.length < 6) {
+                errorEl.style.color = '#ff5e00';
+                errorEl.innerText = 'Password must be at least 6 characters.';
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+                if (error) throw error;
+                errorEl.style.color = '#00ffaa';
+                errorEl.innerText = 'Password updated. You are signed in.';
+                setTimeout(() => {
+                    document.getElementById('accountSetNewPassword').style.display = 'none';
+                    refreshAccountModalView();
+                }, 1500);
+            } catch (err) {
+                errorEl.style.color = '#ff5e00';
+                errorEl.innerText = err.message || 'Something went wrong.';
+            }
         }
 
         function setAuthTab(tab) {
             authTab = tab;
-            document.getElementById('tabSignIn').style.background = tab === 'signin' ? 'rgba(0,243,255,0.15)' : 'transparent';
-            document.getElementById('tabSignIn').style.color = tab === 'signin' ? '#00f3ff' : '#aaa';
-            document.getElementById('tabSignIn').style.borderColor = tab === 'signin' ? '#00f3ff' : 'rgba(255,255,255,0.2)';
-            document.getElementById('tabSignUp').style.background = tab === 'signup' ? 'rgba(0,243,255,0.15)' : 'transparent';
-            document.getElementById('tabSignUp').style.color = tab === 'signup' ? '#00f3ff' : '#aaa';
-            document.getElementById('tabSignUp').style.borderColor = tab === 'signup' ? '#00f3ff' : 'rgba(255,255,255,0.2)';
-            document.getElementById('authSubmitBtn').innerText = tab === 'signin' ? 'SIGN IN' : 'CREATE ACCOUNT';
+            document.getElementById('accountLoggedOut').style.display = 'block';
+            document.getElementById('accountForgotPassword').style.display = 'none';
+            document.getElementById('accountSetNewPassword').style.display = 'none';
+            document.getElementById('tabSignIn').classList.toggle('active', tab === 'signin');
+            document.getElementById('tabSignUp').classList.toggle('active', tab === 'signup');
+            document.getElementById('authSubmitBtn').innerText = tab === 'signin' ? 'Sign In' : 'Create Account';
             document.getElementById('authError').innerText = '';
         }
 
@@ -385,6 +598,8 @@
         function refreshAccountModalView() {
             const loggedOutEl = document.getElementById('accountLoggedOut');
             const loggedInEl = document.getElementById('accountLoggedIn');
+            document.getElementById('accountForgotPassword').style.display = 'none';
+            document.getElementById('accountSetNewPassword').style.display = 'none';
             if (currentAuthUser) {
                 loggedOutEl.style.display = 'none';
                 loggedInEl.style.display = 'block';
@@ -402,8 +617,7 @@
             const btn = document.getElementById('accountButton');
             if (btn) {
                 btn.innerText = currentAuthUser ? (currentAuthUser.email || 'ACCOUNT').split('@')[0].toUpperCase() : 'ACCOUNT';
-                btn.style.borderColor = currentAuthUser ? '#00ffaa' : '';
-                btn.style.color = currentAuthUser ? '#00ffaa' : '';
+                btn.classList.toggle('logged-in', !!currentAuthUser);
             }
         }
 
@@ -412,9 +626,20 @@
             currentAuthUser = data.session ? data.session.user : null;
             onAuthChanged();
         });
-        supabaseClient.auth.onAuthStateChange((_event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             currentAuthUser = session ? session.user : null;
             onAuthChanged();
+
+            // Fires automatically when someone lands here via the reset-
+            // password email link. Skip the normal logged-in view and go
+            // straight to letting them set a new password.
+            if (event === 'PASSWORD_RECOVERY') {
+                document.getElementById('accountModal').classList.add('open');
+                document.getElementById('accountLoggedOut').style.display = 'none';
+                document.getElementById('accountLoggedIn').style.display = 'none';
+                document.getElementById('accountForgotPassword').style.display = 'none';
+                document.getElementById('accountSetNewPassword').style.display = 'block';
+            }
         });
 
         const ABCAuEvoAujouleAuEvoAujoulEvolvE = {
