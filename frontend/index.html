@@ -563,7 +563,7 @@
             torusMat.color.copy(new THREE.Color().setHSL(shape.isGate ? 0.13 : liveColor, 0.95, shape.isGate ? 0.65 : 0.50));
             torusMat.opacity = shape.isGate ? 0.85 : (0.45 + (liveResonance * 0.40));
 
-            window._evoCurrentLevel = level;
+            window._evoCurrentLevel = shape.level;
             window._evoCurrentShape = shape;
         }
 
