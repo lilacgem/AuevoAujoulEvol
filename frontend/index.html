@@ -1014,7 +1014,24 @@
                 lastQ = qParam;
             }
 
-            torusMat.color.copy(new THREE.Color().setHSL(shape.isGate ? 0.13 : liveColor, 0.95, shape.isGate ? 0.65 : 0.50));
+            // Saturation and lightness respond to real measured arousal
+            // (voice energy + motion), not fixed constants. This follows
+            // the actual color-emotion research more closely than hue
+            // alone would: saturated, bright color reliably reads as
+            // higher arousal; hue's own effect is real but comparatively
+            // weak on its own. Hue still picks the realm (that part is
+            // your own symbolic system, not something the research
+            // dictates) - only how vivid and bright it appears is tied
+            // to what's actually happening in the moment.
+            const liveArousal = Math.min(1, ((currentBass + currentMid + currentHigh) / 3) + touchVelocity);
+            const liveSaturation = 0.75 + (liveArousal * 0.25); // 0.75-1.0
+            const liveLightness = 0.42 + (liveArousal * 0.18); // 0.42-0.60
+
+            torusMat.color.copy(new THREE.Color().setHSL(
+                shape.isGate ? 0.13 : liveColor,
+                shape.isGate ? 0.95 : liveSaturation,
+                shape.isGate ? 0.65 : liveLightness
+            ));
             torusMat.opacity = shape.isGate ? 0.85 : (0.45 + (liveResonance * 0.40));
 
             window._evoCurrentLevel = shape.level;
@@ -1303,7 +1320,38 @@
                 const dataUrl = document.querySelector('#bg').toDataURL('image/png');
 
                 const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNOWN ✦";
-                const activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
+                let activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
+
+                // Ask for a genuinely unique reflection of this exact moment.
+                // If it's slow, unavailable, or not yet configured, fall back
+                // to the local message rather than block saving on it.
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    const reflectRes = await fetch('https://api.evomirror.com/api/oracle/reflect', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        signal: controller.signal,
+                        body: JSON.stringify({
+                            realm: activeRealm,
+                            digitalRoot: currentSealShape ? currentSealShape.digital_root : null,
+                            isGate: currentSealShape ? currentSealShape.isGate : false,
+                            intensity: saveIntensity,
+                            totalSeals: evoHistory.totalSeals
+                        })
+                    });
+                    clearTimeout(timeoutId);
+                    if (reflectRes.ok) {
+                        const reflectData = await reflectRes.json();
+                        if (reflectData.reflection) {
+                            activeMessage = reflectData.reflection;
+                            const textEl = document.getElementById('oracleText');
+                            if (textEl) textEl.innerText = activeMessage;
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Oracle reflection unavailable, using local message:", err.message);
+                }
 
                 // Logged-in identity persists across devices; anonymous
                 // fallback stays local-only, same as before login existed.
