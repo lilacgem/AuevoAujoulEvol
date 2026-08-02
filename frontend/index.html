@@ -500,26 +500,36 @@
 
         function getSealShapeParams(level) {
             const root = digitalRoot(level);
-            if (SACRED_DIGITS.includes(root)) return { p: 1, q: 1, isGate: true };
+            if (SACRED_DIGITS.includes(root)) return { p: 1, q: 1, isGate: true, level };
             const idx = CONSTRAINT_DIGITS.indexOf(root);
-            return { p: root, q: CONSTRAINT_DIGITS[(idx + 2) % CONSTRAINT_DIGITS.length], isGate: false };
+            return { p: root, q: CONSTRAINT_DIGITS[(idx + 2) % CONSTRAINT_DIGITS.length], isGate: false, level };
+        }
+
+        // The shape only advances at real evolution events (page load, and
+        // each Save Seal click) - never on every animation frame. This is
+        // the single source of truth for "what shape is the seal right now".
+        let currentSealShape = null;
+
+        function advanceEvolutionStep(intensity, focus, totalSeals) {
+            const newVariable = Math.min(1, totalSeals * 0.01);
+            const evolutionDelta = (intensity * focus) + (newVariable * 369.0);
+            const sessionNumber = Math.max(1, Math.round(Math.abs(evolutionDelta) * 100));
+            const level = evoLeftover + digitalRoot(sessionNumber);
+            evoLeftover = splitLeftoverAndUsed(sessionNumber).leftover;
+            localStorage.setItem('AuEvo_Leftover', String(evoLeftover));
+            currentSealShape = getSealShapeParams(level);
+            return currentSealShape;
         }
 
         function ReflectSovereignSymbol(history, liveResonance, liveColor, currentBass, currentMid, currentHigh) {
             const totalSeals = (history.totalSeals || 1) + (globalMatrix.totalSeals || 0);
 
-            // Real formula: intensity = voice spectral energy, focus = camera brightness
-            const intensity = Math.min(1, Math.max(0, (currentBass + currentMid + currentHigh) / 3));
-            const focus = Math.min(1, Math.max(0, cameraMetric));
-            const newVariable = Math.min(1, totalSeals * 0.01);
-            const evolutionDelta = (intensity * focus) + (newVariable * 369.0);
-
-            const sessionNumber = Math.max(1, Math.round(Math.abs(evolutionDelta) * 100));
-            const level = evoLeftover + digitalRoot(sessionNumber);
-            evoLeftover = splitLeftoverAndUsed(sessionNumber).leftover;
-            localStorage.setItem('AuEvo_Leftover', String(evoLeftover));
-
-            const shape = getSealShapeParams(level);
+            // Shape comes from the current evolution step only - not recomputed
+            // every frame. Falls back to genesis shape before the first step.
+            if (!currentSealShape) {
+                currentSealShape = getSealShapeParams(GENESIS_LEVEL);
+            }
+            const shape = currentSealShape;
             const pParam = shape.p;
             const qParam = shape.q;
 
@@ -670,6 +680,10 @@
                     if (document.getElementById('recordButton')) document.getElementById('recordButton').disabled = false;
                     if (document.getElementById('videoRecordButton')) document.getElementById('videoRecordButton').disabled = false;
 
+                    // First real evolution step now that we have live signal access
+                    const startTotalSeals = (evoHistory.totalSeals || 1) + (globalMatrix.totalSeals || 0);
+                    advanceEvolutionStep(0, 0, startTotalSeals);
+
                 } catch (err) {
                     if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; }
                     console.warn('Hardware activation notice:', err);
@@ -784,6 +798,15 @@
             recordButton.disabled = false;
             recordButton.addEventListener('click', async () => {
                 renderer.render(scene, camera);
+
+                // Advance the evolution step right now, using the real
+                // signal at this exact moment - this is a genuine event,
+                // not a continuous per-frame recalculation.
+                const saveIntensity = Math.min(1, Math.max(0, (bassVal + midVal + highVal) / 3));
+                const saveFocus = Math.min(1, Math.max(0, cameraMetric));
+                const saveTotalSeals = (evoHistory.totalSeals || 1) + (globalMatrix.totalSeals || 0);
+                advanceEvolutionStep(saveIntensity, saveFocus, saveTotalSeals);
+
                 const dataUrl = document.querySelector('#bg').toDataURL('image/png');
 
                 const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNOWN ✦";
