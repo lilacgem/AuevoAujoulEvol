@@ -409,45 +409,45 @@
     <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;"></video>
     <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
 
-    <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ VAULT ARCHIVE</button>
-    <button class="account-btn" id="accountButton" onclick="toggleAccountModal()">ACCOUNT</button>
+    <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ YOUR ARCHIVE</button>
+    <button class="account-btn" id="accountButton" onclick="toggleAccountModal()">ENTER</button>
 
     <div id="accountModal" class="auth-modal-overlay">
         <div class="auth-modal-card">
             <div id="accountLoggedOut">
-                <div class="auth-modal-title">Your Sovereign Identity</div>
+                <div class="auth-modal-title">Your Reflection Awaits</div>
                 <div class="auth-tabs">
-                    <button id="tabSignIn" class="auth-tab active" onclick="setAuthTab('signin')">Sign In</button>
-                    <button id="tabSignUp" class="auth-tab" onclick="setAuthTab('signup')">Sign Up</button>
+                    <button id="tabSignIn" class="auth-tab active" onclick="setAuthTab('signin')">Return</button>
+                    <button id="tabSignUp" class="auth-tab" onclick="setAuthTab('signup')">Begin</button>
                 </div>
                 <div class="auth-input-group">
-                    <input id="authEmail" class="auth-input" type="email" placeholder="email" autocomplete="email">
+                    <input id="authEmail" class="auth-input" type="email" placeholder="your email" autocomplete="email">
                 </div>
                 <div class="auth-input-group">
-                    <input id="authPassword" class="auth-input" type="password" placeholder="password" autocomplete="current-password" style="padding-right: 40px;">
+                    <input id="authPassword" class="auth-input" type="password" placeholder="your password" autocomplete="current-password" style="padding-right: 40px;">
                     <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('authPassword', 'eyeIcon')" aria-label="Show password">
                         <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                <button id="authSubmitBtn" class="auth-submit-btn" onclick="submitAuth()">Sign In</button>
+                <button id="authSubmitBtn" class="auth-submit-btn" onclick="submitAuth()">Return</button>
                 <div id="authError" class="auth-error"></div>
-                <button id="forgotPasswordLink" class="auth-close-btn" style="margin-top:10px; color:rgba(0,243,255,0.6);" onclick="showForgotPassword()">Forgot password?</button>
+                <button id="forgotPasswordLink" class="auth-close-btn" style="margin-top:10px; color:rgba(0,243,255,0.6);" onclick="showForgotPassword()">Forgot your way back?</button>
             </div>
 
             <div id="accountForgotPassword" style="display:none;">
-                <div class="auth-modal-title">Reset Your Password</div>
+                <div class="auth-modal-title">Find Your Way Back</div>
                 <div class="auth-input-group">
-                    <input id="resetEmail" class="auth-input" type="email" placeholder="email" autocomplete="email">
+                    <input id="resetEmail" class="auth-input" type="email" placeholder="your email" autocomplete="email">
                 </div>
                 <button class="auth-submit-btn" onclick="sendPasswordReset()">Send Reset Link</button>
                 <div id="resetError" class="auth-error"></div>
-                <button class="auth-close-btn" onclick="setAuthTab('signin')">Back to sign in</button>
+                <button class="auth-close-btn" onclick="setAuthTab('signin')">Back</button>
             </div>
 
             <div id="accountSetNewPassword" style="display:none;">
-                <div class="auth-modal-title">Set A New Password</div>
+                <div class="auth-modal-title">Choose A New Way In</div>
                 <div class="auth-input-group">
-                    <input id="newPassword" class="auth-input" type="password" placeholder="new password" autocomplete="new-password" style="padding-right: 40px;">
+                    <input id="newPassword" class="auth-input" type="password" placeholder="your new password" autocomplete="new-password" style="padding-right: 40px;">
                     <button type="button" class="auth-eye-btn" onclick="togglePasswordVisibility('newPassword', 'newPasswordEyeIcon')" aria-label="Show password">
                         <svg id="newPasswordEyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
@@ -457,7 +457,7 @@
             </div>
 
             <div id="accountLoggedIn" style="display:none;">
-                <div class="auth-signed-in-label">Signed in as</div>
+                <div class="auth-signed-in-label">You Are</div>
                 <div id="accountEmail" class="auth-signed-in-email"></div>
                 <button class="auth-signout-btn" onclick="signOutAccount()">Sign Out</button>
             </div>
@@ -487,9 +487,9 @@
         </div>
 
         <div class="control-row">
-            <button id="micButton" class="btn-core secondary" type="button">CONNECT MIC</button>
-            <button id="recordButton" class="btn-core primary" type="button" disabled>SAVE SEAL</button>
-            <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>RECORD CLIP</button>
+            <button id="micButton" class="btn-core secondary" type="button">LISTEN</button>
+            <button id="recordButton" class="btn-core primary" type="button" disabled>SEAL THIS</button>
+            <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>CAPTURE</button>
         </div>
     </section>
 
@@ -507,11 +507,11 @@
     
     <div id="history-vault-container" class="vault-panel">
         <h3 class="vault-header">
-            <span>🗃️ Immutable Archive</span>
+            <span>🗃️ Everything You've Become</span>
             <button onclick="toggleVault()" class="vault-close-btn" aria-label="Close archive">✕</button>
         </h3>
         <p class="vault-description">
-            Tap any seal below to bring it back into view — its shape and color are restored live on your active mirror.
+            Tap any seal to return to that moment — its shape and color awaken again, here, now.
         </p>
         <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;"></div>
     </div>
@@ -611,7 +611,7 @@
             document.getElementById('accountSetNewPassword').style.display = 'none';
             document.getElementById('tabSignIn').classList.toggle('active', tab === 'signin');
             document.getElementById('tabSignUp').classList.toggle('active', tab === 'signup');
-            document.getElementById('authSubmitBtn').innerText = tab === 'signin' ? 'Sign In' : 'Create Account';
+            document.getElementById('authSubmitBtn').innerText = tab === 'signin' ? 'Return' : 'Begin';
             document.getElementById('authError').innerText = '';
         }
 
@@ -1090,7 +1090,7 @@
                     if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
                     if (stateDisplayEl) { stateDisplayEl.innerText = "ACTIVE"; stateDisplayEl.style.display = "inline"; }
 
-                    micButton.innerText = "MIC ACTIVE";
+                    micButton.innerText = "LISTENING";
                     micButton.style.borderColor = "#00f3ff";
                     micButton.style.color = "#00f3ff";
 
@@ -1211,7 +1211,7 @@
 
         const recordButton = document.getElementById('recordButton');
         if (recordButton) {
-            recordButton.innerText = "SAVE SEAL";
+            recordButton.innerText = "SEAL THIS";
             recordButton.disabled = false;
             recordButton.addEventListener('click', async () => {
                 renderer.render(scene, camera);
@@ -1329,9 +1329,9 @@
                 
                 await triggerSovereignDownload(imageBlob, imageFileName, 'AuEvo Soul Seal Image');
                 
-                recordButton.innerText = `SEAL SAVED!`;
+                recordButton.innerText = `SEALED.`;
                 if (typeof loadVaultHistory === "function") loadVaultHistory();
-                setTimeout(() => { recordButton.innerText = "SAVE SEAL"; }, 2500);
+                setTimeout(() => { recordButton.innerText = "SEAL THIS"; }, 2500);
             });
         }
 
@@ -1406,9 +1406,9 @@
                 await triggerSovereignDownload(videoBlob, videoFileName, 'AuEvo Resonance Video Clip');
 
                 if (videoRecordBtn) {
-                    videoRecordBtn.innerText = "CLIP SAVED!";
+                    videoRecordBtn.innerText = "CAPTURED.";
                     videoRecordBtn.classList.remove('active-rec');
-                    setTimeout(() => { videoRecordBtn.innerText = "RECORD CLIP"; }, 2500);
+                    setTimeout(() => { videoRecordBtn.innerText = "CAPTURE"; }, 2500);
                 }
             };
 
@@ -1640,7 +1640,7 @@
             grid.innerHTML = ''; 
 
             if (finalSeals.length === 0) {
-                grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Vault currently empty. Tap 'SAVE SEAL' to capture your first generation!</p>`;
+                grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Nothing here yet. Your first seal is waiting to be born.</p>`;
                 return;
             }
 
