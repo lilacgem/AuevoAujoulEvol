@@ -627,9 +627,13 @@
 
         function getSealShapeParams(level) {
             const root = digitalRoot(level);
-            if (SACRED_DIGITS.includes(root)) return { p: 1, q: 1, isGate: true, level };
+            const isGate = SACRED_DIGITS.includes(root);
+            const message = isGate
+                ? 'Resonance: Golden Glow Active. A gate has opened.'
+                : 'Growth in progress. Following the natural cycle.';
+            if (isGate) return { p: 1, q: 1, isGate: true, level, digital_root: root, message };
             const idx = CONSTRAINT_DIGITS.indexOf(root);
-            return { p: root, q: CONSTRAINT_DIGITS[(idx + 2) % CONSTRAINT_DIGITS.length], isGate: false, level };
+            return { p: root, q: CONSTRAINT_DIGITS[(idx + 2) % CONSTRAINT_DIGITS.length], isGate: false, level, digital_root: root, message };
         }
 
         // The shape only advances at real evolution events (page load, and
@@ -981,18 +985,40 @@
                     console.warn("Local storage fallback notice:", e);
                 }
 
-                // SAVE TO RENDER CLOUD DATABASE
-                fetch('https://api.evomirror.com/api/seal/crystallize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(secureSoulPayload)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Sovereign Seal vaulted globally to cloud database:", data.status);
+                // SAVE: Supabase for logged-in users (persists across devices,
+                // no image payload since nothing reads visual_seal_string back);
+                // droplet backend unchanged for anonymous/local-only users.
+                if (currentAuthUser) {
+                    try {
+                        const { error } = await supabaseClient.from('seals').insert({
+                            user_id: currentAuthUser.id,
+                            matrix_coordinates: secureSoulPayload.matrix_coordinates,
+                            evo_metrics: {
+                                g_root_level: currentSealShape?.level,
+                                digital_root: currentSealShape?.digital_root,
+                                is_gate: currentSealShape?.isGate,
+                                message: currentSealShape?.message
+                            }
+                        });
+                        if (error) throw error;
+                        console.log("Seal vaulted to your account:", currentSealShape?.message);
+                    } catch (err) {
+                        console.warn("Supabase save notice:", err);
+                    }
                     if (typeof loadVaultHistory === "function") loadVaultHistory();
-                })
-                .catch(err => console.warn("Vault pipeline standby (Server offline):", err));
+                } else {
+                    fetch('https://api.evomirror.com/api/seal/crystallize', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(secureSoulPayload)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Sovereign Seal vaulted globally to cloud database:", data.status);
+                        if (typeof loadVaultHistory === "function") loadVaultHistory();
+                    })
+                    .catch(err => console.warn("Vault pipeline standby (Server offline):", err));
+                }
 
                 const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
                 const currentHue = Math.round(colorAccumulator * 360.0);
@@ -1266,16 +1292,39 @@
             const grid = document.getElementById('gallery-grid');
             if (!grid) return;
 
+            // Check the session directly rather than trusting currentAuthUser,
+            // since this can run before the auth state listener has settled.
+            const { data: sessionData } = await supabaseClient.auth.getSession();
+            const authUser = sessionData.session ? sessionData.session.user : null;
+
             let localSeals = JSON.parse(localStorage.getItem('AuEvo_Local_Seals')) || [];
             let cloudSeals = [];
 
-            try {
-                const response = await fetch('https://api.evomirror.com/api/seal/history');
-                if (response.ok) {
-                    cloudSeals = await response.json();
+            if (authUser) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('seals')
+                        .select('matrix_coordinates, evo_metrics, created_at')
+                        .eq('user_id', authUser.id)
+                        .order('created_at', { ascending: true });
+                    if (error) throw error;
+                    cloudSeals = (data || []).map(row => ({
+                        matrix_coordinates: row.matrix_coordinates,
+                        evo_metrics: row.evo_metrics,
+                        server_vault_timestamp: row.created_at
+                    }));
+                } catch (err) {
+                    console.warn("Supabase vault fetch notice:", err);
                 }
-            } catch (err) {
-                console.warn("Backend sleeping or offline, defaulting to phone local vault.");
+            } else {
+                try {
+                    const response = await fetch('https://api.evomirror.com/api/seal/history');
+                    if (response.ok) {
+                        cloudSeals = await response.json();
+                    }
+                } catch (err) {
+                    console.warn("Backend sleeping or offline, defaulting to phone local vault.");
+                }
             }
 
             let combinedMap = new Map();
@@ -1314,10 +1363,11 @@
             [...finalSeals].reverse().forEach(entry => {
                 const card = document.createElement('div');
                 
-                const analytics = entry.python_analytics_telemetry || {
-                    biometric_state_classification: "AWAITING_CORE_SCAN",
-                    clinical_bio_marker_note: "Running data pipelines...",
-                    spectral_entropy_score: "N/A"
+                const metrics = entry.evo_metrics || {
+                    message: "Growth in progress.",
+                    digital_root: '?',
+                    g_root_level: '?',
+                    is_gate: false
                 };
 
                 const savedRealm = entry.matrix_coordinates?.oracle_realm || "✦ SACRED MATRIX ✦";
@@ -1348,14 +1398,14 @@
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
                         <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates?.total_seals || 'X'}</span>
-                        <span style="color: rgba(255,215,0,0.7); font-size: 9px;">${analytics.biometric_state_classification}</span>
+                        <span style="color: ${metrics.is_gate ? '#ffd700' : 'rgba(255,215,0,0.7)'}; font-size: 9px;">${metrics.is_gate ? 'GATE - LEVEL ' + metrics.g_root_level : 'LEVEL ' + metrics.g_root_level}</span>
                     </div>
                     <div style="color: #00f3ff; font-size: 9px; margin-bottom: 4px; font-weight: bold;">${savedRealm}</div>
                     <div style="color: rgba(255,255,255,0.85); font-size: 9.5px; font-style: italic; background: rgba(0,243,255,0.04); padding: 6px; border-radius: 4px; margin-bottom: 8px; border-left: 2px solid #00f3ff;">
                         "${savedMessage}"
                     </div>
                     <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates?.hue || 0}° / R:${entry.matrix_coordinates?.res || entry.matrix_coordinates?.resonance || 0.18}</div>
-                    <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>ENTROPY SCORE:</b> ${analytics.spectral_entropy_score}</div>
+                    <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>DIGITAL ROOT:</b> ${metrics.digital_root}</div>
                     <div style="font-size: 9px; color: rgba(255,255,255,0.25); margin-top: 8px; text-align: right;">
                         ${new Date(entry.server_vault_timestamp || Date.now()).toLocaleString()}
                     </div>
