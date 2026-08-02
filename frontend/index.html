@@ -393,6 +393,42 @@
             line-height: 1.6;
         }
 
+        .portrait-card {
+            background: linear-gradient(135deg, rgba(0,243,255,0.06), rgba(139,0,255,0.06));
+            border: 1px solid rgba(0,243,255,0.25);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+            font-family: 'Courier New', monospace;
+        }
+        .portrait-title {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 10px;
+        }
+        .portrait-line {
+            font-size: 12px;
+            color: #fff;
+            margin: 6px 0;
+        }
+        .portrait-line b { color: #00f3ff; }
+        .portrait-signin-prompt {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-style: italic;
+        }
+        .portrait-gate-banner {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,215,0,0.2);
+            font-size: 11px;
+            color: #ffd700;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
         @media (max-width: 600px) {
             .dashboard { width: 92vw; bottom: max(16px, env(safe-area-inset-bottom)); gap: 6px; }
             .btn-core { padding: 9px 2px; font-size: 7.5px; min-height: 34px; }
@@ -513,6 +549,7 @@
         <p class="vault-description">
             Tap any seal to return to that moment — its shape and color awaken again, here, now.
         </p>
+        <div id="self-portrait"></div>
         <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;"></div>
     </div>
 
@@ -1168,27 +1205,66 @@
             if (now - lastOracleTime > 3500) {
                 lastOracleTime = now;
                 let realmTitle = "";
-                let oracleMessage = "";
+                let realmMessages = [];
 
                 if (hueDeg >= 330 || hueDeg < 30) {
                     realmTitle = "✦ REALM: RUBY ROOT ANCHOR (PHYSICAL WILL) ✦";
-                    oracleMessage = "Your aura frequency is anchoring into primeval earth density. Focus on grounding your raw willpower.";
+                    realmMessages = [
+                        "Something steady is holding you right now — a root finding its depth.",
+                        "Your aura is anchoring into primeval earth density. Ground your raw willpower here.",
+                        "Your body remembers how to stand. Let the weight settle fully into you.",
+                        "The earth beneath you has opened. What you build now, builds true."
+                    ];
                 } else if (hueDeg >= 30 && hueDeg < 70) {
                     realmTitle = "✦ REALM: AMBER KUNDALINI (ALCHEMICAL CREATION) ✦";
-                    oracleMessage = "Creative heat is rising through your solar nexus. Unspoken passion is transforming into actionable power.";
+                    realmMessages = [
+                        "A quiet warmth is gathering low in your center — the first spark before the fire.",
+                        "Creative heat is rising through your solar nexus. Unspoken passion is becoming power.",
+                        "You are burning bright right now. Whatever you're making, make it fully.",
+                        "The fire has found its shape. What was only heat is now becoming real."
+                    ];
                 } else if (hueDeg >= 70 && hueDeg < 150) {
                     realmTitle = "✦ REALM: EMERALD HEART GRID (CELLULAR HARMONY) ✦";
-                    oracleMessage = "Biological coherence achieved. Your heart frequency is emitting a healing wave—restoring balance.";
+                    realmMessages = [
+                        "Something in you is softening. Let it — this is how healing begins.",
+                        "Biological coherence achieved. Your heart is emitting a wave that restores balance.",
+                        "Your whole body is singing the same note right now. This is what wholeness feels like.",
+                        "Your heart has found its center. Everything else can rest around it now."
+                    ];
                 } else if (hueDeg >= 150 && hueDeg < 210) {
                     realmTitle = "✦ REALM: AZURE THROAT MATRIX (SONIC TRUTH) ✦";
-                    oracleMessage = "Your vocal portal is active. You carry an unexpressed truth—speak or resonate now to project sound.";
+                    realmMessages = [
+                        "There's a word in you that hasn't been spoken yet. It's close.",
+                        "Your vocal portal is active. An unexpressed truth is ready to become sound.",
+                        "You are loud right now, in the best way. Let it carry.",
+                        "What you've been holding back has found its way out. That truth is yours now."
+                    ];
                 } else if (hueDeg >= 210 && hueDeg < 270) {
                     realmTitle = "✦ REALM: INDIGO THIRD EYE (PATTERN VISION) ✦";
-                    oracleMessage = "Intuitive density shifting inward. Your mind is decoding hidden structural geometries behind reality.";
+                    realmMessages = [
+                        "You're noticing things you couldn't quite see before — small threads, connecting.",
+                        "Intuitive density is shifting inward. Your mind is decoding hidden structure behind reality.",
+                        "The patterns are loud right now. Trust what you're seeing.",
+                        "The structure behind things has revealed itself to you. You won't unsee it now."
+                    ];
                 } else {
                     realmTitle = "✦ REALM: VIOLET CROWN (369 SOURCE CONNECTION) ✦";
-                    oracleMessage = "Transcendence phase active. Your current wave matrix aligns directly with higher 3-6-9 universal completion.";
+                    realmMessages = [
+                        "Something wider than you is close right now — barely, but close.",
+                        "Transcendence phase active. Your wave matrix is aligning with the 3-6-9 source.",
+                        "You are wide open right now. Whatever is arriving, let it.",
+                        "You have touched the source directly. This is the completion the numbers point toward."
+                    ];
                 }
+
+                // Which variant plays isn't decorative - it's driven by your
+                // actual live voice/motion energy right now, plus whether
+                // you're currently on a gate. Same realm, different moment,
+                // genuinely different words.
+                const liveIntensity = ((bassVal + midVal + highVal) / 3) + touchVelocity;
+                const intensityIdx = Math.min(2, Math.floor(liveIntensity * 3));
+                const variantIdx = (currentSealShape && currentSealShape.isGate) ? 3 : intensityIdx;
+                let oracleMessage = realmMessages[variantIdx] || realmMessages[0];
 
                 if (bassVal > 0.35) {
                     oracleMessage += " [HEAVY BASS HARMONICS DETECTED]";
@@ -1583,6 +1659,67 @@
         });
 
         // PERMANENT DUAL-LAYER VAULT LOADER
+        function renderSelfPortrait(authUser, cloudSeals) {
+            const container = document.getElementById('self-portrait');
+            if (!container) return;
+
+            if (!authUser) {
+                container.innerHTML = `
+                    <div class="portrait-card">
+                        <div class="portrait-title">Your Pattern</div>
+                        <div class="portrait-signin-prompt">Sign in to watch your pattern emerge across every visit, not just this one.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!Array.isArray(cloudSeals) || cloudSeals.length === 0) {
+                container.innerHTML = `
+                    <div class="portrait-card">
+                        <div class="portrait-title">Your Pattern</div>
+                        <div class="portrait-signin-prompt">Your pattern hasn't formed yet. Seal something, and it will begin.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const totalSeals = cloudSeals.length;
+            const totalGates = cloudSeals.filter(s => s.evo_metrics && s.evo_metrics.is_gate).length;
+
+            const realmCounts = {};
+            cloudSeals.forEach(s => {
+                const realm = s.matrix_coordinates && s.matrix_coordinates.oracle_realm;
+                if (realm) realmCounts[realm] = (realmCounts[realm] || 0) + 1;
+            });
+            let dominantRealm = null;
+            let dominantCount = 0;
+            Object.keys(realmCounts).forEach(realm => {
+                if (realmCounts[realm] > dominantCount) {
+                    dominantRealm = realm;
+                    dominantCount = realmCounts[realm];
+                }
+            });
+            const dominantRealmClean = dominantRealm ? dominantRealm.replace(/✦/g, '').trim() : 'still forming';
+
+            let html = `
+                <div class="portrait-card">
+                    <div class="portrait-title">Your Pattern</div>
+                    <div class="portrait-line">You have sealed <b>${totalSeals}</b> time${totalSeals === 1 ? '' : 's'}.</div>
+                    <div class="portrait-line">You return most to <b>${dominantRealmClean}</b>.</div>
+                    <div class="portrait-line">You have crossed <b>${totalGates}</b> gate${totalGates === 1 ? '' : 's'}.</div>
+            `;
+
+            // Placeholder invitation - not yet linked anywhere, since
+            // evolvingroots.org doesn't exist as a real destination yet.
+            // This is the honest trigger point for that reveal once it does.
+            if (totalGates >= 3) {
+                html += `<div class="portrait-gate-banner">✦ A path has opened. Evolving Roots awaits. ✦</div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
         async function loadVaultHistory() {
             const grid = document.getElementById('gallery-grid');
             if (!grid) return;
@@ -1621,6 +1758,8 @@
                     console.warn("Backend sleeping or offline, defaulting to phone local vault.");
                 }
             }
+
+            renderSelfPortrait(authUser, cloudSeals);
 
             let combinedMap = new Map();
 
