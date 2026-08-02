@@ -106,7 +106,7 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/api/seal/crystallize') {
         let body = '';
         let tooLarge = false;
-        const MAX_BODY_BYTES = 100 * 1024; // 100KB is plenty for this payload
+        const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5MB - accounts for base64 image snapshots
 
         req.on('data', chunk => {
             body += chunk.toString();
