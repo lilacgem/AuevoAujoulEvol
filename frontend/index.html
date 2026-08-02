@@ -756,7 +756,7 @@
                 }
 
                 // SAVE TO RENDER CLOUD DATABASE
-                fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/crystallize', {
+                fetch('https://api.evomirror.com/api/seal/crystallize', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(secureSoulPayload)
@@ -1040,7 +1040,7 @@
             let cloudSeals = [];
 
             try {
-                const response = await fetch('https://auevoaujoulevol-backend.onrender.com/api/seal/history');
+                const response = await fetch('https://api.evomirror.com/api/seal/history');
                 if (response.ok) {
                     cloudSeals = await response.json();
                 }
