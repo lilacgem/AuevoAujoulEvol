@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>AuEvoAujoulEvol - Resonant Sacred Wiregrid Mirror</title>
+    <title>EvoMirror - A Living Reflection of You</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
 
@@ -17,8 +17,18 @@
     <meta name="resonance-type" content="369 Method Matrix">
     <meta name="handshake-signature" content="AuEvoJoulEvol">
     <meta name="mobility-status" content="Sovereign Mobility Standard">
-    <meta name="description" content="AuEvo-JoulEvol Digital Mirror Matrix - Level 55 EvolvingRoots Sacred Resonance Vault Anchor.">
-    <meta name="keywords" content="Aujoule, lisajEVO, evolve, lisajevolving, AuEvo, EvoRoot, 369_Method, AuEvoJoulEvol, LisajEvo, evolvinglisaj, Lisajthaqueen, Lisaj">
+    <meta name="description" content="A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you, one seal at a time.">
+    <meta name="keywords" content="EvoMirror, evolving seal, generative art, digital mirror, AuEvoAujoulEvol, evomirror">
+
+    <meta property="og:title" content="EvoMirror - A Living Reflection of You">
+    <meta property="og:description" content="A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you, one seal at a time.">
+    <meta property="og:image" content="https://evomirror.com/favicon.png">
+    <meta property="og:url" content="https://evomirror.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="EvoMirror - A Living Reflection of You">
+    <meta name="twitter:description" content="A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you.">
+    <meta name="twitter:image" content="https://evomirror.com/favicon.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -988,6 +998,7 @@
             evoLeftover = splitLeftoverAndUsed(sessionNumber).leftover;
             localStorage.setItem('AuEvo_Leftover', String(evoLeftover));
             currentSealShape = getSealShapeParams(level);
+            currentSealShape.evolutionDelta = Number(evolutionDelta.toFixed(4));
             return currentSealShape;
         }
 
@@ -1423,7 +1434,8 @@
                                 g_root_level: currentSealShape?.level,
                                 digital_root: currentSealShape?.digital_root,
                                 is_gate: currentSealShape?.isGate,
-                                message: currentSealShape?.message
+                                message: currentSealShape?.message,
+                                evolution_delta: currentSealShape?.evolutionDelta
                             }
                         });
                         if (error) throw error;
@@ -1749,6 +1761,10 @@
 
             const totalSeals = cloudSeals.length;
             const totalGates = cloudSeals.filter(s => s.evo_metrics && s.evo_metrics.is_gate).length;
+            const totalEnergy = cloudSeals.reduce((sum, s) => {
+                const delta = s.evo_metrics && typeof s.evo_metrics.evolution_delta === 'number' ? s.evo_metrics.evolution_delta : 0;
+                return sum + Math.abs(delta);
+            }, 0);
 
             const realmCounts = {};
             cloudSeals.forEach(s => {
@@ -1771,13 +1787,11 @@
                     <div class="portrait-line">You have sealed <b>${totalSeals}</b> time${totalSeals === 1 ? '' : 's'}.</div>
                     <div class="portrait-line">You return most to <b>${dominantRealmClean}</b>.</div>
                     <div class="portrait-line">You have crossed <b>${totalGates}</b> gate${totalGates === 1 ? '' : 's'}.</div>
+                    <div class="portrait-line">Your accumulated energy: <a href="https://aujoule.com" style="color:#ffd700; text-decoration:none;"><b>${totalEnergy.toFixed(1)} AuJ ↗</b></a></div>
             `;
 
-            // Placeholder invitation - not yet linked anywhere, since
-            // evolvingroots.org doesn't exist as a real destination yet.
-            // This is the honest trigger point for that reveal once it does.
             if (totalGates >= 3) {
-                html += `<div class="portrait-gate-banner">✦ A path has opened. Evolving Roots awaits. ✦</div>`;
+                html += `<div class="portrait-gate-banner"><a href="https://evolvingroots.org" style="color:#ffd700; text-decoration:none;">✦ A path has opened. Evolving Roots awaits. ✦</a></div>`;
             }
 
             html += `</div>`;
