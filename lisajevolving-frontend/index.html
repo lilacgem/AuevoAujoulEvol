@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<title>soulsista191 - LisaJEvolving</title>
+<meta name="description" content="soulsista191's personal space - a nostalgic profile that's alive, evolving, and reacting to what's actually playing.">
+<meta property="og:title" content="soulsista191 - LisaJEvolving">
+<meta property="og:description" content="A nostalgic personal profile that's alive - evolving and reacting to what's actually playing.">
+<meta property="og:url" content="https://lisajevolving.com">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="soulsista191 - LisaJEvolving">
+<meta name="twitter:description" content="A nostalgic personal profile that's alive and evolving.">
+<link rel="icon" href="data:,">
+<style>
+    @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    @keyframes glow-pulse {
+        0%, 100% { text-shadow: 0 0 5px #ff10f0, 0 0 10px #ff10f0, 0 0 20px #ff10f0, 0 0 40px #ff10f0; }
+        50% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff; }
+    }
+    @keyframes blink {
+        0%, 49% { opacity: 1; }
+        50%, 100% { opacity: 0; }
+    }
+    @keyframes sparkle-fall {
+        0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(400px) rotate(360deg); opacity: 0; }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        background: #0a0014;
+        background-image:
+            repeating-linear-gradient(45deg, rgba(255,16,240,0.03) 0px, rgba(255,16,240,0.03) 2px, transparent 2px, transparent 40px),
+            repeating-linear-gradient(-45deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 2px, transparent 2px, transparent 40px);
+        font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif;
+        color: #e0e0ff;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    .marquee-bar {
+        background: linear-gradient(90deg, #ff10f0, #00ffff, #39ff14, #ff10f0);
+        background-size: 300% 100%;
+        animation: gradient-shift 6s linear infinite, none;
+        padding: 6px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        border-bottom: 3px dashed #fff;
+    }
+    @keyframes gradient-shift { 0% { background-position: 0% 0; } 100% { background-position: 300% 0; } }
+    .marquee-bar span {
+        display: inline-block;
+        white-space: nowrap;
+        animation: marquee 14s linear infinite;
+        font-weight: bold;
+        font-size: 14px;
+        color: #0a0014;
+        text-shadow: 1px 1px 0 #fff;
+    }
+
+    .page-wrap { max-width: 950px; margin: 0 auto; padding: 20px 12px; }
+
+    .header-title {
+        text-align: center;
+        font-size: 42px;
+        font-weight: bold;
+        letter-spacing: 4px;
+        color: #fff;
+        animation: glow-pulse 3s ease-in-out infinite;
+        margin: 20px 0 4px;
+    }
+    .header-sub {
+        text-align: center;
+        color: #39ff14;
+        font-size: 13px;
+        letter-spacing: 3px;
+        margin-bottom: 24px;
+        text-shadow: 0 0 8px #39ff14;
+    }
+
+    .main-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 4px solid #ff10f0;
+        box-shadow: 0 0 25px rgba(255,16,240,0.5), inset 0 0 25px rgba(0,255,255,0.1);
+        background: #12001f;
+    }
+    .main-table td { vertical-align: top; padding: 0; }
+
+    .sidebar { width: 260px; border-right: 3px dashed #00ffff; padding: 16px; background: #0d0018; }
+    .content { padding: 16px 20px; }
+
+    .pfp-box {
+        border: 3px solid #00ffff;
+        box-shadow: 0 0 15px #00ffff;
+        background: repeating-linear-gradient(135deg, #1a0030, #1a0030 10px, #250045 10px, #250045 20px);
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+    .pfp-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .section-title {
+        color: #fff;
+        background: linear-gradient(90deg, #ff10f0, #bf00ff);
+        padding: 4px 10px;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin: 16px 0 8px;
+        border-left: 4px solid #39ff14;
+        text-transform: uppercase;
+    }
+
+    .info-line { font-size: 12px; margin: 4px 0; color: #cceeff; }
+    .info-line b { color: #ff10f0; }
+
+    .player-box {
+        border: 2px solid #39ff14;
+        box-shadow: 0 0 15px rgba(57,255,20,0.5);
+        background: #0a0014;
+        padding: 12px;
+        margin-bottom: 16px;
+    }
+    .now-playing-label {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: #39ff14;
+        text-shadow: 0 0 6px #39ff14;
+        margin-bottom: 6px;
+        animation: flicker 2s infinite;
+    }
+    .track-name { font-size: 13px; color: #fff; margin-bottom: 8px; min-height: 18px; }
+    .player-box input[type="file"] {
+        font-size: 10px;
+        color: #cceeff;
+        margin-bottom: 8px;
+        width: 100%;
+    }
+    .player-box audio { width: 100%; height: 32px; }
+    .player-box audio::-webkit-media-controls-panel { background: #1a0030; }
+
+    .about-text {
+        font-size: 13px;
+        line-height: 1.7;
+        color: #dce0ff;
+        background: rgba(0,255,255,0.04);
+        border: 1px dashed rgba(0,255,255,0.3);
+        padding: 12px;
+    }
+
+    .comment-wall { margin-top: 8px; }
+    .comment {
+        border: 1px solid #39ff14;
+        background: rgba(57,255,20,0.05);
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        font-size: 12px;
+    }
+    .comment b { color: #00ffff; }
+    .comment .date { color: #888; font-size: 10px; }
+
+    .under-construction {
+        text-align: center;
+        margin-top: 20px;
+        padding: 10px;
+        border: 3px solid #ffff00;
+        background: repeating-linear-gradient(45deg, #1a1a00, #1a1a00 10px, #000 10px, #000 20px);
+        color: #ffff00;
+        font-weight: bold;
+        letter-spacing: 2px;
+        animation: blink 1.2s infinite;
+        font-size: 13px;
+    }
+
+    .counter-box {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 11px;
+        color: #888;
+    }
+    .counter-box span {
+        background: #000;
+        color: #39ff14;
+        font-family: 'Courier New', monospace;
+        padding: 3px 8px;
+        border: 1px solid #39ff14;
+        letter-spacing: 3px;
+        font-size: 14px;
+    }
+
+    .gateway-overlay {
+        position: fixed; inset: 0; z-index: 2000;
+        background: #0a0014;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+        text-align: center; padding: 24px;
+        transition: opacity 1.1s ease;
+        opacity: 1;
+    }
+    .gateway-overlay.fading { opacity: 0; }
+    .gateway-overlay.hidden { display: none; }
+    .gateway-seal-box {
+        width: min(70vw, 300px);
+        aspect-ratio: 1;
+        margin-bottom: 6px;
+    }
+    .gateway-seal-box canvas { display: block; width: 100% !important; height: 100% !important; }
+    .gateway-title {
+        font-size: 32px; font-weight: bold; color: #fff;
+        animation: glow-pulse 3s ease-in-out infinite;
+        letter-spacing: 3px;
+    }
+    .gateway-sub { color: #39ff14; font-size: 12px; letter-spacing: 2px; text-shadow: 0 0 6px #39ff14; }
+    .gateway-btn {
+        background: linear-gradient(90deg, #ff10f0, #bf00ff);
+        color: #fff; border: 2px solid #00ffff; box-shadow: 0 0 20px rgba(0,255,255,0.6);
+        padding: 14px 34px; font-size: 14px; font-weight: bold; letter-spacing: 3px;
+        cursor: pointer; font-family: inherit; text-transform: uppercase;
+        margin-top: 8px;
+    }
+    .gateway-btn:hover { box-shadow: 0 0 30px rgba(0,255,255,0.9); }
+</style>
+</head>
+<body>
+
+<div class="gateway-overlay" id="gatewayOverlay">
+    <div class="gateway-seal-box" id="gatewaySealBox"></div>
+    <div class="gateway-title">✧ soulsista191 ✧</div>
+    <div class="gateway-sub">°•. click to enter .•°</div>
+    <button class="gateway-btn" id="enterBtn">✦ Enter ✦</button>
+</div>
+
+<audio id="siteTrack" src="my-track.mp3" loop></audio>
+
+<div class="marquee-bar"><span>✧☆° THANX FOR STOPPING BY MY PAGE °☆✧ LEAVE A COMMENT!! °☆✧ TOP 8 UPDATED ✧☆° DONT FORGET TO ADD ME °☆✧</span></div>
+
+<div class="page-wrap">
+    <div class="header-title">✧ soulsista191 ✧</div>
+    <div class="header-sub">°•. IN A WORLD OF MY OWN .•°</div>
+
+    <table class="main-table">
+        <tr>
+            <td class="sidebar">
+                <div class="pfp-box">
+                    <img src="profile-pic.jpg" alt="profile" onerror="this.style.display='none'; this.parentElement.innerText='✦';">
+                </div>
+
+                <div class="section-title">Now Playing</div>
+                <div class="player-box">
+                    <div class="now-playing-label">▶ NOW PLAYING</div>
+                    <div class="track-name" id="trackName">✦ loading track...</div>
+                    <input type="file" id="audioPicker" accept="audio/*" title="Play something else instead">
+                    <audio id="audioPlayer" controls style="display:none;"></audio>
+                </div>
+
+                <div class="section-title">Basic Info</div>
+                <div class="info-line"><b>Mood:</b> evolving ✧</div>
+                <div class="info-line"><b>Status:</b> online now</div>
+                <div class="info-line"><b>Zodiac:</b> ---</div>
+                <div class="info-line"><b>Here for:</b> friends, vibes, music</div>
+
+                <div class="counter-box">
+                    visitors: <span id="visitorCount">000000</span>
+                </div>
+            </td>
+            <td class="content">
+                <div class="section-title">About Me</div>
+                <div class="about-text">
+                    welcome to my page!! this is where i keep it real and share what's on my mind.
+                    still the same soul, just evolving one day at a time. leave a comment and lemme know you stopped by ✧
+                </div>
+
+                <div class="section-title">Comments</div>
+                <div class="comment-wall">
+                    <div class="comment"><b>xXdreamerXx</b> <span class="date">- 3 days ago</span><br>heyyy girl love the new layout!! ✧</div>
+                    <div class="comment"><b>starlight22</b> <span class="date">- 1 week ago</span><br>omg add me back!! we should hang soon</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="under-construction">⚠ PAGE UNDER CONSTRUCTION ⚠</div>
+</div>
+
+<canvas id="sparkleCanvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:999;"></canvas>
+
+<script>
+
+    // --- The gateway's own seal: same visual language, but fluid and
+    // ethereal rather than sharp - this is the first thing anyone sees,
+    // so it breathes and drifts instead of reacting to anything yet. ---
+    const gwScene = new THREE.Scene();
+    const gwCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    gwCamera.position.z = 9;
+    const gwBox = document.getElementById('gatewaySealBox');
+    const gwRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    gwRenderer.setSize(gwBox.clientWidth, gwBox.clientHeight);
+    gwRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    gwBox.appendChild(gwRenderer.domElement);
+
+    const gwGroup = new THREE.Group();
+    gwScene.add(gwGroup);
+
+    // Two layered knots at slightly different scales/opacities stand in
+    // for a soft bloom/glow, since this environment has no post-processing.
+    const gwGeo = new THREE.TorusKnotGeometry(2.2, 0.55, 150, 14, 3, 8);
+    const gwCoreMat = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xff2bf5, transparent: true, opacity: 0.95 });
+    const gwGlowMat = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xff2bf5, transparent: true, opacity: 0.18 });
+    const gwCore = new THREE.Mesh(gwGeo, gwCoreMat);
+    const gwGlow = new THREE.Mesh(gwGeo, gwGlowMat);
+    gwGlow.scale.setScalar(1.12);
+    gwGroup.add(gwCore, gwGlow);
+
+    // Soft drifting particles around the seal, matching evomirror's stardust
+    const gwParticleCount = 120;
+    const gwParticleGeo = new THREE.BufferGeometry();
+    const gwParticlePositions = new Float32Array(gwParticleCount * 3);
+    for (let i = 0; i < gwParticleCount; i++) {
+        const radius = 4 + Math.random() * 3;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.random() * Math.PI;
+        gwParticlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+        gwParticlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        gwParticlePositions[i * 3 + 2] = radius * Math.cos(phi);
+    }
+    gwParticleGeo.setAttribute('position', new THREE.BufferAttribute(gwParticlePositions, 3));
+    const gwParticleMat = new THREE.PointsMaterial({ color: 0x00ffff, size: 0.05, transparent: true, opacity: 0.6 });
+    const gwParticles = new THREE.Points(gwParticleGeo, gwParticleMat);
+    gwScene.add(gwParticles);
+
+    let gwTime = 0;
+    function animateGateway() {
+        requestAnimationFrame(animateGateway);
+        gwTime += 0.006;
+
+        // Slow, uneven rotation on multiple axes reads as fluid rather
+        // than mechanical - a single steady spin would feel too rigid.
+        gwGroup.rotation.x += 0.0016;
+        gwGroup.rotation.y += 0.0023;
+        gwGroup.rotation.z = Math.sin(gwTime * 0.4) * 0.15;
+
+        // A gentle breathing pulse in scale and glow opacity
+        const breath = 1 + Math.sin(gwTime) * 0.06;
+        gwGroup.scale.setScalar(breath);
+        gwGlowMat.opacity = 0.14 + Math.sin(gwTime * 1.3) * 0.08;
+
+        gwParticles.rotation.y += 0.0008;
+        gwRenderer.render(gwScene, gwCamera);
+    }
+    animateGateway();
+
+    // --- The gateway: browsers block unmuted autoplay until a real
+    // click happens - this is a genuine browser rule, not a choice, so
+    // the "click to enter" screen is doing real work, not just vibes. ---
+    const gateway = document.getElementById('gatewayOverlay');
+    const enterBtn = document.getElementById('enterBtn');
+    const siteTrack = document.getElementById('siteTrack');
+
+    let bassVal = 0, midVal = 0, highVal = 0;
+    let analyser, dataArray;
+
+    enterBtn.addEventListener('click', () => {
+        gateway.classList.add('fading');
+        setTimeout(() => gateway.classList.add('hidden'), 1100);
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const trackSource = audioContext.createMediaElementSource(siteTrack);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        trackSource.connect(analyser);
+        analyser.connect(audioContext.destination);
+
+        siteTrack.play().then(() => {
+            trackName.innerText = '♫ now resonating...';
+        }).catch(() => {
+            trackName.innerText = '✦ tap play below';
+        });
+    });
+
+    function updateAudioReactivity() {
+        requestAnimationFrame(updateAudioReactivity);
+        if (!analyser) return;
+
+        analyser.getByteFrequencyData(dataArray);
+        let bassSum = 0, midSum = 0, highSum = 0;
+        for (let i = 0; i < 8; i++) bassSum += dataArray[i];
+        for (let i = 8; i < 40; i++) midSum += dataArray[i];
+        for (let i = 40; i < 128; i++) highSum += dataArray[i];
+
+        bassVal = Math.min(1.0, (bassSum / (8 * 255.0)) * 2.2);
+        midVal = Math.min(1.0, (midSum / (32 * 255.0)) * 2.0);
+        highVal = Math.min(1.0, (highSum / (88 * 255.0)) * 2.0);
+    }
+    updateAudioReactivity();
+
+    // Functional "Now Playing" widget - also allows loading a different
+    // track manually, on top of the site's own autoplaying one.
+    const picker = document.getElementById('audioPicker');
+    const player = document.getElementById('audioPlayer');
+    const trackName = document.getElementById('trackName');
+
+    picker.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        player.src = url;
+        trackName.innerText = '♫ ' + file.name.replace(/\.[^/.]+$/, '');
+        player.play().catch(() => {});
+    });
+
+    // Nostalgic animated visitor counter
+    const counterEl = document.getElementById('visitorCount');
+    let count = 0;
+    const targetCount = 133742;
+    const counterInterval = setInterval(() => {
+        count += Math.ceil(targetCount / 60);
+        if (count >= targetCount) {
+            count = targetCount;
+            clearInterval(counterInterval);
+        }
+        counterEl.innerText = String(count).padStart(6, '0');
+    }, 30);
+
+    // Cursor sparkle trail
+    const canvas = document.getElementById('sparkleCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let sparkles = [];
+
+    document.addEventListener('mousemove', (e) => {
+        sparkles.push({ x: e.clientX, y: e.clientY, life: 1, hue: Math.random() * 360 });
+    });
+
+    function animateSparkles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        sparkles = sparkles.filter(s => s.life > 0);
+        sparkles.forEach(s => {
+            ctx.save();
+            ctx.globalAlpha = s.life;
+            ctx.fillStyle = `hsl(${s.hue}, 100%, 65%)`;
+            ctx.shadowColor = `hsl(${s.hue}, 100%, 65%)`;
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            const size = 3 * s.life;
+            ctx.moveTo(s.x, s.y - size);
+            ctx.lineTo(s.x + size, s.y);
+            ctx.lineTo(s.x, s.y + size);
+            ctx.lineTo(s.x - size, s.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+            s.y += 0.5;
+            s.life -= 0.02;
+        });
+        requestAnimationFrame(animateSparkles);
+    }
+    animateSparkles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+</body>
+</html>
