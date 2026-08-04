@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AuJoule - Your Real Accumulated Energy</title>
+<meta name="description" content="AuJoule measures the real, cumulative energy behind every seal you've generated across the system - not currency, an honest reflection of what you've actually made.">
+<meta property="og:title" content="AuJoule">
+<meta property="og:description" content="The real, accumulated energy behind every seal you've generated - not currency, an honest measure.">
+<meta property="og:url" content="https://aujoule.com">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AuJoule">
+<meta name="twitter:description" content="Your real, accumulated energy across the system.">
+<link rel="icon" href="data:,">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+    html, body { margin: 0; padding: 0; background: #030006; color: #fff; font-family: 'Courier New', monospace; min-height: 100vh; }
+    .title {
+        text-align: center; padding-top: max(40px, env(safe-area-inset-top));
+        font-size: 14px; letter-spacing: 0.5em; color: #ffd700; text-transform: uppercase;
+    }
+    .sub { text-align: center; color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 8px; letter-spacing: 0.15em; }
+
+    .orb-wrap { display: flex; justify-content: center; margin: 50px 0 30px; }
+    .orb {
+        width: 220px; height: 220px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, rgba(255,215,0,0.9), rgba(191,0,255,0.4) 55%, rgba(0,0,0,0) 75%);
+        box-shadow: 0 0 60px rgba(255,215,0,0.4), 0 0 120px rgba(191,0,255,0.25);
+        animation: breathe 4s ease-in-out infinite;
+        display: flex; align-items: center; justify-content: center; flex-direction: column;
+    }
+    @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .orb-value { font-size: 30px; font-weight: bold; color: #fff; text-shadow: 0 0 12px #ffd700; }
+    .orb-unit { font-size: 11px; letter-spacing: 0.2em; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+    .stats-grid {
+        max-width: 500px; margin: 0 auto; padding: 0 20px 40px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .stat-card {
+        border: 1px solid rgba(255,215,0,0.25); background: rgba(255,215,0,0.04);
+        border-radius: 10px; padding: 14px; text-align: center;
+    }
+    .stat-num { font-size: 22px; color: #ffd700; font-weight: bold; }
+    .stat-label { font-size: 9px; letter-spacing: 0.15em; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-top: 4px; }
+
+    .explainer {
+        max-width: 460px; margin: 0 auto 40px; padding: 16px 20px;
+        border-top: 1px dashed rgba(255,255,255,0.15); font-size: 11px;
+        color: rgba(255,255,255,0.45); line-height: 1.7; text-align: center;
+    }
+
+    .need-login {
+        display: none; min-height: 60vh; flex-direction: column; align-items: center; justify-content: center;
+        gap: 16px; text-align: center; padding: 24px;
+    }
+    .need-login p { max-width: 380px; color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1.7; }
+    .need-login a {
+        color: #ffd700; border: 1px solid rgba(255,215,0,0.4); padding: 10px 22px;
+        border-radius: 999px; text-decoration: none; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .loading-state {
+        min-height: 60vh; display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.3); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    }
+</style>
+</head>
+<body>
+
+<div class="title">AuJoule</div>
+<div class="sub">°•. your accumulated energy .•°</div>
+
+<div id="loadingState" class="loading-state">Measuring what you've generated...</div>
+
+<div id="mainContent" style="display:none;">
+    <div class="orb-wrap">
+        <div class="orb">
+            <div class="orb-value" id="orbValue">0</div>
+            <div class="orb-unit">AuJ</div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="statSeals">0</div><div class="stat-label">Seals Sealed</div></div>
+        <div class="stat-card"><div class="stat-num" id="statGates">0</div><div class="stat-label">Gates Crossed</div></div>
+        <div class="stat-card"><div class="stat-num" id="statRealm">-</div><div class="stat-label">Dominant Realm</div></div>
+        <div class="stat-card"><div class="stat-num" id="statAvg">0</div><div class="stat-label">Avg Energy / Seal</div></div>
+    </div>
+
+    <div class="explainer">
+        AuJoule is a real, honest measure - not currency, not tradeable. It's the sum of the actual energy formula behind every seal you've ever generated, root the entire system was built on. It reflects effort and presence, nothing invented.
+    </div>
+</div>
+
+<div class="need-login" id="needLogin">
+    <p>AuJoule measures what you've actually generated across the system. Sign in on EvoMirror first - your energy is what fills this.</p>
+    <a href="https://evomirror.com">Return to EvoMirror</a>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://mwiziojeqhzwoygbcttq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_PRdPGdDmDSmdO0yiDLBDTA_6UcurViL';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function matchRealmKey(realmText) {
+    if (!realmText) return null;
+    const realms = ["RUBY ROOT ANCHOR", "AMBER KUNDALINI", "EMERALD HEART", "AZURE THROAT", "INDIGO THIRD EYE", "VIOLET CROWN"];
+    const upper = realmText.toUpperCase();
+    return realms.find(key => upper.includes(key)) || null;
+}
+
+async function init() {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const authUser = sessionData.session ? sessionData.session.user : null;
+
+    if (!authUser) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('needLogin').style.display = 'flex';
+        return;
+    }
+
+    const { data: seals, error } = await supabaseClient
+        .from('seals')
+        .select('matrix_coordinates, evo_metrics')
+        .eq('user_id', authUser.id);
+
+    document.getElementById('loadingState').style.display = 'none';
+
+    if (error || !seals || seals.length === 0) {
+        document.getElementById('needLogin').style.display = 'flex';
+        return;
+    }
+
+    // The actual energy total - a real sum of the root formula's output
+    // across every seal this identity has ever generated. Not invented,
+    // not decorative - literally the numbers already computed each time.
+    let totalEnergy = 0;
+    let totalGates = 0;
+    const realmCounts = {};
+
+    seals.forEach(seal => {
+        const delta = seal.evo_metrics && typeof seal.evo_metrics.evolution_delta === 'number'
+            ? seal.evo_metrics.evolution_delta
+            : 0;
+        totalEnergy += Math.abs(delta);
+
+        if (seal.evo_metrics && seal.evo_metrics.is_gate) totalGates++;
+
+        const realmKey = matchRealmKey(seal.matrix_coordinates && seal.matrix_coordinates.oracle_realm);
+        if (realmKey) realmCounts[realmKey] = (realmCounts[realmKey] || 0) + 1;
+    });
+
+    let dominantRealm = 'still forming';
+    let dominantCount = 0;
+    Object.keys(realmCounts).forEach(realm => {
+        if (realmCounts[realm] > dominantCount) {
+            dominantRealm = realm;
+            dominantCount = realmCounts[realm];
+        }
+    });
+
+    const avgEnergy = totalEnergy / seals.length;
+
+    document.getElementById('orbValue').innerText = totalEnergy.toFixed(1);
+    document.getElementById('statSeals').innerText = seals.length;
+    document.getElementById('statGates').innerText = totalGates;
+    document.getElementById('statRealm').innerText = dominantRealm;
+    document.getElementById('statAvg').innerText = avgEnergy.toFixed(2);
+    document.getElementById('mainContent').style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>
