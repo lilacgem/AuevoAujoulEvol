@@ -82,6 +82,21 @@
             color: rgba(255, 255, 255, 0.92);
         }
 
+        .personal-seal-link {
+            position: fixed;
+            top: calc(max(16px, env(safe-area-inset-top)) + 26px);
+            left: 0; right: 0;
+            text-align: center;
+            font-family: monospace;
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            color: rgba(0, 243, 255, 0.5);
+            text-decoration: none;
+            z-index: 9;
+            transition: color 0.2s ease;
+        }
+        .personal-seal-link:hover { color: rgba(0, 243, 255, 0.9); }
+
         .dashboard {
             position: fixed;
             bottom: max(20px, env(safe-area-inset-bottom));
@@ -504,6 +519,7 @@
     <div class="ambient-header" aria-hidden="true">
         <div class="ambient-title" id="ambientTitle">AU·EVO·AUJOUL·EVOL</div>
     </div>
+    <a href="https://lisajevolving.com" class="personal-seal-link">✧ lisajevolving.com ✧</a>
 
     <section class="dashboard" aria-label="Mirror controls">
         <div class="spectrum-monitor" id="spectrumMonitor">
