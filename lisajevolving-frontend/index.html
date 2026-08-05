@@ -15,10 +15,6 @@
 <meta name="twitter:description" content="A nostalgic personal profile that's alive and evolving.">
 <link rel="icon" href="data:,">
 <style>
-    @keyframes flicker {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
     @keyframes glow-pulse {
         0%, 100% { text-shadow: 0 0 5px #ff10f0, 0 0 10px #ff10f0, 0 0 20px #ff10f0, 0 0 40px #ff10f0; }
         50% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff; }
@@ -102,31 +98,6 @@
     .info-line { font-size: 12px; margin: 4px 0; color: #cceeff; }
     .info-line b { color: #ff10f0; }
 
-    .player-box {
-        border: 2px solid #39ff14;
-        box-shadow: 0 0 15px rgba(57,255,20,0.5);
-        background: #0a0014;
-        padding: 12px;
-        margin-bottom: 16px;
-    }
-    .now-playing-label {
-        font-size: 11px;
-        letter-spacing: 2px;
-        color: #39ff14;
-        text-shadow: 0 0 6px #39ff14;
-        margin-bottom: 6px;
-        animation: flicker 2s infinite;
-    }
-    .track-name { font-size: 13px; color: #fff; margin-bottom: 8px; min-height: 18px; }
-    .player-box input[type="file"] {
-        font-size: 10px;
-        color: #cceeff;
-        margin-bottom: 8px;
-        width: 100%;
-    }
-    .player-box audio { width: 100%; height: 32px; }
-    .player-box audio::-webkit-media-controls-panel { background: #1a0030; }
-
     .about-text {
         font-size: 13px;
         line-height: 1.7;
@@ -193,19 +164,6 @@
         margin-top: 8px;
     }
     .gateway-btn:hover { box-shadow: 0 0 30px rgba(0,255,255,0.9); }
-
-    .side-clip {
-        position: fixed;
-        top: 140px;
-        left: 20px;
-        width: 160px;
-        border: 3px solid #00ffff;
-        box-shadow: 0 0 18px rgba(0,255,255,0.6);
-        border-radius: 8px;
-        z-index: 500;
-        background: #0a0014;
-    }
-    .side-clip video { width: 100%; display: block; border-radius: 5px; }
 </style>
 </head>
 <body>
@@ -217,23 +175,17 @@
     <button class="gateway-btn" id="enterBtn">✦ Enter ✦</button>
 </div>
 
-<audio id="siteTrack" src="my-mpc.mp3" loop></audio>
+<audio id="siteTrack" src="thedraft.mp3" loop></audio>
 
 <div class="page-wrap">
-    <div class="header-title">✧ soulsista191 ✧</div>
+    <div class="header-title">✧ LisajEvokes ✧</div>
     <div class="header-sub">°•. IN A WORLD OF MY OWN .•°</div>
 
     <table class="main-table">
         <tr>
             <td class="sidebar">
                 <div class="pfp-box">
-                    <img src="profile-pic.jpg" alt="profile" onerror="this.style.display='none'; this.parentElement.innerText='✦';">
-                </div>
-
-                <div class="section-title">Now Playing</div>
-                <div class="player-box">
-                    <div class="now-playing-label">▶ NOW PLAYING</div>
-                    <div class="track-name" id="trackName">✦ loading track...</div>
+                    <img src="lisajevokes.png" alt="profile" onerror="this.style.display='none'; this.parentElement.innerText='✦';">
                 </div>
 
                 <div class="section-title">Basic Info</div>
@@ -249,8 +201,11 @@
             <td class="content">
                 <div class="section-title">About Me</div>
                 <div class="about-text">
-                    welcome to my page!! this is where i keep it real and share what's on my mind.
-                    still the same soul, just evolving one day at a time. leave a comment and lemme know you stopped by ✧
+                    MY SPACE MY LANE MY VIBE ! TF
+                    <br><br>
+                    ✦ tiktok: @lisajevokes<br>
+                    ✦ instagram: @lisajevokes<br>
+                    ✦ facebook: @lisajevokes
                 </div>
 
                 <div class="section-title">Comments</div>
@@ -264,10 +219,6 @@
 </div>
 
 <canvas id="sparkleCanvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:999;"></canvas>
-
-<div class="side-clip">
-    <video src="my-clip.mp4" autoplay muted loop playsinline></video>
-</div>
 
 <script>
 
@@ -348,6 +299,8 @@
         gateway.classList.add('fading');
         setTimeout(() => gateway.classList.add('hidden'), 1100);
 
+        siteTrack.volume = 0.6; // starts a bit loud at full volume - toned down slightly
+
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const trackSource = audioContext.createMediaElementSource(siteTrack);
         analyser = audioContext.createAnalyser();
@@ -356,11 +309,7 @@
         trackSource.connect(analyser);
         analyser.connect(audioContext.destination);
 
-        siteTrack.play().then(() => {
-            trackName.innerText = '♫ now resonating...';
-        }).catch(() => {
-            trackName.innerText = '✦ tap play below';
-        });
+        siteTrack.play().catch(() => {});
     });
 
     function updateAudioReactivity() {
@@ -378,8 +327,6 @@
         highVal = Math.min(1.0, (highSum / (88 * 255.0)) * 2.0);
     }
     updateAudioReactivity();
-
-    const trackName = document.getElementById('trackName');
 
     // Nostalgic animated visitor counter
     const counterEl = document.getElementById('visitorCount');
