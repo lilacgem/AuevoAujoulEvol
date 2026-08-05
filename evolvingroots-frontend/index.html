@@ -44,6 +44,18 @@
         color: #00f3ff; border: 1px solid rgba(0,243,255,0.4); padding: 10px 22px;
         border-radius: 999px; text-decoration: none; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
     }
+    .login-form { display: flex; flex-direction: column; gap: 10px; width: min(90vw, 300px); }
+    .login-form input {
+        padding: 12px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,243,255,0.3);
+        color: #fff; border-radius: 8px; font-family: inherit; font-size: 16px;
+    }
+    .login-form input::placeholder { color: rgba(255,255,255,0.35); }
+    .login-form button {
+        padding: 12px; background: #00f3ff; color: #000; border: none; border-radius: 8px;
+        font-weight: bold; cursor: pointer; font-family: inherit; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .login-error { color: #ff5e00; font-size: 11px; min-height: 14px; }
+    .login-divider { color: rgba(255,255,255,0.3); font-size: 10px; margin: 4px 0; }
     #loading-state {
         position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
         color: rgba(255,255,255,0.3); font-family: 'Courier New', monospace; font-size: 11px;
@@ -62,8 +74,15 @@
     <div id="gate-note" style="display:none;">A gate was open here</div>
 </div>
 <div id="need-login">
-    <p>Evolving Roots is grown from what you've already sealed. Return to EvoMirror and sign in — your pattern is what shapes this space.</p>
-    <a href="https://evomirror.com">Return to EvoMirror</a>
+    <p>Evolving Roots is grown from what you've already sealed. Sign in with your EvoMirror account.</p>
+    <div class="login-form">
+        <input type="email" id="loginEmail" placeholder="your email" autocomplete="email">
+        <input type="password" id="loginPassword" placeholder="your password" autocomplete="current-password">
+        <button id="loginSubmitBtn">Sign In</button>
+        <div class="login-error" id="loginError"></div>
+    </div>
+    <div class="login-divider">no account yet?</div>
+    <a href="https://evomirror.com">Begin on EvoMirror</a>
 </div>
 
 <script>
@@ -114,6 +133,28 @@ async function init() {
     document.getElementById('loading-state').style.display = 'none';
     buildScene(seals);
 }
+
+document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.innerText = '';
+
+    if (!email || !password) {
+        errorEl.innerText = 'Enter both email and password.';
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        document.getElementById('need-login').style.display = 'none';
+        document.getElementById('loading-state').style.display = 'flex';
+        init();
+    } catch (err) {
+        errorEl.innerText = err.message || 'Something went wrong.';
+    }
+});
 
 function buildScene(seals) {
     const scene = new THREE.Scene();
