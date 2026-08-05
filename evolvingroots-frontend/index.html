@@ -39,7 +39,16 @@
         flex-direction: column; gap: 16px; text-align: center; padding: 24px; box-sizing: border-box;
         font-family: 'Courier New', monospace; color: #fff; z-index: 20;
     }
-    #need-login p { max-width: 420px; color: rgba(255,255,255,0.6); font-size: 13px; line-height: 1.7; }
+    .cross-nav {
+        position: fixed; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 30;
+        display: flex; gap: 10px; font-family: monospace; font-size: 9px;
+    }
+    .cross-nav a {
+        color: rgba(0,243,255,0.6); text-decoration: none; letter-spacing: 0.1em;
+        border: 1px solid rgba(0,243,255,0.25); padding: 5px 10px; border-radius: 999px;
+        background: rgba(0,0,0,0.4); transition: color 0.2s ease;
+    }
+    .cross-nav a:hover { color: rgba(0,243,255,1); }
     #need-login a {
         color: #00f3ff; border: 1px solid rgba(0,243,255,0.4); padding: 10px 22px;
         border-radius: 999px; text-decoration: none; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
@@ -64,6 +73,11 @@
 </style>
 </head>
 <body>
+
+<div class="cross-nav">
+    <a href="https://evomirror.com">✧ EvoMirror</a>
+    <a href="https://aujoule.com">✧ AuJoule</a>
+</div>
 
 <div id="ambient-title">EVOLVING ROOTS</div>
 <div id="loading-state">Gathering what has resonated...</div>
