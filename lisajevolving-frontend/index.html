@@ -47,6 +47,7 @@
         color: #fff;
         animation: glow-pulse 3s ease-in-out infinite;
         margin: 20px 0 4px;
+        word-break: break-word;
     }
     .header-sub {
         text-align: center;
@@ -73,12 +74,14 @@
         border: 3px solid #00ffff;
         box-shadow: 0 0 15px #00ffff;
         background: repeating-linear-gradient(135deg, #1a0030, #1a0030 10px, #250045 10px, #250045 20px);
+        width: 100%;
+        max-width: 250px;
         aspect-ratio: 1;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 60px;
-        margin-bottom: 12px;
+        margin: 0 auto 12px auto;
         overflow: hidden;
     }
     .pfp-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -105,6 +108,7 @@
         background: rgba(0,255,255,0.04);
         border: 1px dashed rgba(0,255,255,0.3);
         padding: 12px;
+        word-break: break-word;
     }
 
     .comment-wall { margin-top: 8px; }
@@ -114,6 +118,7 @@
         padding: 8px 10px;
         margin-bottom: 8px;
         font-size: 12px;
+        word-break: break-word;
     }
     .comment b { color: #00ffff; }
     .comment .date { color: #888; font-size: 10px; }
@@ -164,6 +169,25 @@
         margin-top: 8px;
     }
     .gateway-btn:hover { box-shadow: 0 0 30px rgba(0,255,255,0.9); }
+
+    /* Responsive Mobile Styles */
+    @media (max-width: 720px) {
+        .header-title { font-size: 28px; letter-spacing: 2px; }
+        .header-sub { font-size: 11px; letter-spacing: 1px; }
+        .main-table, .main-table tbody, .main-table tr, .main-table td {
+            display: block;
+            width: 100% !important;
+        }
+        .sidebar {
+            border-right: none;
+            border-bottom: 3px dashed #00ffff;
+            padding: 16px;
+        }
+        .content {
+            padding: 16px;
+        }
+        .gateway-title { font-size: 24px; }
+    }
 </style>
 </head>
 <body>
@@ -185,7 +209,7 @@
         <tr>
             <td class="sidebar">
                 <div class="pfp-box">
-                    <img src="lisajevokes.png" alt="profile" onerror="this.style.display='none'; this.parentElement.innerText='✦';">
+                    <img src="lisajevokes.jpg" alt="profile" onerror="this.style.display='none'; this.parentElement.innerText='✦';">
                 </div>
 
                 <div class="section-title">Basic Info</div>
@@ -221,10 +245,6 @@
 <canvas id="sparkleCanvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:999;"></canvas>
 
 <script>
-
-    // --- The gateway's own seal: same visual language, but fluid and
-    // ethereal rather than sharp - this is the first thing anyone sees,
-    // so it breathes and drifts instead of reacting to anything yet. ---
     const gwScene = new THREE.Scene();
     const gwCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
     gwCamera.position.z = 9;
@@ -237,8 +257,6 @@
     const gwGroup = new THREE.Group();
     gwScene.add(gwGroup);
 
-    // Two layered knots at slightly different scales/opacities stand in
-    // for a soft bloom/glow, since this environment has no post-processing.
     const gwGeo = new THREE.TorusKnotGeometry(2.2, 0.55, 150, 14, 3, 8);
     const gwCoreMat = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xff2bf5, transparent: true, opacity: 0.95 });
     const gwGlowMat = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xff2bf5, transparent: true, opacity: 0.18 });
@@ -247,7 +265,6 @@
     gwGlow.scale.setScalar(1.12);
     gwGroup.add(gwCore, gwGlow);
 
-    // Soft drifting particles around the seal, matching evomirror's stardust
     const gwParticleCount = 120;
     const gwParticleGeo = new THREE.BufferGeometry();
     const gwParticlePositions = new Float32Array(gwParticleCount * 3);
@@ -269,13 +286,10 @@
         requestAnimationFrame(animateGateway);
         gwTime += 0.006;
 
-        // Slow, uneven rotation on multiple axes reads as fluid rather
-        // than mechanical - a single steady spin would feel too rigid.
         gwGroup.rotation.x += 0.0016;
         gwGroup.rotation.y += 0.0023;
         gwGroup.rotation.z = Math.sin(gwTime * 0.4) * 0.15;
 
-        // A gentle breathing pulse in scale and glow opacity
         const breath = 1 + Math.sin(gwTime) * 0.06;
         gwGroup.scale.setScalar(breath);
         gwGlowMat.opacity = 0.14 + Math.sin(gwTime * 1.3) * 0.08;
@@ -285,9 +299,6 @@
     }
     animateGateway();
 
-    // --- The gateway: browsers block unmuted autoplay until a real
-    // click happens - this is a genuine browser rule, not a choice, so
-    // the "click to enter" screen is doing real work, not just vibes. ---
     const gateway = document.getElementById('gatewayOverlay');
     const enterBtn = document.getElementById('enterBtn');
     const siteTrack = document.getElementById('siteTrack');
@@ -299,7 +310,7 @@
         gateway.classList.add('fading');
         setTimeout(() => gateway.classList.add('hidden'), 1100);
 
-        siteTrack.volume = 0.6; // starts a bit loud at full volume - toned down slightly
+        siteTrack.volume = 0.6;
 
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const trackSource = audioContext.createMediaElementSource(siteTrack);
@@ -328,7 +339,6 @@
     }
     updateAudioReactivity();
 
-    // Nostalgic animated visitor counter
     const counterEl = document.getElementById('visitorCount');
     let count = 0;
     const targetCount = 133742;
@@ -341,7 +351,6 @@
         counterEl.innerText = String(count).padStart(6, '0');
     }, 30);
 
-    // Cursor sparkle trail
     const canvas = document.getElementById('sparkleCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
