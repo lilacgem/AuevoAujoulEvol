@@ -60,6 +60,18 @@
         color: #ffd700; border: 1px solid rgba(255,215,0,0.4); padding: 10px 22px;
         border-radius: 999px; text-decoration: none; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
     }
+    .login-form { display: flex; flex-direction: column; gap: 10px; width: min(90vw, 300px); }
+    .login-form input {
+        padding: 12px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.3);
+        color: #fff; border-radius: 8px; font-family: inherit; font-size: 16px;
+    }
+    .login-form input::placeholder { color: rgba(255,255,255,0.35); }
+    .login-form button {
+        padding: 12px; background: #ffd700; color: #000; border: none; border-radius: 8px;
+        font-weight: bold; cursor: pointer; font-family: inherit; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .login-error { color: #ff5e00; font-size: 11px; min-height: 14px; }
+    .login-divider { color: rgba(255,255,255,0.3); font-size: 10px; margin: 4px 0; }
     .loading-state {
         min-height: 60vh; display: flex; align-items: center; justify-content: center;
         color: rgba(255,255,255,0.3); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
@@ -94,8 +106,15 @@
 </div>
 
 <div class="need-login" id="needLogin">
-    <p>AuJoule measures what you've actually generated across the system. Sign in on EvoMirror first - your energy is what fills this.</p>
-    <a href="https://evomirror.com">Return to EvoMirror</a>
+    <p>AuJoule measures what you've actually generated across the system. Sign in with your EvoMirror account.</p>
+    <div class="login-form">
+        <input type="email" id="loginEmail" placeholder="your email" autocomplete="email">
+        <input type="password" id="loginPassword" placeholder="your password" autocomplete="current-password">
+        <button id="loginSubmitBtn">Sign In</button>
+        <div class="login-error" id="loginError"></div>
+    </div>
+    <div class="login-divider">no account yet?</div>
+    <a href="https://evomirror.com">Begin on EvoMirror</a>
 </div>
 
 <script>
@@ -169,6 +188,28 @@ async function init() {
     document.getElementById('statAvg').innerText = avgEnergy.toFixed(2);
     document.getElementById('mainContent').style.display = 'block';
 }
+
+document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.innerText = '';
+
+    if (!email || !password) {
+        errorEl.innerText = 'Enter both email and password.';
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        document.getElementById('needLogin').style.display = 'none';
+        document.getElementById('loadingState').style.display = 'flex';
+        init();
+    } catch (err) {
+        errorEl.innerText = err.message || 'Something went wrong.';
+    }
+});
 
 init();
 </script>
