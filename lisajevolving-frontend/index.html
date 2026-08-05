@@ -19,17 +19,9 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.7; }
     }
-    @keyframes marquee {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-    }
     @keyframes glow-pulse {
         0%, 100% { text-shadow: 0 0 5px #ff10f0, 0 0 10px #ff10f0, 0 0 20px #ff10f0, 0 0 40px #ff10f0; }
         50% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff; }
-    }
-    @keyframes blink {
-        0%, 49% { opacity: 1; }
-        50%, 100% { opacity: 0; }
     }
     @keyframes sparkle-fall {
         0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
@@ -47,26 +39,6 @@
         color: #e0e0ff;
         min-height: 100vh;
         overflow-x: hidden;
-    }
-
-    .marquee-bar {
-        background: linear-gradient(90deg, #ff10f0, #00ffff, #39ff14, #ff10f0);
-        background-size: 300% 100%;
-        animation: gradient-shift 6s linear infinite, none;
-        padding: 6px 0;
-        overflow: hidden;
-        white-space: nowrap;
-        border-bottom: 3px dashed #fff;
-    }
-    @keyframes gradient-shift { 0% { background-position: 0% 0; } 100% { background-position: 300% 0; } }
-    .marquee-bar span {
-        display: inline-block;
-        white-space: nowrap;
-        animation: marquee 14s linear infinite;
-        font-weight: bold;
-        font-size: 14px;
-        color: #0a0014;
-        text-shadow: 1px 1px 0 #fff;
     }
 
     .page-wrap { max-width: 950px; margin: 0 auto; padding: 20px 12px; }
@@ -175,19 +147,6 @@
     .comment b { color: #00ffff; }
     .comment .date { color: #888; font-size: 10px; }
 
-    .under-construction {
-        text-align: center;
-        margin-top: 20px;
-        padding: 10px;
-        border: 3px solid #ffff00;
-        background: repeating-linear-gradient(45deg, #1a1a00, #1a1a00 10px, #000 10px, #000 20px);
-        color: #ffff00;
-        font-weight: bold;
-        letter-spacing: 2px;
-        animation: blink 1.2s infinite;
-        font-size: 13px;
-    }
-
     .counter-box {
         text-align: center;
         margin-top: 16px;
@@ -234,6 +193,19 @@
         margin-top: 8px;
     }
     .gateway-btn:hover { box-shadow: 0 0 30px rgba(0,255,255,0.9); }
+
+    .side-clip {
+        position: fixed;
+        top: 140px;
+        left: 20px;
+        width: 160px;
+        border: 3px solid #00ffff;
+        box-shadow: 0 0 18px rgba(0,255,255,0.6);
+        border-radius: 8px;
+        z-index: 500;
+        background: #0a0014;
+    }
+    .side-clip video { width: 100%; display: block; border-radius: 5px; }
 </style>
 </head>
 <body>
@@ -245,9 +217,7 @@
     <button class="gateway-btn" id="enterBtn">✦ Enter ✦</button>
 </div>
 
-<audio id="siteTrack" src="thedraft.mp3" loop></audio>
-
-<div class="marquee-bar"><span>✧☆° THANX FOR STOPPING BY MY PAGE °☆✧ LEAVE A COMMENT!! °☆✧ TOP 8 UPDATED ✧☆° DONT FORGET TO ADD ME °☆✧</span></div>
+<audio id="siteTrack" src="my-mpc.mp3" loop></audio>
 
 <div class="page-wrap">
     <div class="header-title">✧ soulsista191 ✧</div>
@@ -264,8 +234,6 @@
                 <div class="player-box">
                     <div class="now-playing-label">▶ NOW PLAYING</div>
                     <div class="track-name" id="trackName">✦ loading track...</div>
-                    <input type="file" id="audioPicker" accept="audio/*" title="Play something else instead">
-                    <audio id="audioPlayer" controls style="display:none;"></audio>
                 </div>
 
                 <div class="section-title">Basic Info</div>
@@ -293,11 +261,13 @@
             </td>
         </tr>
     </table>
-
-    <div class="under-construction">⚠ PAGE UNDER CONSTRUCTION ⚠</div>
 </div>
 
 <canvas id="sparkleCanvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:999;"></canvas>
+
+<div class="side-clip">
+    <video src="my-clip.mp4" autoplay muted loop playsinline></video>
+</div>
 
 <script>
 
@@ -409,20 +379,7 @@
     }
     updateAudioReactivity();
 
-    // Functional "Now Playing" widget - also allows loading a different
-    // track manually, on top of the site's own autoplaying one.
-    const picker = document.getElementById('audioPicker');
-    const player = document.getElementById('audioPlayer');
     const trackName = document.getElementById('trackName');
-
-    picker.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const url = URL.createObjectURL(file);
-        player.src = url;
-        trackName.innerText = '♫ ' + file.name.replace(/\.[^/.]+$/, '');
-        player.play().catch(() => {});
-    });
 
     // Nostalgic animated visitor counter
     const counterEl = document.getElementById('visitorCount');
