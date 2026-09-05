@@ -1454,9 +1454,28 @@
                 const line = stage + ': ' + msg;
                 console.warn('SEAL FAILED -', line);
                 const box = document.getElementById('sealErrorBox');
-                if (box) { box.textContent = 'SEAL FAILED\n' + line; box.style.display = 'block'; }
+                if (box) {
+                    box.textContent = 'SEAL FAILED\n' + line;
+                    box.style.background = '#2a0b0b';
+                    box.style.color = '#ffc2c2';
+                    box.style.borderColor = '#ff6b6b';
+                    box.style.display = 'block';
+                }
                 recordButton.innerText = 'SEAL FAILED';
                 setTimeout(() => { recordButton.innerText = 'SEAL THIS'; }, 6000);
+            };
+
+            // Not a failure. Used when the seal saved but the optional local copy
+            // did not download - those two outcomes must never look the same.
+            const showSealNotice = (text) => {
+                const box = document.getElementById('sealErrorBox');
+                if (!box) return;
+                box.textContent = text;
+                box.style.background = '#2a1f06';
+                box.style.color = '#ffe6b0';
+                box.style.borderColor = '#d9a441';
+                box.style.display = 'block';
+                setTimeout(() => { box.style.display = 'none'; }, 9000);
             };
 
             recordButton.addEventListener('click', async () => {
@@ -1565,17 +1584,33 @@
 
                 if (document.getElementById('stampDisplay')) document.getElementById('stampDisplay').innerText = `STAMP ${evoHistory.totalSeals}`;
 
-                const imageRes = await fetch(dataUrl);
-                const imageBlob = await imageRes.blob();
                 const imageFileName = `AuEvo_Sacred_Seal_Gen${evoHistory.totalSeals}_${stampTag}.png`;
-                
-                await triggerSovereignDownload(imageBlob, imageFileName, 'AuEvo Soul Seal Image');
-                
+
+                // The seal has already been sent by this point. Everything below is
+                // the optional copy for the device, so it gets its own guard: a failed
+                // download must never report the seal itself as failed.
+                try {
+                    // iOS Safari throws "Load failed" when fetch() is handed a large
+                    // data: URL. Reading the canvas directly avoids that path entirely.
+                    const imageBlob = await new Promise((resolve, reject) => {
+                        if (!sealCanvas.toBlob) { reject(new Error('canvas.toBlob unsupported')); return; }
+                        sealCanvas.toBlob(
+                            b => b ? resolve(b) : reject(new Error('canvas produced no image')),
+                            'image/png'
+                        );
+                    });
+                    await triggerSovereignDownload(imageBlob, imageFileName, 'AuEvo Soul Seal Image');
+                } catch (downloadErr) {
+                    console.warn('Seal saved; local copy failed:', downloadErr);
+                    showSealNotice('Seal saved to your archive. The image copy did not download: '
+                        + (downloadErr && downloadErr.message ? downloadErr.message : downloadErr));
+                }
+
                 recordButton.innerText = `SEALED.`;
                 if (typeof loadVaultHistory === "function") loadVaultHistory();
                 setTimeout(() => { recordButton.innerText = "SEAL THIS"; }, 2500);
               } catch (err) {
-                showSealProblem('failed before reaching the server', err);
+                showSealProblem('failed while preparing the seal', err);
               }
             });
         }
@@ -1854,8 +1889,15 @@
 
             const totalSeals = cloudSeals.length;
             const totalGates = cloudSeals.filter(s => s.evo_metrics && s.evo_metrics.is_gate).length;
+            // AuJ is the server-computed joules value, so this total agrees with
+            // aujoule.com rather than quietly disagreeing with it. It previously summed
+            // evo_metrics.evolution_delta - a key the API does not send - so every
+            // total read 0.0 no matter how many seals existed.
             const totalEnergy = cloudSeals.reduce((sum, s) => {
-                const delta = s.evo_metrics && typeof s.evo_metrics.evolution_delta === 'number' ? s.evo_metrics.evolution_delta : 0;
+                if (typeof s.joules === 'number') return sum + s.joules;
+                const m = s.evo_metrics || {};
+                const delta = typeof m.evolution_delta === 'number' ? m.evolution_delta
+                            : typeof m.evolutionDelta === 'number' ? m.evolutionDelta : 0;
                 return sum + Math.abs(delta);
             }, 0);
 
@@ -1906,6 +1948,8 @@
                 cloudSeals = (page.seals || []).map(row => ({
                     matrix_coordinates: row.matrix_coordinates,
                     evo_metrics: row.evo_metrics,
+                    // Carried through so the archive can total real AuJ.
+                    joules: row.joules,
                     visual_seal_thumb: row.thumb_url || row.image_url,
                     server_vault_timestamp: row.created_at
                 }));
