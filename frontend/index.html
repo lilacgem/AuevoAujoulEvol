@@ -480,6 +480,9 @@
     <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;"></video>
     <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
 
+    <!-- Seal failures used to be invisible on a phone. This says what went wrong. Tap to dismiss. -->
+    <div id="sealErrorBox" role="alert" onclick="this.style.display='none'" style="display:none;position:fixed;left:12px;right:12px;bottom:104px;z-index:99999;background:#2a0b0b;color:#ffc2c2;border:1px solid #ff6b6b;border-radius:10px;padding:12px 14px;font:600 13px/1.45 ui-monospace,Menlo,Consolas,monospace;word-break:break-word;white-space:pre-wrap;box-shadow:0 8px 28px rgba(0,0,0,.6)"></div>
+
     <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ YOUR ARCHIVE</button>
     <button class="account-btn" id="accountButton" onclick="toggleAccountModal()">ENTER</button>
 
@@ -1443,7 +1446,21 @@
         if (recordButton) {
             recordButton.innerText = "SEAL THIS";
             recordButton.disabled = false;
+            // Failures previously went only to console.warn, which is unreachable on a
+            // phone: the button did nothing and there was no way to find out why.
+            // Every failure now goes on screen where it can be read or screenshotted.
+            const showSealProblem = (stage, err) => {
+                const msg = (err && (err.message || err.name)) || String(err);
+                const line = stage + ': ' + msg;
+                console.warn('SEAL FAILED -', line);
+                const box = document.getElementById('sealErrorBox');
+                if (box) { box.textContent = 'SEAL FAILED\n' + line; box.style.display = 'block'; }
+                recordButton.innerText = 'SEAL FAILED';
+                setTimeout(() => { recordButton.innerText = 'SEAL THIS'; }, 6000);
+            };
+
             recordButton.addEventListener('click', async () => {
+              try {
                 renderer.render(scene, camera);
 
                 // Advance the evolution step right now, using the real
@@ -1526,7 +1543,7 @@
                     console.log('Seal sealed:', saved.id, 'sha256', saved.image_sha256);
                     if (typeof loadVaultHistory === 'function') loadVaultHistory();
                 })
-                .catch(err => console.warn('Seal not yet synced:', err.message));
+                .catch(err => showSealProblem('server refused the seal', err));
 
                 const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
                 const currentHue = Math.round(colorAccumulator * 360.0);
@@ -1554,6 +1571,9 @@
                 recordButton.innerText = `SEALED.`;
                 if (typeof loadVaultHistory === "function") loadVaultHistory();
                 setTimeout(() => { recordButton.innerText = "SEAL THIS"; }, 2500);
+              } catch (err) {
+                showSealProblem('failed before reaching the server', err);
+              }
             });
         }
 
