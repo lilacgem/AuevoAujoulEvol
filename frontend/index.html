@@ -1499,7 +1499,10 @@
                 const secureSoulPayload = {
                     identity_metadata: {
                         author: "AuEvoAuJoulEvol LLC",
-                        sovereign_id: visitorId,
+                        // Identity is assigned by the server from the session cookie.
+                        // The old browser-generated visitorId was removed in the identity
+                        // rewrite; this reads the real signed-in id, or null when anonymous.
+                        sovereign_id: (typeof currentAuthUser !== 'undefined' && currentAuthUser) ? currentAuthUser.id : null,
                         lineage: "Royal Bloodline: Father_is Real Jesus"
                     },
                     matrix_coordinates: {
