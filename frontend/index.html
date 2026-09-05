@@ -509,6 +509,7 @@
             <div id="accountLoggedIn" style="display:none;">
                 <div class="auth-signed-in-label">You Are</div>
                 <div id="accountEmail" class="auth-signed-in-email"></div>
+                <div id="accountMeta" style="color:rgba(0,243,255,0.5); font-size:11px; letter-spacing:0.12em; margin:6px 0 14px; text-align:center;"></div>
                 <button class="auth-signout-btn" onclick="signOutAccount()">Sign Out</button>
             </div>
             <button class="auth-close-btn" onclick="toggleAccountModal()">Close</button>
@@ -698,6 +699,9 @@
             });
             // The email never leaves this device; the server only stores the key.
             const me = await api('/api/me');
+            // Kept on this device only, so the name survives a reload without the
+            // server ever storing it. Clearing site data clears this, not the key.
+            try { if (email) localStorage.setItem('AuEvo_Label', email); } catch (e) {}
             return { ...me, email };
         }
 
@@ -731,15 +735,33 @@
                 })
             });
             const me = await api('/api/me');
+            // Kept on this device only, so the name survives a reload without the
+            // server ever storing it. Clearing site data clears this, not the key.
+            try { if (email) localStorage.setItem('AuEvo_Label', email); } catch (e) {}
             return { ...me, email };
         }
 
         async function signOutAccount() {
             try { await api('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+            try { localStorage.removeItem('AuEvo_Label'); } catch (e) {}
             currentAuthUser = null;
             onAuthChanged();
             refreshAccountModalView();
             if (typeof loadVaultHistory === 'function') loadVaultHistory();
+        }
+
+        // The server deliberately never stores the email, and it never sets a
+        // handle, so after a reload both are absent. Falling through to a literal
+        // string is what made this panel read "you are your passkey". The identity
+        // id is the real, stable name, so that is the last resort now.
+        function sealerName(user) {
+            if (!user) return 'ACCOUNT';
+            if (user.email) return user.email;
+            let saved = null;
+            try { saved = localStorage.getItem('AuEvo_Label'); } catch (e) {}
+            if (saved) return saved;
+            if (user.handle) return user.handle;
+            return user.id ? 'seal-' + String(user.id).slice(0, 8) : 'sealed';
         }
 
         function refreshAccountModalView() {
@@ -748,8 +770,14 @@
             if (currentAuthUser) {
                 loggedOutEl.style.display = 'none';
                 loggedInEl.style.display = 'block';
-                document.getElementById('accountEmail').innerText =
-                    currentAuthUser.email || currentAuthUser.handle || 'your passkey';
+                document.getElementById('accountEmail').innerText = sealerName(currentAuthUser);
+                const metaEl = document.getElementById('accountMeta');
+                if (metaEl) {
+                    const sc = currentAuthUser.seals, jz = currentAuthUser.joules;
+                    metaEl.innerText = 'PASSKEY ACTIVE'
+                        + (typeof sc === 'number' ? '  \u00b7  ' + sc + ' SEAL' + (sc === 1 ? '' : 'S') : '')
+                        + (typeof jz === 'number' ? '  \u00b7  ' + jz.toFixed(1) + ' AuJ' : '');
+                }
             } else {
                 loggedOutEl.style.display = 'block';
                 loggedInEl.style.display = 'none';
@@ -762,7 +790,7 @@
             const btn = document.getElementById('accountButton');
             if (btn) {
                 btn.innerText = currentAuthUser
-                    ? (currentAuthUser.email || currentAuthUser.handle || 'sealed').split('@')[0].toUpperCase()
+                    ? sealerName(currentAuthUser).split('@')[0].toUpperCase()
                     : 'ACCOUNT';
                 btn.classList.toggle('logged-in', !!currentAuthUser);
             }
