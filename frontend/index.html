@@ -11,8 +11,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#06070F">
-    <meta name="crypto-address" content="0x44636E01b9Bc5b6530e045e4496a56844DD00e37">
-    <meta name="sovereign-wallet" content="0x44636E01b9Bc5b6530e045e4496a56844DD00e37">
+
     <meta name="author" content="AuEvoAuJoulEvol LLC">
     <meta name="entity" content="AuEvoAuJoulEvol LLC">
     <meta name="sovereign-id" content="000=111 AujouleAuevoAujoulEvol SoulSpeaks:AuEvolving Tongue">
@@ -568,7 +567,8 @@
 
     <script>
         // --- AU·EVO AUTH (passkeys, own backend, no third party) ---
-       const API = 'https://auevo-backend.lisajevolving.workers.dev';
+        const API = 'https://api.evomirror.com';
+
         // Identity lives in an HttpOnly cookie the browser cannot read or forge.
         // Every request carries it, and the server decides what you may see.
         async function api(path, opts = {}) {
@@ -962,6 +962,45 @@
         const GENESIS_LEVEL = 1;
         let evoLeftover = parseInt(localStorage.getItem('AuEvo_Leftover'), 10);
         if (isNaN(evoLeftover)) evoLeftover = GENESIS_LEVEL;
+
+        // ---------------------------------------------------------
+        // Reflection composer - replaces the retired oracle service.
+        // Describes the measured reading only. No network call.
+        // ---------------------------------------------------------
+        const REFLECTION_BANK = {
+            gate: [
+                "The pattern closed on itself this time. That only happens when the signal comes out even.",
+                "You crossed a gate. What you carried in divided cleanly and nothing was left over.",
+                "This one resolved. Whatever you brought to it balanced out whole."
+            ],
+            high: [
+                "You came in loud, and the seal took all of it. None of the edges got smoothed.",
+                "There was force in this one. The shape shows it - wider arcs, less symmetry.",
+                "You gave it a lot. The record holds that intensity without flattening it."
+            ],
+            mid: [
+                "Steady. Not quiet, not loud - the reading sat in the middle and held there.",
+                "This one stayed level. The pattern found its width early and kept it.",
+                "An even signal. Nothing spiked and nothing dropped out."
+            ],
+            low: [
+                "Low and close. The seal came out tight, which is what stillness looks like here.",
+                "A quiet reading. The shape narrowed rather than spread.",
+                "Near silent. The pattern drew itself small and kept every detail."
+            ]
+        };
+
+        function composeReflection({ isGate, intensity, totalSeals }) {
+            const i = typeof intensity === 'number' ? intensity : 0;
+            const level = isGate ? 'gate' : i >= 0.66 ? 'high' : i >= 0.33 ? 'mid' : 'low';
+            const bank = REFLECTION_BANK[level];
+            const n = Number(totalSeals) || 0;
+            // Rotate by seal count plus jitter so lines rarely repeat back to back.
+            const line = bank[(n + Math.floor(Math.random() * bank.length)) % bank.length];
+            if (n === 0) return line + ' First one.';
+            if (n >= 8)  return line + ' You keep returning to this.';
+            return line;
+        }
 
         function digitalRoot(n) {
             const abs = Math.abs(Math.round(n));
@@ -1424,36 +1463,17 @@
                 const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNOWN ✦";
                 let activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
 
-                // Ask for a genuinely unique reflection of this exact moment.
-                // If it's slow, unavailable, or not yet configured, fall back
-                // to the local message rather than block saving on it.
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 8000);
-                    const reflectRes = await fetch('https://api.evomirror.com/api/oracle/reflect', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        signal: controller.signal,
-                        body: JSON.stringify({
-                            realm: activeRealm,
-                            digitalRoot: currentSealShape ? currentSealShape.digital_root : null,
-                            isGate: currentSealShape ? currentSealShape.isGate : false,
-                            intensity: saveIntensity,
-                            totalSeals: evoHistory.totalSeals
-                        })
-                    });
-                    clearTimeout(timeoutId);
-                    if (reflectRes.ok) {
-                        const reflectData = await reflectRes.json();
-                        if (reflectData.reflection) {
-                            activeMessage = reflectData.reflection;
-                            const textEl = document.getElementById('oracleText');
-                            if (textEl) textEl.innerText = activeMessage;
-                        }
-                    }
-                } catch (err) {
-                    console.warn("Oracle reflection unavailable, using local message:", err.message);
-                }
+                // Local reflection. No third-party service, no API key, no
+                // per-seal cost, and it still works with the network down.
+                // Built only from the measured signal - it never invents
+                // facts about the person and makes no diagnostic claims.
+                activeMessage = composeReflection({
+                    isGate: currentSealShape ? currentSealShape.isGate : false,
+                    intensity: saveIntensity,
+                    totalSeals: evoHistory.totalSeals
+                });
+                const oracleTextEl = document.getElementById('oracleText');
+                if (oracleTextEl) oracleTextEl.innerText = activeMessage;
 
                 // Identity now comes from the signed HttpOnly cookie the server
                 // set. The browser no longer names itself, so it can no longer
@@ -1496,7 +1516,10 @@
                         },
                         intensity: parseFloat(document.getElementById('resDisplay')?.innerText || '0.18'),
                         focus: cameraMetric,
-                        image_thumb: thumbUrl
+                        image_thumb: thumbUrl,
+                        // The full-resolution seal is what gets hashed server-side.
+                        // Without it there is no certificate, only a preview.
+                        image_full: dataUrl
                     })
                 })
                 .then(saved => {

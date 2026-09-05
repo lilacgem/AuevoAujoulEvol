@@ -1,20 +1,17 @@
 {
-  "name": "EvoMirror",
+  "name": "EvoMirror — A Living Reflection of You",
   "short_name": "EvoMirror",
+  "description": "A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you, one seal at a time.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#030006",
-  "theme_color": "#030006",
+  "orientation": "portrait",
+  "background_color": "#000002",
+  "theme_color": "#06070F",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "logo-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
