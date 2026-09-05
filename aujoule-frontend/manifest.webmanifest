@@ -1,0 +1,20 @@
+{
+  "name": "AuJoule",
+  "short_name": "AuJoule",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030006",
+  "theme_color": "#030006",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
