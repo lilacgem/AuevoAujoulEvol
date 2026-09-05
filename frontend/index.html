@@ -1579,7 +1579,13 @@
                             digital_root: currentSealShape?.digital_root,
                             is_gate: currentSealShape?.isGate,
                             message: currentSealShape?.message,
-                            evolutionDelta: currentSealShape?.evolutionDelta
+                            evolutionDelta: currentSealShape?.evolutionDelta,
+                            // The worker binds e.shape?.p / e.shape?.q into the
+                            // knot_p / knot_q columns. This object was never sent,
+                            // so every seal so far recorded NULL for its own shape.
+                            shape: currentSealShape
+                                ? { p: currentSealShape.p, q: currentSealShape.q }
+                                : null
                         },
                         intensity: parseFloat(document.getElementById('resDisplay')?.innerText || '0.18'),
                         focus: cameraMetric,
@@ -1978,6 +1984,9 @@
                     evo_metrics: row.evo_metrics,
                     // Carried through so the archive can total real AuJ.
                     joules: row.joules,
+                    // The winding numbers that decide the seal's actual shape.
+                    knot_p: row.knot_p,
+                    knot_q: row.knot_q,
                     visual_seal_thumb: row.thumb_url || row.image_url,
                     server_vault_timestamp: row.created_at
                 }));
@@ -2081,6 +2090,9 @@
                     </div>
                     <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates?.hue || 0}° / R:${entry.matrix_coordinates?.res || entry.matrix_coordinates?.resonance || 0.18}</div>
                     <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>DIGITAL ROOT:</b> ${metrics.digital_root}</div>
+                    ${(entry.knot_p ?? metrics.shape?.p) != null
+                        ? `<div style="margin: 3px 0; font-size: 10px; color: #c39bd3;"><b>KNOT:</b> p${entry.knot_p ?? metrics.shape.p} / q${entry.knot_q ?? metrics.shape.q}</div>`
+                        : ''}
                     <div style="font-size: 9px; color: rgba(255,255,255,0.25); margin-top: 8px; text-align: right;">
                         ${new Date(entry.server_vault_timestamp || Date.now()).toLocaleString()}
                     </div>
