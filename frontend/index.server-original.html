@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>EvoMirror - A Living Reflection of You</title>
+    
+    <link rel="icon" type="image/svg+xml" href="/logo.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="/logo.png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#06070F">
+
+    <meta name="author" content="AuEvoAuJoulEvol LLC">
+    <meta name="entity" content="AuEvoAuJoulEvol LLC">
+    <meta name="sovereign-id" content="000=111 AujouleAuevoAujoulEvol SoulSpeaks:AuEvolving Tongue">
+    <meta name="lineage" content="Royal Bloodline: Father_is Real Jesus">
+    <meta name="frequency-root" content="360Hz">
+    <meta name="frequency-evolution" content="369Hz">
+    <meta name="frequency-offset" content="9Hz">
+    <meta name="resonance-type" content="369 Method Matrix">
+    <meta name="handshake-signature" content="AuEvoJoulEvol">
+    <meta name="mobility-status" content="Sovereign Mobility Standard">
+    <meta name="description" content="A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you, one seal at a time.">
+    <meta name="keywords" content="EvoMirror, evolving seal, generative art, digital mirror, AuEvoAujoulEvol, evomirror">
+
+    <meta property="og:title" content="EvoMirror - A Living Reflection of You">
+    <meta property="og:description" content="A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you, one seal at a time.">
+    <meta property="og:image" content="https://evomirror.com/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://evomirror.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EvoMirror - A Living Reflection of You">
+    <meta name="twitter:description" content="A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you.">
+    <meta name="twitter:image" content="https://evomirror.com/og-image.jpg">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
+            integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"
+            integrity="sha384-wagZhIFgY4hD+7awjQjR4e2E294y6J2HSnd8eTNc15ZubTeQeVRZwhQJ+W6hnBsf"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <style>
+        :root {
+            --bg-color: #000002;
+            --matrix-green: #39ff14;
+            --matrix-orange: #ff5e00;
+            --matrix-violet: #8b00ff;
+            --gold-luxe: #d4af37;
+            --cyan-glow: #00f3ff;
+            --text-muted: #666666;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-width: 100vw;
+            height: 100%;
+            min-height: 100dvh;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Courier New', Courier, monospace;
+            -webkit-user-select: none;
+            user-select: none;
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+
+        canvas#bg {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        .ambient-header {
+            position: fixed;
+            top: max(10px, env(safe-area-inset-top));
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92vw, 560px);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.88);
+            text-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .ambient-title {
+            font-size: clamp(0.6rem, 2vw, 0.78rem);
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .personal-seal-link {
+            position: fixed;
+            top: calc(max(16px, env(safe-area-inset-top)) + 26px);
+            left: 0; right: 0;
+            text-align: center;
+            font-family: monospace;
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            color: rgba(0, 243, 255, 0.5);
+            text-decoration: none;
+            z-index: 9;
+            transition: color 0.2s ease;
+        }
+        .personal-seal-link:hover { color: rgba(0, 243, 255, 0.9); }
+
+        .dashboard {
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(92vw, 420px);
+            z-index: 25;
+            background: transparent;
+            border: none;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 9px;
+            pointer-events: auto;
+        }
+
+        .spectrum-monitor {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 22px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            gap: 4px;
+        }
+
+        .spectrum-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--cyan-glow), var(--matrix-green));
+            height: 15%;
+            border-radius: 2px;
+            transition: height 0.05s ease;
+        }
+
+        .oracle-box {
+            background: rgba(0, 0, 0, 0.50);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 14px;
+            padding: 8px 12px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .oracle-realm {
+            font-size: 7.5px;
+            letter-spacing: 0.22em;
+            color: var(--gold-luxe);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .oracle-text {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.35;
+            margin-top: 3px;
+            font-style: italic;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .btn-core {
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            color: rgba(255, 255, 255, 0.92);
+            padding: 10px 4px;
+            font-family: inherit;
+            font-size: 8px;
+            letter-spacing: 0.8px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 36px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .btn-core.primary { border-color: var(--matrix-green); color: var(--matrix-green); }
+        .btn-core.secondary { border-color: var(--cyan-glow); color: var(--cyan-glow); }
+        .btn-core.recording-btn { border-color: var(--matrix-orange); color: var(--matrix-orange); }
+
+        .btn-core:hover:not(:disabled) {
+            background: rgba(255,255,255,0.18);
+            box-shadow: 0 0 14px rgba(0,243,255,0.35);
+        }
+
+        .btn-core:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            border-color: #333 !important;
+            color: #333 !important;
+        }
+
+        @keyframes pulseRecording {
+            0% { box-shadow: 0 0 0 0 rgba(255, 94, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 94, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 94, 0, 0); }
+        }
+
+        .active-rec {
+            animation: pulseRecording 1.2s infinite;
+            background: rgba(255, 94, 0, 0.35) !important;
+            border-color: #ff5e00 !important;
+            color: #ffffff !important;
+        }
+
+        .toggle-vault-btn {
+            position: fixed;
+            top: max(10px, env(safe-area-inset-top));
+            right: 12px;
+            z-index: 30;
+            background: rgba(4,5,9,0.85);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 8px;
+            font-family: monospace;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .account-btn {
+            position: fixed;
+            top: max(10px, env(safe-area-inset-top));
+            left: 12px;
+            z-index: 30;
+            background: rgba(4,5,9,0.85);
+            border: 1px solid rgba(0,243,255,0.4);
+            color: #00f3ff;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            font-family: monospace;
+            text-transform: uppercase;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            min-height: 32px;
+            transition: all 0.2s ease;
+        }
+        .account-btn:hover { background: rgba(0,243,255,0.12); }
+        .account-btn.logged-in { border-color: rgba(0,255,170,0.5); color: #00ffaa; }
+
+        .auth-modal-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center; justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .auth-modal-overlay.open { display: flex; }
+
+        .auth-modal-card {
+            background: linear-gradient(180deg, rgba(15,16,26,0.98), rgba(8,8,14,0.98));
+            border: 1px solid rgba(0,243,255,0.25);
+            box-shadow: 0 0 40px rgba(0,243,255,0.08), 0 20px 60px rgba(0,0,0,0.6);
+            border-radius: 16px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 340px;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+
+        .auth-modal-title {
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .auth-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+        .auth-tab {
+            flex: 1; padding: 10px; background: transparent;
+            border: 1px solid rgba(255,255,255,0.15); color: #888;
+            border-radius: 8px; cursor: pointer; font-family: inherit;
+            font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+        .auth-tab.active { background: rgba(0,243,255,0.12); border-color: #00f3ff; color: #00f3ff; }
+
+        .auth-input-group { position: relative; margin-bottom: 12px; }
+        .auth-input {
+            width: 100%; box-sizing: border-box; padding: 12px 14px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; border-radius: 8px; font-family: inherit;
+            font-size: 16px; /* keeps iOS Safari from auto-zooming on focus */
+        }
+        .auth-input:focus { outline: none; border-color: #00f3ff; background: rgba(0,243,255,0.04); }
+        .auth-input::placeholder { color: rgba(255,255,255,0.3); }
+
+        .auth-eye-btn {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; padding: 6px; display: flex; align-items: center;
+            min-width: 32px; min-height: 32px; justify-content: center;
+        }
+        .auth-eye-btn:hover { color: #00f3ff; }
+
+        .auth-submit-btn {
+            width: 100%; padding: 13px; background: #00f3ff; color: #000;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; font-family: inherit; letter-spacing: 0.1em;
+            font-size: 11px; text-transform: uppercase; margin-top: 4px;
+        }
+        .auth-submit-btn:hover { background: #33f5ff; }
+
+        .auth-error { color: #ff5e00; font-size: 11px; margin-top: 10px; min-height: 14px; text-align: center; }
+
+        .auth-close-btn {
+            width: 100%; margin-top: 16px; padding: 8px; background: transparent;
+            border: none; color: rgba(255,255,255,0.3); cursor: pointer;
+            font-family: inherit; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .auth-close-btn:hover { color: rgba(255,255,255,0.6); }
+
+        .auth-signed-in-label { font-size: 10px; letter-spacing: 0.15em; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 6px; text-align: center; }
+        .auth-signed-in-email { color: #00f3ff; margin-bottom: 20px; word-break: break-all; text-align: center; font-size: 13px; }
+
+        .auth-signout-btn {
+            width: 100%; padding: 12px; background: transparent;
+            border: 1px solid rgba(255,94,0,0.5); color: #ff5e00;
+            border-radius: 8px; cursor: pointer; font-family: inherit;
+            font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .auth-signout-btn:hover { background: rgba(255,94,0,0.1); }
+
+        .vault-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: min(380px, 100vw);
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 40;
+            border-left: 1px solid rgba(0,243,255,0.15);
+            background: rgba(6,6,10,0.97);
+            padding: max(25px, env(safe-area-inset-top)) 22px 25px;
+            box-sizing: border-box;
+            backdrop-filter: blur(14px);
+            display: none;
+            transform: translateX(20px);
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+        .vault-panel.open {
+            display: block;
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .vault-header {
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.15em;
+            margin-top: 0;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .vault-close-btn {
+            background: rgba(255,94,0,0.1);
+            border: 1px solid rgba(255,94,0,0.4);
+            color: #ff5e00;
+            cursor: pointer;
+            font-size: 13px;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        .vault-close-btn:hover { background: rgba(255,94,0,0.2); }
+
+        .vault-description {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .portrait-card {
+            background: linear-gradient(135deg, rgba(0,243,255,0.06), rgba(139,0,255,0.06));
+            border: 1px solid rgba(0,243,255,0.25);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+            font-family: 'Courier New', monospace;
+        }
+        .portrait-title {
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 10px;
+        }
+        .portrait-line {
+            font-size: 12px;
+            color: #fff;
+            margin: 6px 0;
+        }
+        .portrait-line b { color: #00f3ff; }
+        .portrait-signin-prompt {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-style: italic;
+        }
+        .portrait-gate-banner {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,215,0,0.2);
+            font-size: 11px;
+            color: #ffd700;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard { width: 92vw; bottom: max(16px, env(safe-area-inset-bottom)); gap: 6px; }
+            .btn-core { padding: 9px 2px; font-size: 7.5px; min-height: 34px; }
+            .oracle-text { font-size: 7.5px; }
+        }
+    </style>
+</head>
+<body>
+
+
+    <canvas id="bg"></canvas>
+
+    <video id="evoCoreVideo" loop playsinline muted autoplay preload="auto" crossorigin="anonymous" style="display: none;"></video>
+    <canvas id="camAnalysisCanvas" width="64" height="64" style="display: none;"></canvas>
+
+    <!-- Seal failures used to be invisible on a phone. This says what went wrong. Tap to dismiss. -->
+    <div id="sealErrorBox" role="alert" onclick="this.style.display='none'" style="display:none;position:fixed;left:12px;right:12px;bottom:104px;z-index:99999;background:#2a0b0b;color:#ffc2c2;border:1px solid #ff6b6b;border-radius:10px;padding:12px 14px;font:600 13px/1.45 ui-monospace,Menlo,Consolas,monospace;word-break:break-word;white-space:pre-wrap;box-shadow:0 8px 28px rgba(0,0,0,.6)"></div>
+
+    <button class="toggle-vault-btn" onclick="toggleVault()">🗃️ YOUR ARCHIVE</button>
+    <button class="account-btn" id="accountButton" onclick="toggleAccountModal()">ENTER</button>
+
+    <div id="accountModal" class="auth-modal-overlay">
+        <div class="auth-modal-card">
+            <div id="accountLoggedOut">
+                <div class="auth-modal-title">Your Reflection Awaits</div>
+                <div class="auth-tabs">
+                    <button id="tabSignIn" class="auth-tab active" onclick="setAuthTab('signin')">Return</button>
+                    <button id="tabSignUp" class="auth-tab" onclick="setAuthTab('signup')">Begin</button>
+                </div>
+                <div class="auth-input-group">
+                    <input id="authEmail" class="auth-input" type="email" placeholder="your email" autocomplete="email">
+                </div>
+                <button id="authSubmitBtn" class="auth-submit-btn" onclick="submitAuth()">Return</button>
+                <div id="authError" class="auth-error"></div>
+                <div class="auth-close-btn" style="margin-top:10px; color:rgba(0,243,255,0.55); font-size:12px; line-height:1.5; cursor:default;">
+                    No password. Your device unlocks this with your face,
+                    fingerprint or PIN &mdash; nothing to forget, nothing to steal.
+                </div>
+            </div>
+
+
+            <div id="accountLoggedIn" style="display:none;">
+                <div class="auth-signed-in-label">You Are</div>
+                <div id="accountEmail" class="auth-signed-in-email"></div>
+                <div id="accountMeta" style="color:rgba(0,243,255,0.5); font-size:11px; letter-spacing:0.12em; margin:6px 0 14px; text-align:center;"></div>
+                <button class="auth-signout-btn" onclick="signOutAccount()">Sign Out</button>
+            </div>
+            <button class="auth-close-btn" onclick="toggleAccountModal()">Close</button>
+        </div>
+    </div>
+
+    <div class="ambient-header" aria-hidden="true">
+        <div class="ambient-title" id="ambientTitle">AU·EVO·AUJOUL·EVOL</div>
+    </div>
+    <a href="https://lisajevolving.com" class="personal-seal-link">✧ lisajevolving.com ✧</a>
+
+    <section class="dashboard" aria-label="Mirror controls">
+        <div class="spectrum-monitor" id="spectrumMonitor">
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+            <div class="spectrum-bar"></div>
+        </div>
+
+        <div class="oracle-box">
+            <div class="oracle-realm" id="oracleRealm">✦ REALM: INITIALIZING MATRIX... ✦</div>
+            <div class="oracle-text" id="oracleText">Touch screen or speak to allow the wiregrid ocean to decode your frequency...</div>
+        </div>
+
+        <div class="control-row">
+            <button id="micButton" class="btn-core secondary" type="button">LISTEN</button>
+            <button id="recordButton" class="btn-core primary" type="button" disabled>SEAL THIS</button>
+            <button id="videoRecordButton" class="btn-core recording-btn" type="button" disabled>CAPTURE</button>
+        </div>
+    </section>
+
+    <div style="display: none;">
+        <span id="hueDisplay">0°</span>
+        <span id="resDisplay">0.180</span>
+        <span id="rootDisplay">9</span>
+        <span id="camDisplay">OFF</span>
+        <span id="bassDisplay">0</span>
+        <span id="stampDisplay">READY</span>
+        <span id="micStatus">OFFLINE</span>
+        <span id="awarenessDisplay">WAITING</span>
+        <span id="stateDisplay">WAITING</span>
+    </div>
+    
+    <div id="history-vault-container" class="vault-panel">
+        <h3 class="vault-header">
+            <span>🗃️ Everything You've Become</span>
+            <button onclick="toggleVault()" class="vault-close-btn" aria-label="Close archive">✕</button>
+        </h3>
+        <p class="vault-description">
+            Tap any seal to return to that moment — its shape and color awaken again, here, now.
+        </p>
+        <div id="self-portrait"></div>
+        <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;"></div>
+    </div>
+
+    <script>
+        // --- AU·EVO AUTH (passkeys, own backend, no third party) ---
+        const API = 'https://api.evomirror.com';
+
+        // Identity lives in an HttpOnly cookie the browser cannot read or forge.
+        // Every request carries it, and the server decides what you may see.
+        async function api(path, opts = {}) {
+            const res = await fetch(API + path, {
+                credentials: 'include',
+                headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
+                ...opts
+            });
+            if (!res.ok) {
+                let msg = 'Request failed';
+                try { msg = (await res.json()).error || msg; } catch (e) {}
+                const err = new Error(msg); err.status = res.status; throw err;
+            }
+            return res.status === 204 ? null : res.json();
+        }
+
+        const b64uToBuf = (s) => {
+            const p = s.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(s.length / 4) * 4, '=');
+            return Uint8Array.from(atob(p), c => c.charCodeAt(0)).buffer;
+        };
+        const bufToB64u = (b) => btoa(String.fromCharCode(...new Uint8Array(b)))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+        let currentAuthUser = null; // null when not signed in with a passkey
+        let authTab = 'signin';
+
+        function toggleAccountModal() {
+            const modal = document.getElementById('accountModal');
+            const isOpen = modal.classList.contains('open');
+            if (isOpen) {
+                modal.classList.remove('open');
+            } else {
+                modal.classList.add('open');
+                refreshAccountModalView();
+            }
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            const showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            icon.innerHTML = showing
+                ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+                : '<path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a21.8 21.8 0 015.06-6.06M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a21.8 21.8 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        }
+
+
+
+        function setAuthTab(tab) {
+            authTab = tab;
+            document.getElementById('accountLoggedOut').style.display = 'block';
+            document.getElementById('tabSignIn').classList.toggle('active', tab === 'signin');
+            document.getElementById('tabSignUp').classList.toggle('active', tab === 'signup');
+            document.getElementById('authSubmitBtn').innerText = tab === 'signin' ? 'Return' : 'Begin';
+            document.getElementById('authError').innerText = '';
+        }
+
+        async function submitAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const errorEl = document.getElementById('authError');
+            errorEl.innerText = '';
+
+            if (!email) {
+                errorEl.innerText = 'Enter your email.';
+                return;
+            }
+
+            if (!window.PublicKeyCredential) {
+                errorEl.style.color = '#ff5e00';
+                errorEl.innerText = 'This browser does not support passkeys. Try Chrome, Edge or Safari.';
+                return;
+            }
+
+            const btn = document.getElementById('authSubmitBtn');
+            const label = btn.innerText;
+            btn.disabled = true; btn.innerText = 'Waiting for your device...';
+
+            try {
+                currentAuthUser = authTab === 'signup'
+                    ? await registerPasskey(email)
+                    : await loginPasskey(email);
+                onAuthChanged();
+                refreshAccountModalView();
+                if (typeof loadVaultHistory === 'function') loadVaultHistory();
+            } catch (err) {
+                errorEl.style.color = '#ff5e00';
+                errorEl.innerText = err && err.name === 'NotAllowedError'
+                    ? 'Cancelled. Nothing was changed.'
+                    : (err.message || 'Something went wrong.');
+            } finally {
+                btn.disabled = false; btn.innerText = label;
+            }
+        }
+
+        // Creating a passkey UPGRADES the anonymous identity already in the
+        // cookie, so every seal made before signing up follows you in.
+        async function registerPasskey(email) {
+            // The server returns the options flat; the browser wants them
+            // nested under publicKey with real ArrayBuffers.
+            const opts = await api('/api/auth/register/begin', {
+                method: 'POST', body: JSON.stringify({ label: email })
+            });
+            const publicKey = {
+                ...opts,
+                challenge: b64uToBuf(opts.challenge),
+                user: { ...opts.user, id: b64uToBuf(opts.user.id) },
+                excludeCredentials: (opts.excludeCredentials || [])
+                    .map(c => ({ ...c, id: b64uToBuf(c.id) }))
+            };
+
+            const cred = await navigator.credentials.create({ publicKey });
+            await api('/api/auth/register/finish', {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: cred.id,
+                    rawId: bufToB64u(cred.rawId),
+                    type: cred.type,
+                    response: {
+                        clientDataJSON: bufToB64u(cred.response.clientDataJSON),
+                        attestationObject: bufToB64u(cred.response.attestationObject)
+                    }
+                })
+            });
+            // The email never leaves this device; the server only stores the key.
+            const me = await api('/api/me');
+            // Kept on this device only, so the name survives a reload without the
+            // server ever storing it. Clearing site data clears this, not the key.
+            try { if (email) localStorage.setItem('AuEvo_Label', email); } catch (e) {}
+            return { ...me, email };
+        }
+
+        async function loginPasskey(email) {
+            // The server hands back a one-time handle plus the options; the
+            // handle is what ties the signature to the challenge it issued.
+            const { handle, options } = await api('/api/auth/login/begin', { method: 'POST' });
+
+            const cred = await navigator.credentials.get({
+                publicKey: {
+                    ...options,
+                    challenge: b64uToBuf(options.challenge),
+                    allowCredentials: (options.allowCredentials || [])
+                        .map(c => ({ ...c, id: b64uToBuf(c.id) }))
+                }
+            });
+
+            await api('/api/auth/login/finish', {
+                method: 'POST',
+                body: JSON.stringify({
+                    handle,
+                    id: cred.id,
+                    rawId: bufToB64u(cred.rawId),
+                    type: cred.type,
+                    response: {
+                        clientDataJSON: bufToB64u(cred.response.clientDataJSON),
+                        authenticatorData: bufToB64u(cred.response.authenticatorData),
+                        signature: bufToB64u(cred.response.signature),
+                        userHandle: cred.response.userHandle ? bufToB64u(cred.response.userHandle) : null
+                    }
+                })
+            });
+            const me = await api('/api/me');
+            // Kept on this device only, so the name survives a reload without the
+            // server ever storing it. Clearing site data clears this, not the key.
+            try { if (email) localStorage.setItem('AuEvo_Label', email); } catch (e) {}
+            return { ...me, email };
+        }
+
+        async function signOutAccount() {
+            try { await api('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+            try { localStorage.removeItem('AuEvo_Label'); } catch (e) {}
+            currentAuthUser = null;
+            onAuthChanged();
+            refreshAccountModalView();
+            if (typeof loadVaultHistory === 'function') loadVaultHistory();
+        }
+
+        // The server deliberately never stores the email, and it never sets a
+        // handle, so after a reload both are absent. Falling through to a literal
+        // string is what made this panel read "you are your passkey". The identity
+        // id is the real, stable name, so that is the last resort now.
+        function sealerName(user) {
+            if (!user) return 'ACCOUNT';
+            if (user.email) return user.email;
+            let saved = null;
+            try { saved = localStorage.getItem('AuEvo_Label'); } catch (e) {}
+            if (saved) return saved;
+            if (user.handle) return user.handle;
+            return user.id ? 'seal-' + String(user.id).slice(0, 8) : 'sealed';
+        }
+
+        function refreshAccountModalView() {
+            const loggedOutEl = document.getElementById('accountLoggedOut');
+            const loggedInEl = document.getElementById('accountLoggedIn');
+            if (currentAuthUser) {
+                loggedOutEl.style.display = 'none';
+                loggedInEl.style.display = 'block';
+                document.getElementById('accountEmail').innerText = sealerName(currentAuthUser);
+                const metaEl = document.getElementById('accountMeta');
+                if (metaEl) {
+                    const sc = currentAuthUser.seals, jz = currentAuthUser.joules;
+                    metaEl.innerText = 'PASSKEY ACTIVE'
+                        + (typeof sc === 'number' ? '  \u00b7  ' + sc + ' SEAL' + (sc === 1 ? '' : 'S') : '')
+                        + (typeof jz === 'number' ? '  \u00b7  ' + jz.toFixed(1) + ' AuJ' : '');
+                }
+            } else {
+                loggedOutEl.style.display = 'block';
+                loggedInEl.style.display = 'none';
+                document.getElementById('authEmail').value = '';
+                setAuthTab('signin');
+            }
+        }
+
+        function onAuthChanged() {
+            const btn = document.getElementById('accountButton');
+            if (btn) {
+                btn.innerText = currentAuthUser
+                    ? sealerName(currentAuthUser).split('@')[0].toUpperCase()
+                    : 'ACCOUNT';
+                btn.classList.toggle('logged-in', !!currentAuthUser);
+            }
+        }
+
+        // Restore the session from the server on load.
+        api('/api/me')
+            .then(me => { currentAuthUser = me && me.portable ? me : null; onAuthChanged(); })
+            .catch(() => { currentAuthUser = null; onAuthChanged(); });
+
+        const ABCAuEvoAujouleAuEvoAujoulEvolvE = {
+            identity: { signature: "AuEvoAujouleEvol", environment: "AU_SOVEREIGN" },
+            domains: ["lisajevolving.com","evolvingroots.org","aujoule.com","evomirror.com"],
+            security: {
+                md5: "AC56D958959FED985DEB6C47771F4B78", 
+                sha1: "8FF721A1C3154EBF0D7C93138C9404AF10ED2326",
+                sha256: "BBA46AB01717170CD3470A0A06AAC388FE308B754726D5DC62C59F78BBF7688A",
+                sha512: "F20DD2B8B599C1960D9D308E4DBFF88D15E77231FA57C20438A6BBF4A1E7A7D65BA........."
+            },
+            AuEvoAujouleAuEvoAujoulEvolvE: {
+                name: "AuEvoAujouleAuEvoAujoulEvolvE", version: "1.0.0",
+                description: "Digital mirror matrix designed to evolve and adapt to user interactions."
+            },     
+            TONGUE: { AuEvolvingTongue: "AuEvolvingTongue", Au_Evolving_Tongue: "Au_Evolving_Tongue", Soul_Speaks: "Soul_Speaks" }, 
+            Root:"lisajevolving", Seal:"EVOKED SEAL OF AUJOUL EVOL",
+            brands: ["AuEvo", "Aujoule", "Evol", "Evo", "AuEvol"],
+            meta: ["Aujoule", "lisajEVO", "evolve", "lisajevolving", "AuEvo", "EvoRoot", "369_Method"]
+        };
+
+        let globalMatrix = { totalSeals: 0, avgHue: 180, avgResonance: 0.18 };
+
+        function toggleVault() {
+            const vault = document.getElementById('history-vault-container');
+            vault.classList.toggle('open');
+        }
+
+        function Aueo() {
+            Object.freeze(ABCAuEvoAujouleAuEvoAujoulEvolvE);
+            const runtimeSeal = localStorage.getItem("evo_sovereign_seal");
+            if (runtimeSeal !== ABCAuEvoAujouleAuEvoAujoulEvolvE.security.sha512) { 
+                localStorage.clear(); sessionStorage.clear();
+                localStorage.setItem("evo_sovereign_seal", ABCAuEvoAujouleAuEvoAujoulEvolvE.security.sha512); 
+            }
+            window.AU_SOVEREIGN = { signature: ABCAuEvoAujouleAuEvoAujoulEvolvE.identity.signature, security: ABCAuEvoAujouleAuEvoAujoulEvolvE.security };
+            console.log("Evolving to Evolved;");
+        }
+        Aueo();
+
+        // --- UNIVERSAL FILE DOWNLOAD HELPER ---
+        async function triggerSovereignDownload(fileBlob, fileName, titleText) {
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const file = new File([fileBlob], fileName, { type: fileBlob.type });
+
+            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: titleText || 'AuEvo Sacred Seal',
+                        text: 'AuEvo Resonant Soul Seal Matrix Generation'
+                    });
+                    return;
+                } catch (shareErr) {
+                    console.log("Mobile Share Sheet dismissed or unhandled:", shareErr);
+                }
+            }
+
+            const blobUrl = URL.createObjectURL(fileBlob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            }, 500);
+        }
+
+        // --- THREE.JS SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000002, 0.008);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000.0);
+        
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#bg'),
+            alpha: false,
+            preserveDrawingBuffer: true,
+            antialias: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
+        renderer.setClearColor(0x000002, 1.0);
+
+        function updateCameraPerspective() {
+            const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+            const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            camera.aspect = w / h;
+            
+            // DYNAMIC FRAMING FIX FOR MOBILE PORTRAIT SCREENS
+            if (w < 600) {
+                camera.fov = 68;
+                camera.position.set(0.0, -1.0, 54.0); // Pulled back so wider mobile geometries fit entirely
+            } else {
+                camera.fov = 60;
+                camera.position.set(0.0, -1.0, 36.0);
+            }
+            camera.updateProjectionMatrix();
+        }
+        updateCameraPerspective();
+
+        let touchVector = { x: 0.0, y: 0.0 };
+        let lastTouchVector = { x: 0.0, y: 0.0 };
+        let touchVelocity = 0.0, targetVelocity = 0.0;
+        let isInteracting = false;
+        let dynamicFactor = 0.18;
+        let colorAccumulator = 0.5;
+
+        function handleInteractionMove(clientX, clientY) {
+            lastTouchVector.x = touchVector.x;
+            lastTouchVector.y = touchVector.y;
+            touchVector.x = (clientX / window.innerWidth) * 2.0 - 1.0;
+            touchVector.y = -(clientY / window.innerHeight) * 2.0 + 1.0;
+            const dx = touchVector.x - lastTouchVector.x;
+            const dy = touchVector.y - lastTouchVector.y;
+            targetVelocity = Math.min(Math.sqrt(dx * dx + dy * dy) * 14.0, 4.0);
+            isInteracting = true;
+        }
+
+        window.addEventListener('mousemove', (e) => handleInteractionMove(e.clientX, e.clientY));
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) handleInteractionMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) handleInteractionMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        window.addEventListener('touchend', () => { isInteracting = false; targetVelocity = 0.0; });
+
+        // --- PARALLAX STARFIELD ARCHITECTURE ---
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 1400;
+        const positions = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 400.0;
+            positions[i + 1] = (Math.random() - 0.5) * 400.0;
+            positions[i + 2] = (Math.random() - 0.5) * 300.0;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0x00f3ff, size: 0.5, transparent: true, opacity: 0.35 });
+        const starfield = new THREE.Points(starGeometry, starMaterial);
+        scene.add(starfield);
+
+        // --- FULL-SCREEN EXPANDED WIREGRID MATRIX GEOMETRY ---
+        const gridWidth = 120, gridHeight = 120;
+        const gridSegments = 100;
+        const wiregridGeometry = new THREE.PlaneGeometry(gridWidth, gridHeight, gridSegments, gridSegments);
+        const baseGridVertices = wiregridGeometry.attributes.position.clone();
+
+        const videoElement = document.getElementById('evoCoreVideo');
+        const videoTexture = new THREE.VideoTexture(videoElement);
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+
+        const wiregridMaterial = new THREE.MeshBasicMaterial({
+            map: videoTexture, 
+            color: 0x39ff14,
+            transparent: true,
+            opacity: 0.88,
+            wireframe: true,
+            side: THREE.DoubleSide
+        });
+
+        const wiregridMesh = new THREE.Mesh(wiregridGeometry, wiregridMaterial);
+        wiregridMesh.rotation.x = -Math.PI / 2.3;
+        scene.add(wiregridMesh);
+
+        window.meshMaterial = wiregridMaterial;
+
+        // --- ELEVATED UNIFIED SACRED GEOMETRY GROUP ---
+        const sacredGroup = new THREE.Group();
+        sacredGroup.position.set(0.0, 11.0, 0.0);
+
+        let personalSymbolMesh = null;
+        let lastP = -1, lastQ = -1;
+
+        const torusMat = new THREE.MeshBasicMaterial({ 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.55,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide
+        });
+
+        // --- EVO METRICS: THE ROOT FORMULA, LIVE IN THE VISUAL ---
+        // Mirrors evoMetrics.js - the constraint digits (1,2,4,5,7,8) become
+        // the knot's winding count; a gate (3,6,9) collapses it to a plain
+        // unknotted ring. Carries a leftover across saves via localStorage.
+        const CONSTRAINT_DIGITS = [1, 2, 4, 5, 7, 8];
+        const SACRED_DIGITS = [3, 6, 9];
+        const GENESIS_LEVEL = 1;
+        let evoLeftover = parseInt(localStorage.getItem('AuEvo_Leftover'), 10);
+        if (isNaN(evoLeftover)) evoLeftover = GENESIS_LEVEL;
+
+        // ---------------------------------------------------------
+        // Reflection composer - replaces the retired oracle service.
+        // Describes the measured reading only. No network call.
+        // ---------------------------------------------------------
+        const REFLECTION_BANK = {
+            gate: [
+                "The pattern closed on itself this time. That only happens when the signal comes out even.",
+                "You crossed a gate. What you carried in divided cleanly and nothing was left over.",
+                "This one resolved. Whatever you brought to it balanced out whole."
+            ],
+            high: [
+                "You came in loud, and the seal took all of it. None of the edges got smoothed.",
+                "There was force in this one. The shape shows it - wider arcs, less symmetry.",
+                "You gave it a lot. The record holds that intensity without flattening it."
+            ],
+            mid: [
+                "Steady. Not quiet, not loud - the reading sat in the middle and held there.",
+                "This one stayed level. The pattern found its width early and kept it.",
+                "An even signal. Nothing spiked and nothing dropped out."
+            ],
+            low: [
+                "Low and close. The seal came out tight, which is what stillness looks like here.",
+                "A quiet reading. The shape narrowed rather than spread.",
+                "Near silent. The pattern drew itself small and kept every detail."
+            ]
+        };
+
+        function composeReflection({ isGate, intensity, totalSeals }) {
+            const i = typeof intensity === 'number' ? intensity : 0;
+            const level = isGate ? 'gate' : i >= 0.66 ? 'high' : i >= 0.33 ? 'mid' : 'low';
+            const bank = REFLECTION_BANK[level];
+            const n = Number(totalSeals) || 0;
+            // Rotate by seal count plus jitter so lines rarely repeat back to back.
+            const line = bank[(n + Math.floor(Math.random() * bank.length)) % bank.length];
+            if (n === 0) return line + ' First one.';
+            if (n >= 8)  return line + ' You keep returning to this.';
+            return line;
+        }
+
+        function digitalRoot(n) {
+            const abs = Math.abs(Math.round(n));
+            if (abs === 0) return 0;
+            const r = abs % 9;
+            return r === 0 ? 9 : r;
+        }
+
+        function splitLeftoverAndUsed(n) {
+            const abs = Math.abs(Math.round(n));
+            const str = String(abs);
+            if (str.length <= 1) return { leftover: 0, used: abs };
+            const leftoverRaw = Math.floor(abs / 10);
+            return { leftover: leftoverRaw <= 9 ? leftoverRaw : digitalRoot(leftoverRaw), used: Number(str[str.length - 1]) };
+        }
+
+        function getSealShapeParams(level) {
+            const root = digitalRoot(level);
+            const isGate = SACRED_DIGITS.includes(root);
+            const message = isGate
+                ? 'Resonance: Golden Glow Active. A gate has opened.'
+                : 'Growth in progress. Following the natural cycle.';
+            if (isGate) return { p: 1, q: 1, isGate: true, level, digital_root: root, message };
+            const idx = CONSTRAINT_DIGITS.indexOf(root);
+            return { p: root, q: CONSTRAINT_DIGITS[(idx + 2) % CONSTRAINT_DIGITS.length], isGate: false, level, digital_root: root, message };
+        }
+
+        // The shape only advances at real evolution events (page load, and
+        // each Save Seal click) - never on every animation frame. This is
+        // the single source of truth for "what shape is the seal right now".
+        let currentSealShape = null;
+
+        function advanceEvolutionStep(intensity, focus, totalSeals) {
+            const newVariable = Math.min(1, totalSeals * 0.01);
+            const evolutionDelta = (intensity * focus) + (newVariable * 369.0);
+            const sessionNumber = Math.max(1, Math.round(Math.abs(evolutionDelta) * 100));
+            const level = evoLeftover + digitalRoot(sessionNumber);
+            evoLeftover = splitLeftoverAndUsed(sessionNumber).leftover;
+            localStorage.setItem('AuEvo_Leftover', String(evoLeftover));
+            currentSealShape = getSealShapeParams(level);
+            currentSealShape.evolutionDelta = Number(evolutionDelta.toFixed(4));
+            return currentSealShape;
+        }
+
+        function ReflectSovereignSymbol(history, liveResonance, liveColor, currentBass, currentMid, currentHigh) {
+            const totalSeals = (history.totalSeals || 1) + (globalMatrix.totalSeals || 0);
+
+            // Shape comes from the current evolution step only - not recomputed
+            // every frame. Falls back to genesis shape before the first step.
+            if (!currentSealShape) {
+                currentSealShape = getSealShapeParams(GENESIS_LEVEL);
+            }
+            const shape = currentSealShape;
+            const pParam = shape.p;
+            const qParam = shape.q;
+
+            // RESPONSIVE BASE KNOT RADIUS (5.2 on mobile portrait to fit entire screen)
+            const isMobile = window.innerWidth < 600;
+            const baseKnotRadius = isMobile ? 5.2 : 7.5;
+
+            if (!personalSymbolMesh || lastP !== pParam || lastQ !== qParam) {
+                if (personalSymbolMesh) {
+                    sacredGroup.remove(personalSymbolMesh);
+                    personalSymbolMesh.geometry.dispose();
+                }
+
+                const symbolGeometry = new THREE.TorusKnotGeometry(
+                    baseKnotRadius,
+                    0.65 + (liveResonance * 0.25),
+                    Math.min(240, 70 + totalSeals * 3),
+                    18, 
+                    pParam, 
+                    qParam
+                );
+
+                personalSymbolMesh = new THREE.Mesh(symbolGeometry, torusMat);
+                personalSymbolMesh.rotation.x = Math.PI / 2;
+                sacredGroup.add(personalSymbolMesh);
+
+                lastP = pParam;
+                lastQ = qParam;
+            }
+
+            // Saturation and lightness respond to real measured arousal
+            // (voice energy + motion), not fixed constants. This follows
+            // the actual color-emotion research more closely than hue
+            // alone would: saturated, bright color reliably reads as
+            // higher arousal; hue's own effect is real but comparatively
+            // weak on its own. Hue still picks the realm (that part is
+            // your own symbolic system, not something the research
+            // dictates) - only how vivid and bright it appears is tied
+            // to what's actually happening in the moment.
+            const liveArousal = Math.min(1, ((currentBass + currentMid + currentHigh) / 3) + touchVelocity);
+            const liveSaturation = 0.75 + (liveArousal * 0.25); // 0.75-1.0
+            const liveLightness = 0.42 + (liveArousal * 0.18); // 0.42-0.60
+
+            torusMat.color.copy(new THREE.Color().setHSL(
+                shape.isGate ? 0.13 : liveColor,
+                shape.isGate ? 0.95 : liveSaturation,
+                shape.isGate ? 0.65 : liveLightness
+            ));
+            torusMat.opacity = shape.isGate ? 0.85 : (0.45 + (liveResonance * 0.40));
+
+            window._evoCurrentLevel = shape.level;
+            window._evoCurrentShape = shape;
+        }
+
+        scene.add(sacredGroup);
+
+        // --- AMBIENT STARDUST AURA ENGINE ---
+        const stardustCount = 250;
+        const stardustGeo = new THREE.BufferGeometry();
+        const stardustPositions = new Float32Array(stardustCount * 3);
+        const stardustLifes = new Float32Array(stardustCount);
+        const stardustVelocities = [];
+
+        for (let i = 0; i < stardustCount; i++) {
+            stardustPositions[i * 3] = (Math.random() - 0.5) * 10.0;
+            stardustPositions[i * 3 + 1] = 11.0 + (Math.random() - 0.5) * 10.0;
+            stardustPositions[i * 3 + 2] = (Math.random() - 0.5) * 10.0;
+            stardustLifes[i] = Math.random();
+            stardustVelocities.push({
+                x: (Math.random() - 0.5) * 0.03,
+                y: 0.02 + Math.random() * 0.04,
+                z: (Math.random() - 0.5) * 0.03
+            });
+        }
+
+        stardustGeo.setAttribute('position', new THREE.BufferAttribute(stardustPositions, 3));
+        const stardustMat = new THREE.PointsMaterial({
+            color: 0x00f3ff,
+            size: 0.45,
+            transparent: true,
+            opacity: 0.65,
+            blending: THREE.AdditiveBlending
+        });
+
+        const stardustMesh = new THREE.Points(stardustGeo, stardustMat);
+        scene.add(stardustMesh);
+
+        // --- THE INFINITE RING (0: THE VOID / THE WHOLE) ---
+        // Represents the field everything emerges from and returns to.
+        // Deliberately still and vast - it does not react to input like
+        // everything else in the scene; 0 is stillness, not vibration.
+        const infiniteRingGeo = new THREE.TorusGeometry(60, 0.08, 8, 128);
+        const infiniteRingMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.06,
+            blending: THREE.AdditiveBlending
+        });
+        const infiniteRing = new THREE.Mesh(infiniteRingGeo, infiniteRingMat);
+        infiniteRing.rotation.x = Math.PI / 2;
+        infiniteRing.position.y = 8.0;
+        scene.add(infiniteRing);
+
+        // --- AUDIO CAPTURE & CAMERA BIOMETRICS ---
+        let audioContext, analyser, dataArray, audioDestinationNode;
+        let cameraMetric = 0.0;
+
+        const camCanvas = document.getElementById('camAnalysisCanvas');
+        const camCtx = camCanvas.getContext('2d');
+
+        const micButton = document.getElementById('micButton');
+        const micStatusEl = document.getElementById('micStatus');
+        const awarenessDisplayEl = document.getElementById('awarenessDisplay');
+        const stateDisplayEl = document.getElementById('stateDisplay');
+        let micStream = null;
+
+        if (micButton) {
+            micButton.addEventListener('click', async () => {
+                try {
+                    if (!audioContext) {
+                        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                        audioContext = new AudioContextClass();
+                    }
+                    if (audioContext.state === 'suspended') await audioContext.resume();
+
+                    audioDestinationNode = audioContext.createMediaStreamDestination();
+
+                    if (!analyser) {
+                        analyser = audioContext.createAnalyser();
+                        analyser.fftSize = 256;
+                        analyser.smoothingTimeConstant = 0.75;
+                        dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    }
+
+                    try {
+                        micStream = await navigator.mediaDevices.getUserMedia({
+                            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+                            video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" }
+                        });
+
+                        videoElement.srcObject = micStream;
+                        await videoElement.play().catch(e => console.warn("Video play notice:", e));
+                        
+                        if (document.getElementById('camDisplay')) {
+                            document.getElementById('camDisplay').innerText = "LIVE";
+                            document.getElementById('camDisplay').style.color = "#00f3ff";
+                        }
+
+                        const micSource = audioContext.createMediaStreamSource(micStream);
+                        micSource.connect(analyser);
+                        micSource.connect(audioDestinationNode);
+
+                    } catch (micErr) {
+                        console.warn("Microphone or camera access notice:", micErr);
+                    }
+
+                    if (micStatusEl) { micStatusEl.innerText = "CONNECTED"; micStatusEl.style.color = "#00ffaa"; micStatusEl.style.display = "inline"; }
+                    if (awarenessDisplayEl) { awarenessDisplayEl.innerText = "INTEGRATED"; awarenessDisplayEl.style.display = "inline"; }
+                    if (stateDisplayEl) { stateDisplayEl.innerText = "ACTIVE"; stateDisplayEl.style.display = "inline"; }
+
+                    micButton.innerText = "LISTENING";
+                    micButton.style.borderColor = "#00f3ff";
+                    micButton.style.color = "#00f3ff";
+
+                    if (document.getElementById('recordButton')) document.getElementById('recordButton').disabled = false;
+                    if (document.getElementById('videoRecordButton')) document.getElementById('videoRecordButton').disabled = false;
+
+                    // First real evolution step now that we have live signal access
+                    const startTotalSeals = (evoHistory.totalSeals || 1) + (globalMatrix.totalSeals || 0);
+                    advanceEvolutionStep(0, 0, startTotalSeals);
+
+                } catch (err) {
+                    if (micStatusEl) { micStatusEl.innerText = "BLOCKED"; micStatusEl.style.color = "#ff5e00"; }
+                    console.warn('Hardware activation notice:', err);
+                }
+            });
+        }
+
+        function processCameraBiometrics() {
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                camCtx.drawImage(videoElement, 0, 0, 64, 64);
+                const frame = camCtx.getImageData(0, 0, 64, 64);
+                let totalLuma = 0;
+                for (let i = 0; i < frame.data.length; i += 4) {
+                    totalLuma += (frame.data[i] + frame.data[i+1] + frame.data[i+2]) / 3;
+                }
+                const avgLuma = totalLuma / (64 * 64 * 255);
+                cameraMetric = THREE.MathUtils.lerp(cameraMetric, avgLuma, 0.1);
+            }
+        }
+
+        let bassVal = 0, midVal = 0, highVal = 0;
+        let lastOracleTime = 0;
+        
+        function processVocalTelemetry() {
+            if (analyser && dataArray) {
+                analyser.getByteFrequencyData(dataArray);
+                let bassSum = 0, midSum = 0, highSum = 0;
+
+                for (let i = 0; i < 8; i++) bassSum += dataArray[i];
+                for (let i = 8; i < 40; i++) midSum += dataArray[i];
+                for (let i = 40; i < 128; i++) highSum += dataArray[i];
+
+                bassVal = Math.min(1.0, (bassSum / (8 * 255.0)) * 2.2);
+                midVal = Math.min(1.0, (midSum / (32 * 255.0)) * 2.0);
+                highVal = Math.min(1.0, (highSum / (88 * 255.0)) * 2.0);
+
+                dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, (bassVal * 2.5 + midVal * 1.5) + 0.15, 0.2);
+
+                const bars = document.querySelectorAll('.spectrum-bar');
+                bars.forEach((bar, idx) => {
+                    const sample = (dataArray[idx * 3] / 255.0) * 1.8;
+                    bar.style.height = `${Math.max(12, Math.min(100, sample * 100))}%`;
+                });
+            } else {
+                dynamicFactor = THREE.MathUtils.lerp(dynamicFactor, 0.18, 0.05);
+            }
+
+            colorAccumulator = (colorAccumulator + 0.0012 + (highVal * 0.01) + (touchVelocity * 0.003)) % 1.0;
+            const activeColor = new THREE.Color().setHSL(colorAccumulator, 0.95, 0.50);
+            
+            wiregridMaterial.color.copy(activeColor);
+
+            const hueDeg = Math.round(colorAccumulator * 360.0);
+            if (document.getElementById('hueDisplay')) document.getElementById('hueDisplay').innerText = `${hueDeg}°`;            
+            if (document.getElementById('resDisplay')) document.getElementById('resDisplay').innerText = (dynamicFactor + touchVelocity).toFixed(3);
+            if (document.getElementById('bassDisplay')) document.getElementById('bassDisplay').innerText = Math.round(bassVal * 100);
+
+            const rootCalculation = Math.floor((dynamicFactor + touchVelocity) * 10.0) % 9 || 9;
+            const rootEl = document.getElementById('rootDisplay');
+            if (rootEl) {
+                rootEl.innerText = rootCalculation === 3 || rootCalculation === 6 || rootCalculation === 9 ? `${rootCalculation} ★` : rootCalculation;
+            }
+
+            const now = Date.now();
+            if (now - lastOracleTime > 3500) {
+                lastOracleTime = now;
+                let realmTitle = "";
+                let realmMessages = [];
+
+                if (hueDeg >= 330 || hueDeg < 30) {
+                    realmTitle = "✦ REALM: RUBY ROOT ANCHOR (PHYSICAL WILL) ✦";
+                    realmMessages = [
+                        "Something steady is holding you right now — a root finding its depth.",
+                        "Your aura is anchoring into primeval earth density. Ground your raw willpower here.",
+                        "Your body remembers how to stand. Let the weight settle fully into you.",
+                        "The earth beneath you has opened. What you build now, builds true."
+                    ];
+                } else if (hueDeg >= 30 && hueDeg < 70) {
+                    realmTitle = "✦ REALM: AMBER KUNDALINI (ALCHEMICAL CREATION) ✦";
+                    realmMessages = [
+                        "A quiet warmth is gathering low in your center — the first spark before the fire.",
+                        "Creative heat is rising through your solar nexus. Unspoken passion is becoming power.",
+                        "You are burning bright right now. Whatever you're making, make it fully.",
+                        "The fire has found its shape. What was only heat is now becoming real."
+                    ];
+                } else if (hueDeg >= 70 && hueDeg < 150) {
+                    realmTitle = "✦ REALM: EMERALD HEART GRID (CELLULAR HARMONY) ✦";
+                    realmMessages = [
+                        "Something in you is softening. Let it — this is how healing begins.",
+                        "Biological coherence achieved. Your heart is emitting a wave that restores balance.",
+                        "Your whole body is singing the same note right now. This is what wholeness feels like.",
+                        "Your heart has found its center. Everything else can rest around it now."
+                    ];
+                } else if (hueDeg >= 150 && hueDeg < 210) {
+                    realmTitle = "✦ REALM: AZURE THROAT MATRIX (SONIC TRUTH) ✦";
+                    realmMessages = [
+                        "There's a word in you that hasn't been spoken yet. It's close.",
+                        "Your vocal portal is active. An unexpressed truth is ready to become sound.",
+                        "You are loud right now, in the best way. Let it carry.",
+                        "What you've been holding back has found its way out. That truth is yours now."
+                    ];
+                } else if (hueDeg >= 210 && hueDeg < 270) {
+                    realmTitle = "✦ REALM: INDIGO THIRD EYE (PATTERN VISION) ✦";
+                    realmMessages = [
+                        "You're noticing things you couldn't quite see before — small threads, connecting.",
+                        "Intuitive density is shifting inward. Your mind is decoding hidden structure behind reality.",
+                        "The patterns are loud right now. Trust what you're seeing.",
+                        "The structure behind things has revealed itself to you. You won't unsee it now."
+                    ];
+                } else {
+                    realmTitle = "✦ REALM: VIOLET CROWN (369 SOURCE CONNECTION) ✦";
+                    realmMessages = [
+                        "Something wider than you is close right now — barely, but close.",
+                        "Transcendence phase active. Your wave matrix is aligning with the 3-6-9 source.",
+                        "You are wide open right now. Whatever is arriving, let it.",
+                        "You have touched the source directly. This is the completion the numbers point toward."
+                    ];
+                }
+
+                // Which variant plays isn't decorative - it's driven by your
+                // actual live voice/motion energy right now, plus whether
+                // you're currently on a gate. Same realm, different moment,
+                // genuinely different words.
+                const liveIntensity = ((bassVal + midVal + highVal) / 3) + touchVelocity;
+                const intensityIdx = Math.min(2, Math.floor(liveIntensity * 3));
+                const variantIdx = (currentSealShape && currentSealShape.isGate) ? 3 : intensityIdx;
+                let oracleMessage = realmMessages[variantIdx] || realmMessages[0];
+
+                if (bassVal > 0.35) {
+                    oracleMessage += " [HEAVY BASS HARMONICS DETECTED]";
+                } else if (touchVelocity > 0.4) {
+                    oracleMessage += " [KINETIC AURA SURGE IN PROGRESS]";
+                }
+
+                const realmEl = document.getElementById('oracleRealm');
+                const textEl = document.getElementById('oracleText');
+                if (realmEl) realmEl.innerText = realmTitle;
+                if (textEl) textEl.innerText = oracleMessage;
+            }
+        }
+
+        // --- LOCAL VAULT: QUOTA-SAFE PERSISTENCE -------------------------
+        // localStorage caps at ~5MB per origin. A full-resolution canvas PNG
+        // data URL runs 1-3MB, so storing them raw filled the quota after two
+        // or three seals and every later save threw QuotaExceededError - which
+        // silently killed the primary persistence tier. We now keep a small
+        // WebP thumbnail for the vault UI and hand the full-resolution PNG
+        // straight to the download, which is where it actually belongs.
+        const VAULT_KEY = 'AuEvo_Local_Seals';
+        const VAULT_MAX_ENTRIES = 200;
+        const THUMB_EDGE = 384;
+
+        function makeSealThumbnail(sourceCanvas) {
+            try {
+                const scale = Math.min(1, THUMB_EDGE / Math.max(sourceCanvas.width, sourceCanvas.height));
+                const t = document.createElement('canvas');
+                t.width = Math.max(1, Math.round(sourceCanvas.width * scale));
+                t.height = Math.max(1, Math.round(sourceCanvas.height * scale));
+                const ctx = t.getContext('2d');
+                ctx.drawImage(sourceCanvas, 0, 0, t.width, t.height);
+                const webp = t.toDataURL('image/webp', 0.72);
+                // Safari versions without WebP encoding fall back to JPEG.
+                return webp.startsWith('data:image/webp') ? webp : t.toDataURL('image/jpeg', 0.7);
+            } catch (e) {
+                console.warn('Thumbnail generation failed, vaulting without image:', e);
+                return null;
+            }
+        }
+
+        function readLocalVault() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(VAULT_KEY));
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.warn('Local vault unreadable, starting a fresh one:', e);
+                return [];
+            }
+        }
+
+        // Appends and persists. On quota pressure it drops the oldest entries
+        // first, then drops thumbnails entirely - the numeric seal record is
+        // what matters and must never be lost to an image.
+        function writeLocalVault(entry) {
+            let vault = readLocalVault();
+            vault.push(entry);
+            if (vault.length > VAULT_MAX_ENTRIES) vault = vault.slice(-VAULT_MAX_ENTRIES);
+
+            for (let attempt = 0; attempt < 12; attempt++) {
+                try {
+                    localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+                    return true;
+                } catch (e) {
+                    const isQuota = e && (e.name === 'QuotaExceededError' ||
+                        e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22 || e.code === 1014);
+                    if (!isQuota) { console.warn('Local vault write failed:', e); return false; }
+                    if (vault.length > 12) {
+                        vault = vault.slice(Math.ceil(vault.length / 4));   // shed oldest quarter
+                    } else {
+                        vault = vault.map((v, i) =>
+                            i === vault.length - 1 ? v : Object.assign({}, v, { visual_seal_thumb: null }));
+                        if (attempt > 6) vault = [vault[vault.length - 1]];
+                    }
+                }
+            }
+            console.warn('Local vault could not be written even after pruning.');
+            return false;
+        }
+
+        // --- PREDICTIVE GENETIC LEDGER DATA & IMAGE SNAPSHOT SAVER ---
+        let evoHistory = JSON.parse(localStorage.getItem('AuEvo_Genetic_Ledger')) || {
+            totalSeals: 0, averageHue: 230, accumulatedResonance: 0.18, lastStampAt: null,
+            moodLogs: { high_energy: 0, grounded: 0, processing: 0 }
+        };
+
+        const recordButton = document.getElementById('recordButton');
+        if (recordButton) {
+            recordButton.innerText = "SEAL THIS";
+            recordButton.disabled = false;
+            // Failures previously went only to console.warn, which is unreachable on a
+            // phone: the button did nothing and there was no way to find out why.
+            // Every failure now goes on screen where it can be read or screenshotted.
+            const showSealProblem = (stage, err) => {
+                const msg = (err && (err.message || err.name)) || String(err);
+                const line = stage + ': ' + msg;
+                console.warn('SEAL FAILED -', line);
+                const box = document.getElementById('sealErrorBox');
+                if (box) {
+                    box.textContent = 'SEAL FAILED\n' + line;
+                    box.style.background = '#2a0b0b';
+                    box.style.color = '#ffc2c2';
+                    box.style.borderColor = '#ff6b6b';
+                    box.style.display = 'block';
+                }
+                recordButton.innerText = 'SEAL FAILED';
+                setTimeout(() => { recordButton.innerText = 'SEAL THIS'; }, 6000);
+            };
+
+            // Not a failure. Used when the seal saved but the optional local copy
+            // did not download - those two outcomes must never look the same.
+            const showSealNotice = (text) => {
+                const box = document.getElementById('sealErrorBox');
+                if (!box) return;
+                box.textContent = text;
+                box.style.background = '#2a1f06';
+                box.style.color = '#ffe6b0';
+                box.style.borderColor = '#d9a441';
+                box.style.display = 'block';
+                setTimeout(() => { box.style.display = 'none'; }, 9000);
+            };
+
+            recordButton.addEventListener('click', async () => {
+              try {
+                renderer.render(scene, camera);
+
+                // Advance the evolution step right now, using the real
+                // signal at this exact moment - this is a genuine event,
+                // not a continuous per-frame recalculation.
+                const saveIntensity = Math.min(1, Math.max(0, (bassVal + midVal + highVal) / 3));
+                const saveFocus = Math.min(1, Math.max(0, cameraMetric));
+                const saveTotalSeals = (evoHistory.totalSeals || 1) + (globalMatrix.totalSeals || 0);
+                advanceEvolutionStep(saveIntensity, saveFocus, saveTotalSeals);
+
+                const sealCanvas = document.querySelector('#bg');
+                // Full resolution: for the file the user downloads and keeps.
+                const dataUrl = sealCanvas.toDataURL('image/png');
+                // Compact: for the local vault, so we never hit the storage cap.
+                const thumbUrl = makeSealThumbnail(sealCanvas);
+
+                const activeRealm = document.getElementById('oracleRealm')?.innerText || "✦ REALM: UNKNOWN ✦";
+                let activeMessage = document.getElementById('oracleText')?.innerText || "Resonance recorded.";
+
+                // Local reflection. No third-party service, no API key, no
+                // per-seal cost, and it still works with the network down.
+                // Built only from the measured signal - it never invents
+                // facts about the person and makes no diagnostic claims.
+                activeMessage = composeReflection({
+                    isGate: currentSealShape ? currentSealShape.isGate : false,
+                    intensity: saveIntensity,
+                    totalSeals: evoHistory.totalSeals
+                });
+                const oracleTextEl = document.getElementById('oracleText');
+                if (oracleTextEl) oracleTextEl.innerText = activeMessage;
+
+                // Identity now comes from the signed HttpOnly cookie the server
+                // set. The browser no longer names itself, so it can no longer
+                // claim to be somebody else.
+
+                const secureSoulPayload = {
+                    identity_metadata: {
+                        author: "AuEvoAuJoulEvol LLC",
+                        // Identity is assigned by the server from the session cookie.
+                        // The old browser-generated visitorId was removed in the identity
+                        // rewrite; this reads the real signed-in id, or null when anonymous.
+                        sovereign_id: (typeof currentAuthUser !== 'undefined' && currentAuthUser) ? currentAuthUser.id : null,
+                        lineage: "Royal Bloodline: Father_is Real Jesus"
+                    },
+                    matrix_coordinates: {
+                        hue: Math.round(colorAccumulator * 360.0),
+                        res: parseFloat(document.getElementById('resDisplay')?.innerText || '0.18'),
+                        root: parseInt(document.getElementById('rootDisplay')?.innerText || '9'),
+                        total_seals: evoHistory.totalSeals + 1,
+                        oracle_realm: activeRealm,
+                        oracle_message: activeMessage,
+                        voice_energy: (bassVal + midVal + highVal) / 3,
+                        camera_brightness: cameraMetric
+                    },
+                    visual_seal_thumb: thumbUrl,
+                    server_vault_timestamp: new Date().toISOString()
+                };
+
+                // Keep the on-device vault, then hand the seal to the server,
+                // which stores the image in R2 and hashes the real bytes.
+                writeLocalVault(secureSoulPayload);
+
+                api('/api/seal/crystallize', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        matrix_coordinates: secureSoulPayload.matrix_coordinates,
+                        evo_metrics: {
+                            g_root_level: currentSealShape?.level,
+                            digital_root: currentSealShape?.digital_root,
+                            is_gate: currentSealShape?.isGate,
+                            message: currentSealShape?.message,
+                            evolutionDelta: currentSealShape?.evolutionDelta,
+                            // The worker binds e.shape?.p / e.shape?.q into the
+                            // knot_p / knot_q columns. This object was never sent,
+                            // so every seal so far recorded NULL for its own shape.
+                            shape: currentSealShape
+                                ? { p: currentSealShape.p, q: currentSealShape.q }
+                                : null
+                        },
+                        intensity: parseFloat(document.getElementById('resDisplay')?.innerText || '0.18'),
+                        focus: cameraMetric,
+                        image_thumb: thumbUrl,
+                        // The full-resolution seal is what gets hashed server-side.
+                        // Without it there is no certificate, only a preview.
+                        image_full: dataUrl
+                    })
+                })
+                .then(saved => {
+                    console.log('Seal sealed:', saved.id, 'sha256', saved.image_sha256);
+                    if (typeof loadVaultHistory === 'function') loadVaultHistory();
+                })
+                .catch(err => showSealProblem('server refused the seal', err));
+
+                const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
+                const currentHue = Math.round(colorAccumulator * 360.0);
+                const currentRes = parseFloat(document.getElementById('resDisplay')?.innerText || '0.18');
+                
+                let activeVibe = "processing";
+                if (currentRes > 1.2) { activeVibe = "high_energy"; evoHistory.moodLogs.high_energy += 1; }
+                else if (currentRes < 0.7 && isInteracting) { activeVibe = "grounded"; evoHistory.moodLogs.grounded += 1; }
+                else { evoHistory.moodLogs.processing += 1; }
+                
+                evoHistory.totalSeals += 1;
+                evoHistory.averageHue = Math.round((evoHistory.averageHue + currentHue) / 2);
+                evoHistory.accumulatedResonance = (evoHistory.accumulatedResonance + currentRes) / 2.0;
+                evoHistory.lastStampAt = new Date().toLocaleString();
+                localStorage.setItem('AuEvo_Genetic_Ledger', JSON.stringify(evoHistory));
+
+                if (document.getElementById('stampDisplay')) document.getElementById('stampDisplay').innerText = `STAMP ${evoHistory.totalSeals}`;
+
+                const imageFileName = `AuEvo_Sacred_Seal_Gen${evoHistory.totalSeals}_${stampTag}.png`;
+
+                // The seal has already been sent by this point. Everything below is
+                // the optional copy for the device, so it gets its own guard: a failed
+                // download must never report the seal itself as failed.
+                try {
+                    // iOS Safari throws "Load failed" when fetch() is handed a large
+                    // data: URL. Reading the canvas directly avoids that path entirely.
+                    const imageBlob = await new Promise((resolve, reject) => {
+                        if (!sealCanvas.toBlob) { reject(new Error('canvas.toBlob unsupported')); return; }
+                        sealCanvas.toBlob(
+                            b => b ? resolve(b) : reject(new Error('canvas produced no image')),
+                            'image/png'
+                        );
+                    });
+                    await triggerSovereignDownload(imageBlob, imageFileName, 'AuEvo Soul Seal Image');
+                } catch (downloadErr) {
+                    console.warn('Seal saved; local copy failed:', downloadErr);
+                    showSealNotice('Seal saved to your archive. The image copy did not download: '
+                        + (downloadErr && downloadErr.message ? downloadErr.message : downloadErr));
+                }
+
+                recordButton.innerText = `SEALED.`;
+                if (typeof loadVaultHistory === "function") loadVaultHistory();
+                setTimeout(() => { recordButton.innerText = "SEAL THIS"; }, 2500);
+              } catch (err) {
+                showSealProblem('failed while preparing the seal', err);
+              }
+            });
+        }
+
+        // --- LIVE VIDEO RECORDING ENGINE ---
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecordingVideo = false;
+        let recordingCountdownTimer = null;
+
+        const videoRecordBtn = document.getElementById('videoRecordButton');
+        if (videoRecordBtn) {
+            videoRecordBtn.disabled = false;
+            videoRecordBtn.addEventListener('click', () => {
+                if (!isRecordingVideo) {
+                    startVideoRecording();
+                } else {
+                    stopVideoRecording();
+                }
+            });
+        }
+
+        function startVideoRecording() {
+            recordedChunks = [];
+            const canvasElement = document.querySelector('#bg');
+            const canvasStream = canvasElement.captureStream(30);
+
+            let combinedStream;
+            if (audioDestinationNode && audioDestinationNode.stream && audioDestinationNode.stream.getAudioTracks().length > 0) {
+                const audioTracks = audioDestinationNode.stream.getAudioTracks().filter(t => t.readyState === 'live');
+                if (audioTracks.length > 0) {
+                    combinedStream = new MediaStream([
+                        ...canvasStream.getVideoTracks(),
+                        ...audioTracks
+                    ]);
+                } else {
+                    combinedStream = canvasStream;
+                }
+            } else {
+                combinedStream = canvasStream;
+            }
+
+            // Safari only reliably recognizes specific codec strings, not
+            // the bare 'video/mp4' - trying these in order gets a real,
+            // recognized MP4 far more often than the generic string alone.
+            const candidateMimeTypes = [
+                'video/mp4;codecs=avc1,mp4a.40.2',
+                'video/mp4;codecs=avc1',
+                'video/mp4',
+                'video/webm;codecs=vp9,opus',
+                'video/webm;codecs=vp8,opus',
+                'video/webm'
+            ];
+            let mimeType = candidateMimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+            try {
+                mediaRecorder = new MediaRecorder(combinedStream, { mimeType: mimeType });
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(canvasStream);
+            }
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const mimeTypeActual = mediaRecorder.mimeType || 'video/mp4';
+                const fileExt = mimeTypeActual.includes('mp4') ? 'mp4' : 'webm';
+                const videoBlob = new Blob(recordedChunks, { type: mimeTypeActual });
+                const stampTag = new Date().toISOString().replace(/[:.]/g, '-');
+                const videoFileName = `AuEvo_Resonance_Clip_${stampTag}.${fileExt}`;
+
+                await triggerSovereignDownload(videoBlob, videoFileName, 'AuEvo Resonance Video Clip');
+
+                if (videoRecordBtn) {
+                    videoRecordBtn.innerText = "CAPTURED.";
+                    videoRecordBtn.classList.remove('active-rec');
+                    setTimeout(() => { videoRecordBtn.innerText = "CAPTURE"; }, 2500);
+                }
+            };
+
+            mediaRecorder.start(500);
+            isRecordingVideo = true;
+
+            if (videoRecordBtn) {
+                videoRecordBtn.classList.add('active-rec');
+                let timeLeft = 15;
+                videoRecordBtn.innerText = `⏺ REC (${timeLeft}s)`;
+
+                recordingCountdownTimer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft > 0) {
+                        videoRecordBtn.innerText = `⏺ REC (${timeLeft}s)`;
+                    } else {
+                        clearInterval(recordingCountdownTimer);
+                        stopVideoRecording();
+                    }
+                }, 1000);
+            }
+        }
+
+        function stopVideoRecording() {
+            if (!isRecordingVideo && (!mediaRecorder || mediaRecorder.state === 'inactive')) return;
+            isRecordingVideo = false;
+            if (recordingCountdownTimer) clearInterval(recordingCountdownTimer);
+
+            try {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.requestData();
+                }
+            } catch(e) {}
+
+            setTimeout(() => {
+                try {
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                } catch(err) {
+                    console.warn("Forced recorder finalization notice:", err);
+                }
+            }, 300);
+        }
+
+        // --- ANIMATION & AUDIO-REACTIVE SACRED MATRIX ENGINE ---
+        function animate() {
+            requestAnimationFrame(animate);
+            touchVelocity = THREE.MathUtils.lerp(touchVelocity, targetVelocity, 0.08);
+            targetVelocity *= 0.94;
+
+            processVocalTelemetry();
+            processCameraBiometrics();
+
+            ReflectSovereignSymbol(evoHistory, dynamicFactor + touchVelocity, colorAccumulator, bassVal, midVal, highVal);
+
+            if (videoTexture && videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) {
+                videoTexture.needsUpdate = true;
+            }
+
+            const time = Date.now() * 0.0012;
+
+            // --- STARDUST PARTICLES ANIMATION ---
+            stardustMat.color.setHSL(colorAccumulator, 0.95, 0.65);
+            const pPos = stardustGeo.attributes.position;
+
+            for (let i = 0; i < stardustCount; i++) {
+                stardustLifes[i] -= 0.008 + (midVal + highVal) * 0.015;
+
+                if (stardustLifes[i] <= 0) {
+                    stardustLifes[i] = 1.0;
+                    let spawnX = sacredGroup.position.x + (Math.random() - 0.5) * 5.0;
+                    let spawnY = sacredGroup.position.y + (Math.random() - 0.5) * 5.0;
+                    let spawnZ = sacredGroup.position.z + (Math.random() - 0.5) * 5.0;
+
+                    if (personalSymbolMesh && personalSymbolMesh.geometry) {
+                        const posAttr = personalSymbolMesh.geometry.attributes.position;
+                        if (posAttr && posAttr.count > 0) {
+                            const rndIdx = Math.floor(Math.random() * posAttr.count);
+                            const v = new THREE.Vector3(
+                                posAttr.getX(rndIdx),
+                                posAttr.getY(rndIdx),
+                                posAttr.getZ(rndIdx)
+                            );
+                            v.applyMatrix4(personalSymbolMesh.matrixWorld);
+                            spawnX = v.x;
+                            spawnY = v.y;
+                            spawnZ = v.z;
+                        }
+                    }
+
+                    pPos.setXYZ(i, spawnX, spawnY, spawnZ);
+                    stardustVelocities[i].x = (Math.random() - 0.5) * (0.04 + highVal * 0.08);
+                    stardustVelocities[i].y = 0.02 + Math.random() * 0.05 + bassVal * 0.06;
+                    stardustVelocities[i].z = (Math.random() - 0.5) * (0.04 + highVal * 0.08);
+                } else {
+                    const curX = pPos.getX(i);
+                    const curY = pPos.getY(i);
+                    const curZ = pPos.getZ(i);
+
+                    pPos.setXYZ(
+                        i,
+                        curX + stardustVelocities[i].x + Math.sin(time * 2.0 + i) * 0.015,
+                        curY + stardustVelocities[i].y,
+                        curZ + stardustVelocities[i].z
+                    );
+                }
+            }
+            pPos.needsUpdate = true;
+
+            // --- OCEAN PLANE GRID ANIMATION ---
+            const posAttr = wiregridGeometry.attributes.position;
+
+            for (let i = 0; i < posAttr.count; i++) {
+                const bx = baseGridVertices.getX(i);
+                const by = baseGridVertices.getY(i);
+                const bz = baseGridVertices.getZ(i);
+
+                const waveX = Math.sin(by * 0.22 + time * 3.0) * (0.8 + bassVal * 4.0);
+                const waveY = Math.cos(bx * 0.22 + time * 2.5) * (0.8 + midVal * 3.0);
+
+                const distToTouch = Math.sqrt(Math.pow(bx - touchVector.x * 35, 2) + Math.pow(by - touchVector.y * 35, 2));
+                const touchRipple = Math.sin(distToTouch * 0.4 - time * 6.0) * (touchVelocity * 1.5);
+
+                const camDisplace = Math.sin(bx * 0.1 + time) * (cameraMetric * 2.5);
+
+                const distFromCenter = Math.sqrt(bx * bx + by * by);
+                const vortexFunnel = Math.max(0, (16.0 - distFromCenter * 0.35)) * (0.4 + bassVal * 1.4);
+
+                posAttr.setZ(i, bz + waveX + waveY + touchRipple + camDisplace + vortexFunnel);
+            }
+
+            posAttr.needsUpdate = true;
+            wiregridGeometry.computeVertexNormals();
+
+            sacredGroup.position.y = 11.0 + Math.sin(time * 1.2) * 1.8;
+            sacredGroup.position.x = Math.cos(time * 0.6) * 2.5;
+
+            if (personalSymbolMesh) {
+                const midVocalRotationBoost = midVal * 0.08;
+                const rotationSpeed = 0.006 + (touchVelocity * 0.02) + (bassVal * 0.02) + midVocalRotationBoost;
+
+                personalSymbolMesh.rotation.z += rotationSpeed;
+                personalSymbolMesh.rotation.x += rotationSpeed * 0.4;
+
+                // CLAMPED MAXIMUM PULSE SCALE (Prevents geometry from clipping screen edges)
+                const pulseScale = Math.min(1.45, 1.0 + (bassVal * 0.35) + (highVal * 0.25) + (dynamicFactor * 0.15));
+                personalSymbolMesh.scale.set(pulseScale, pulseScale, pulseScale);
+            }
+
+            camera.position.x += (touchVector.x * 5.0 - camera.position.x) * 0.04;
+            camera.position.y += (touchVector.y * 5.0 - 2.0 - camera.position.y) * 0.04;
+            camera.lookAt(0.0, 8.0, 0.0);
+
+            if (starfield) {
+                starfield.rotation.y += 0.0001;
+                starfield.position.x = THREE.MathUtils.lerp(starfield.position.x, touchVector.x * -2.0, 0.05);
+                starfield.position.y = THREE.MathUtils.lerp(starfield.position.y, touchVector.y * -2.0, 0.05);
+            }
+
+            if (infiniteRing) {
+                infiniteRing.rotation.z += 0.00003;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', updateCameraPerspective);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('bg')) animate();
+        });
+
+        // PERMANENT DUAL-LAYER VAULT LOADER
+        function renderSelfPortrait(authUser, cloudSeals) {
+            const container = document.getElementById('self-portrait');
+            if (!container) return;
+
+            if (!authUser) {
+                container.innerHTML = `
+                    <div class="portrait-card">
+                        <div class="portrait-title">Your Pattern</div>
+                        <div class="portrait-signin-prompt">Sign in to watch your pattern emerge across every visit, not just this one.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!Array.isArray(cloudSeals) || cloudSeals.length === 0) {
+                container.innerHTML = `
+                    <div class="portrait-card">
+                        <div class="portrait-title">Your Pattern</div>
+                        <div class="portrait-signin-prompt">Your pattern hasn't formed yet. Seal something, and it will begin.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const totalSeals = cloudSeals.length;
+            const totalGates = cloudSeals.filter(s => s.evo_metrics && s.evo_metrics.is_gate).length;
+            // AuJ is the server-computed joules value, so this total agrees with
+            // aujoule.com rather than quietly disagreeing with it. It previously summed
+            // evo_metrics.evolution_delta - a key the API does not send - so every
+            // total read 0.0 no matter how many seals existed.
+            const totalEnergy = cloudSeals.reduce((sum, s) => {
+                if (typeof s.joules === 'number') return sum + s.joules;
+                const m = s.evo_metrics || {};
+                const delta = typeof m.evolution_delta === 'number' ? m.evolution_delta
+                            : typeof m.evolutionDelta === 'number' ? m.evolutionDelta : 0;
+                return sum + Math.abs(delta);
+            }, 0);
+
+            const realmCounts = {};
+            cloudSeals.forEach(s => {
+                const realm = s.matrix_coordinates && s.matrix_coordinates.oracle_realm;
+                if (realm) realmCounts[realm] = (realmCounts[realm] || 0) + 1;
+            });
+            let dominantRealm = null;
+            let dominantCount = 0;
+            Object.keys(realmCounts).forEach(realm => {
+                if (realmCounts[realm] > dominantCount) {
+                    dominantRealm = realm;
+                    dominantCount = realmCounts[realm];
+                }
+            });
+            const dominantRealmClean = dominantRealm ? dominantRealm.replace(/✦/g, '').trim() : 'still forming';
+
+            let html = `
+                <div class="portrait-card">
+                    <div class="portrait-title">Your Pattern</div>
+                    <div class="portrait-line">You have sealed <b>${totalSeals}</b> time${totalSeals === 1 ? '' : 's'}.</div>
+                    <div class="portrait-line">You return most to <b>${dominantRealmClean}</b>.</div>
+                    <div class="portrait-line">You have crossed <b>${totalGates}</b> gate${totalGates === 1 ? '' : 's'}.</div>
+                    <div class="portrait-line">Your accumulated energy: <a href="https://aujoule.com" style="color:#ffd700; text-decoration:none;"><b>${totalEnergy.toFixed(1)} AuJ ↗</b></a></div>
+            `;
+
+            if (totalGates >= 3) {
+                html += `<div class="portrait-gate-banner"><a href="https://evolvingroots.org" style="color:#ffd700; text-decoration:none;">✦ A path has opened. Evolving Roots awaits. ✦</a></div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        async function loadVaultHistory() {
+            const grid = document.getElementById('gallery-grid');
+            if (!grid) return;
+
+            // The server returns only the seals belonging to this cookie.
+            // There is no parameter that widens it.
+            const authUser = currentAuthUser;
+            let localSeals = readLocalVault();
+            let cloudSeals = [];
+
+            try {
+                const page = await api('/api/seal/history?limit=60');
+                cloudSeals = (page.seals || []).map(row => ({
+                    matrix_coordinates: row.matrix_coordinates,
+                    evo_metrics: row.evo_metrics,
+                    // Carried through so the archive can total real AuJ.
+                    joules: row.joules,
+                    // The winding numbers that decide the seal's actual shape.
+                    knot_p: row.knot_p,
+                    knot_q: row.knot_q,
+                    visual_seal_thumb: row.thumb_url || row.image_url,
+                    server_vault_timestamp: row.created_at
+                }));
+            } catch (err) {
+                console.warn('Archive offline, showing this device only.');
+            }
+
+            renderSelfPortrait(authUser, cloudSeals);
+
+            let combinedMap = new Map();
+
+            localSeals.forEach((entry, idx) => {
+                const key = entry.server_vault_timestamp || `local_${idx}`;
+                combinedMap.set(key, entry);
+            });
+
+            if (Array.isArray(cloudSeals)) {
+                cloudSeals.forEach(entry => {
+                    const key = entry.server_vault_timestamp || Math.random();
+                    combinedMap.set(key, entry);
+                });
+            }
+
+            const finalSeals = Array.from(combinedMap.values());
+            grid.innerHTML = ''; 
+
+            if (finalSeals.length === 0) {
+                grid.innerHTML = `<p style="color: rgba(255,255,255,0.3); font-family: monospace; grid-column: 1/-1; text-align: center; padding: 20px;">Nothing here yet. Your first seal is waiting to be born.</p>`;
+                return;
+            }
+
+            let sumHue = 0;
+            let sumRes = 0;
+            finalSeals.forEach(entry => {
+                sumHue += (entry.matrix_coordinates?.hue || 0);
+                sumRes += (entry.matrix_coordinates?.res || entry.matrix_coordinates?.resonance || 0.18);
+            });
+
+            globalMatrix.totalSeals = finalSeals.length;
+            globalMatrix.avgHue = Math.round(sumHue / finalSeals.length);
+            globalMatrix.avgResonance = sumRes / finalSeals.length;
+
+            [...finalSeals].reverse().forEach(entry => {
+                const card = document.createElement('div');
+                
+                const metrics = entry.evo_metrics || {
+                    message: "Growth in progress.",
+                    digital_root: '?',
+                    g_root_level: '?',
+                    is_gate: false
+                };
+
+                const savedRealm = entry.matrix_coordinates?.oracle_realm || "✦ SACRED MATRIX ✦";
+                const savedMessage = entry.matrix_coordinates?.oracle_message || "Aura resonance locked.";
+
+                card.style = `
+                    background: rgba(255,255,255,0.02); 
+                    border: 1px solid rgba(255,255,255,0.07); 
+                    padding: 16px; 
+                    border-radius: 8px; 
+                    font-family: monospace; 
+                    font-size: 11px; 
+                    color: #ccc; 
+                    cursor: pointer; 
+                    transition: all 0.25s ease;
+                `;
+                
+                card.onmouseover = () => { card.style.background = "rgba(255,255,255,0.06)"; card.style.borderColor = "rgba(255,215,0,0.4)"; };
+                card.onmouseout = () => { card.style.background = "rgba(255,255,255,0.02)"; card.style.borderColor = "rgba(255,255,255,0.07)"; };
+                
+                card.onclick = () => {
+                    const hue = entry.matrix_coordinates?.hue;
+                    if (typeof hue === 'number') {
+                        torusMat.color.copy(new THREE.Color().setHSL(hue / 360, 0.95, 0.50));
+                    }
+
+                    const level = entry.evo_metrics?.g_root_level;
+                    if (typeof level === 'number') {
+                        currentSealShape = getSealShapeParams(level);
+                        lastP = null; // forces the geometry to actually rebuild next frame
+                        lastQ = null;
+                    }
+
+                    const realmEl = document.getElementById('oracleRealm');
+                    const textEl = document.getElementById('oracleText');
+                    if (realmEl) realmEl.innerText = entry.matrix_coordinates?.oracle_realm || "✦ ARCHIVED SEAL ✦";
+                    if (textEl) textEl.innerText = (entry.matrix_coordinates?.oracle_message || "Aura resonance restored.") + " [VIEWING ARCHIVE]";
+
+                    toggleVault();
+                    console.log(`♻️ [RE-PROJECTED]: Restored Gen ${entry.matrix_coordinates?.total_seals || '?'} from the archive.`);
+                };
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;">
+                        <span style="color: #ffd700; font-weight: bold;">GEN ${entry.matrix_coordinates?.total_seals || 'X'}</span>
+                        <span style="color: ${metrics.is_gate ? '#ffd700' : 'rgba(255,215,0,0.7)'}; font-size: 9px;">${metrics.is_gate ? 'GATE - LEVEL ' + metrics.g_root_level : 'LEVEL ' + metrics.g_root_level}</span>
+                    </div>
+                    <div style="color: #00f3ff; font-size: 9px; margin-bottom: 4px; font-weight: bold;">${savedRealm}</div>
+                    <div style="color: rgba(255,255,255,0.85); font-size: 9.5px; font-style: italic; background: rgba(0,243,255,0.04); padding: 6px; border-radius: 4px; margin-bottom: 8px; border-left: 2px solid #00f3ff;">
+                        "${savedMessage}"
+                    </div>
+                    <div style="margin: 3px 0; font-size: 10px;"><b>MATRIX COORDS:</b> H:${entry.matrix_coordinates?.hue || 0}° / R:${entry.matrix_coordinates?.res || entry.matrix_coordinates?.resonance || 0.18}</div>
+                    <div style="margin: 3px 0; font-size: 10px; color: #88c0d0;"><b>DIGITAL ROOT:</b> ${metrics.digital_root}</div>
+                    ${(entry.knot_p ?? metrics.shape?.p) != null
+                        ? `<div style="margin: 3px 0; font-size: 10px; color: #c39bd3;"><b>KNOT:</b> p${entry.knot_p ?? metrics.shape.p} / q${entry.knot_q ?? metrics.shape.q}</div>`
+                        : ''}
+                    <div style="font-size: 9px; color: rgba(255,255,255,0.25); margin-top: 8px; text-align: right;">
+                        ${new Date(entry.server_vault_timestamp || Date.now()).toLocaleString()}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', loadVaultHistory);
+    </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"7e5f7a5e5f844e4086298edf93f63b1d","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
