@@ -939,11 +939,16 @@ const saturation = Math.min(
   100,
   52 + voiceLevel * 22 + treble * 20
 );
+
+const lightness = Math.min(
+  88,
+  42 + voiceLevel * 14 + impulse * 22
+);
+
 const depthAlpha =
   0.10 + bass * 0.14 + voiceLevel * 0.05;
 
 const horizonY = rect.height * 0.47;
-
 const floorBottom = rect.height * 1.04;
 const horizontalLines = 16;
 const verticalLines = 19;
@@ -952,12 +957,14 @@ context.save();
 
 context.strokeStyle =
   `hsla(
-    ${(hue + 38 + treble * 22) % 360},
-    92%,
-    68%,
-    ${0.16 + voiceLevel * 0.10 + treble * 0.05}  )`;
+    ${(liveHue + 26 + treble * 18) % 360},
+    ${saturation}%,
+    ${Math.min(84, lightness + 18)}%,
+    ${Math.min(0.42, depthAlpha + treble * 0.06)}
+  )`;
 
-    context.lineWidth = 0.8 + treble * 0.5;
+context.lineWidth = 0.8 + treble * 0.5 + impulse * 0.35;
+
 for (let line = 0; line <= horizontalLines; line += 1) {
   const progress = line / horizontalLines;
   const perspective = progress * progress;
@@ -997,31 +1004,261 @@ for (let line = 0; line <= verticalLines; line += 1) {
   context.stroke();
 }
 
+
+
 const horizonGlow = context.createLinearGradient(
   0,
-  horizonY - 24,
+  horizonY - 28,
   0,
-  horizonY + 42
+  horizonY + 48
 );
 
-horizonGlow.addColorStop(0, `hsla(${hue}, 95%, 76%, 0)`);
+horizonGlow.addColorStop(
+  0,
+  `hsla(${liveHue}, ${saturation}%, 78%, 0)`
+);
 
 horizonGlow.addColorStop(
   0.5,
   `hsla(
-    ${(hue + 42) % 360},
-    96%,
-    76%,
-    ${0.06 + voiceLevel * 0.07}
+    ${(liveHue + 42 + treble * 18) % 360},
+    ${saturation}%,
+    ${Math.min(88, lightness + 26)}%,
+    ${Math.min(0.30, depthAlpha + voiceLevel * 0.10)}
   )`
 );
 
-horizonGlow.addColorStop(1, `hsla(${hue}, 95%, 76%, 0)`);
+horizonGlow.addColorStop(
+  1,
+  `hsla(${liveHue}, ${saturation}%, 78%, 0)`
+);
 
 context.fillStyle = horizonGlow;
-context.fillRect(0, horizonY - 24, rect.width, 66);
+context.fillRect(0, horizonY - 28, rect.width, 76);
 
 context.restore();
+
+const wireformLobes = 3 + Math.floor(random() * 3);
+const wireformTurns = 2.2 + random() * 1.8;
+const wireformPoints = 180;
+const wireformWidth = radius * (1.06 + bass * 0.42 + impulse * 0.18);
+const wireformHeight = radius * (0.56 + mid * 0.30 + impulse * 0.08);
+const wireformCenterY = centerY - radius * 0.04;
+const wireformSpin = time * (0.46 + mid * 2.1 + voiceLevel * 0.55);
+
+context.save();
+
+context.globalCompositeOperation = 'lighter';
+context.lineCap = 'round';
+context.lineJoin = 'round';
+context.shadowColor =
+  `hsla(${liveHue}, ${saturation}%, ${Math.min(92, lightness + 24)}%, 0.82)`;
+
+context.shadowBlur =
+  7 + treble * 12 + voiceLevel * 6 + impulse * 8;
+
+const strandCount = 9 + Math.round(treble * 7);
+
+for (let strand = 0; strand < strandCount; strand += 1) {
+  const strandOffset =
+    (strand / Math.max(1, strandCount - 1) - 0.5) *
+    (4.5 + treble * 10);
+
+  context.beginPath();
+
+  context.strokeStyle =
+    `hsla(
+      ${(liveHue + strand * 3.8 + mid * 26) % 360},
+      ${Math.min(100, saturation + 10)}%,
+      ${Math.min(92, lightness + 20 + treble * 12)}%,
+      ${Math.min(0.68, 0.18 + depthAlpha + treble * 0.12)}
+    )`;
+
+  context.lineWidth =
+    0.45 + treble * 0.55 + (strand % 3 === 0 ? 0.3 : 0);
+
+  for (let point = 0; point <= wireformPoints; point += 1) {
+    const progress = point / wireformPoints;
+    const angle = progress * Math.PI * 2 * wireformTurns;
+
+    const lobe =
+      1 +
+      Math.sin(
+        angle * wireformLobes +
+          wireformSpin +
+          strand * 0.18
+      ) *
+        (0.22 + bass * 0.18);
+
+    const spiral =
+      0.26 +
+      Math.sin(angle * 0.5 + wireformSpin * 0.65) *
+        0.13;
+
+    const x =
+      centerX +
+      Math.cos(
+        angle +
+          wireformSpin +
+          Math.sin(angle * 0.75 + strand) * 0.34
+      ) *
+        wireformWidth *
+        lobe *
+        spiral;
+
+    const y =
+      wireformCenterY +
+      Math.sin(
+        angle * (1.08 + mid * 0.35) -
+          wireformSpin * 0.72
+      ) *
+        wireformHeight *
+        lobe +
+      strandOffset;
+
+    if (point === 0) {
+      context.moveTo(x, y);
+    } else {
+      context.lineTo(x, y);
+    }
+  }
+
+  context.stroke();
+}
+
+context.restore();
+
+const fieldParticleCount = 72 + Math.round(treble * 42);
+const particleDrift = time * (0.22 + mid * 0.72);
+
+context.save();
+
+context.globalCompositeOperation = 'lighter';
+context.shadowColor =
+  `hsla(${liveHue}, ${saturation}%, ${Math.min(94, lightness + 26)}%, 0.65)`;
+
+context.shadowBlur =
+  3 + treble * 8 + impulse * 5;
+
+for (let particle = 0; particle < fieldParticleCount; particle += 1) {
+  const seedAngle = random() * Math.PI * 2;
+  const seedDistance = radius * (0.58 + random() * 1.58);
+  const orbitDirection = particle % 2 === 0 ? 1 : -1;
+
+  const angle =
+    seedAngle +
+    particleDrift *
+      orbitDirection *
+      (0.55 + random() * 0.85);
+
+  const outwardPulse =
+    impulse *
+    radius *
+    (0.05 + random() * 0.18);
+
+  const wave =
+    Math.sin(
+      particleDrift * (1.2 + random() * 1.8) +
+        seedAngle * 3
+    ) *
+    (2 + mid * 9);
+
+  const x =
+    centerX +
+    Math.cos(angle) *
+      (seedDistance + outwardPulse + wave);
+
+  const y =
+    centerY +
+    Math.sin(angle) *
+      (seedDistance + outwardPulse + wave) *
+      (0.70 + bass * 0.10);
+
+  const size =
+    1.1 +
+    random() * 2.6 +
+    treble * 2.5 +
+    impulse * 1.4;
+
+  const particleHue =
+    (liveHue +
+      22 +
+      random() * 84 +
+      treble * 26) %
+    360;
+
+  const alpha =
+    Math.min(
+      0.86,
+      0.20 +
+        random() * 0.45 +
+        voiceLevel * 0.20 +
+        treble * 0.15
+    );
+
+  context.fillStyle =
+    `hsla(
+      ${particleHue},
+      ${Math.min(100, saturation + 8)}%,
+      ${Math.min(94, lightness + 28)}%,
+      ${alpha}
+    )`;
+
+  context.fillRect(
+    x - size / 2,
+    y - size / 2,
+    size,
+    size
+  );
+}
+
+context.restore();
+
+const rippleCount = 3;
+
+context.save();
+
+context.globalCompositeOperation = 'lighter';
+context.lineWidth = 0.7 + treble * 0.45;
+
+for (let ripple = 0; ripple < rippleCount; ripple += 1) {
+  const phase =
+    (time * (0.52 + mid * 0.48) + ripple / rippleCount) % 1;
+
+  const rippleRadius =
+    radius *
+    (0.35 + phase * (1.45 + bass * 0.34) + impulse * 0.18);
+
+  const rippleAlpha =
+    Math.max(
+      0,
+      (1 - phase) *
+        (0.05 + voiceLevel * 0.11 + impulse * 0.20)
+    );
+
+  context.beginPath();
+
+  context.strokeStyle =
+    `hsla(
+      ${(liveHue + ripple * 22 + treble * 20) % 360},
+      ${Math.min(100, saturation + 4)}%,
+      ${Math.min(94, lightness + 24)}%,
+      ${rippleAlpha}
+    )`;
+
+  context.arc(
+    centerX,
+    centerY,
+    rippleRadius,
+    0,
+    Math.PI * 2
+  );
+
+  context.stroke();
+}
+
+context.restore();
+
   const glow = context.createRadialGradient(
     centerX,
     centerY,
@@ -1032,19 +1269,24 @@ context.restore();
   );
 
   glow.addColorStop(
-    0,
-    `hsla(${hue}, 95%, 72%, ${0.20 * intensity * (1 + voiceLevel * 0.35)})`
-  );
+  0,
+  `hsla(
+    ${liveHue},
+    ${saturation}%,
+    ${Math.min(92, lightness + 20)}%,
+    ${0.20 * intensity * (1 + voiceLevel * 0.35)}
+  )`
+);
 
-  glow.addColorStop(
-    0.55,
-    `hsla(
-      ${(hue + 58 + treble * 24) % 360},
-      96%,
-      62%,
-      ${0.06 * intensity * voiceDetail}
-    )`
-  );
+glow.addColorStop(
+  0.55,
+  `hsla(
+    ${(liveHue + 58 + treble * 24) % 360},
+    ${Math.min(100, saturation + 6)}%,
+    ${Math.min(86, lightness + 12)}%,
+    ${0.06 * intensity * voiceDetail}
+  )`
+);
 
   glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
@@ -1072,12 +1314,12 @@ context.restore();
     context.beginPath();
 
     context.strokeStyle =
-      `hsla(
-        ${(hue + ring * 8 + treble * 38) % 360},
-        92%,
-        74%,
-        ${(0.18 - ring * 0.028) * intensity * (1 + voiceLevel * 0.2)}
-      )`;
+  `hsla(
+    ${(liveHue + ring * 8 + treble * 38) % 360},
+    ${Math.min(100, saturation + ring * 2)}%,
+    ${Math.min(92, lightness + 18 - ring * 2)}%,
+    ${(0.18 - ring * 0.028) * intensity * (1 + voiceLevel * 0.2)}
+  )`;
 
     context.lineWidth =
       0.8 + treble * 0.85 + voicePulse * 0.65;
@@ -1120,14 +1362,24 @@ context.restore();
   );
 
   coreGlow.addColorStop(
-    0,
-    `hsla(${hue}, 100%, 88%, ${0.45 * intensity * (1 + voiceLevel * 0.3)})`
-  );
+  0,
+  `hsla(
+    ${liveHue},
+    ${Math.min(100, saturation + 12)}%,
+    ${Math.min(96, lightness + 34)}%,
+    ${0.45 * intensity * (1 + voiceLevel * 0.3)}
+  )`
+);
 
-  coreGlow.addColorStop(
-    0.35,
-    `hsla(${(hue + 32) % 360}, 96%, 70%, ${0.16 * intensity})`
-  );
+coreGlow.addColorStop(
+  0.35,
+  `hsla(
+    ${(liveHue + 32 + treble * 12) % 360},
+    ${Math.min(100, saturation + 8)}%,
+    ${Math.min(86, lightness + 14)}%,
+    ${0.16 * intensity}
+  )`
+);
 
   coreGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
@@ -1168,12 +1420,12 @@ context.restore();
     context.beginPath();
 
     context.fillStyle =
-      `hsla(
-        ${(hue + random() * 75 + treble * 32) % 360},
-        92%,
-        ${68 + random() * 22}%,
-        ${(0.22 + random() * 0.68) * intensity * voiceDetail}
-      )`;
+  `hsla(
+    ${(liveHue + random() * 75 + treble * 32) % 360},
+    ${Math.min(100, saturation + 6)}%,
+    ${Math.min(96, lightness + 18 + random() * 8)}%,
+    ${(0.22 + random() * 0.68) * intensity * voiceDetail}
+  )`;
 
     context.arc(x, y, size, 0, Math.PI * 2);
     context.fill();
