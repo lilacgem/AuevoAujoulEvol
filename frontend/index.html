@@ -921,10 +921,29 @@ function renderResonance(record) {
 
   const time =
     resonanceMotion === 'flowing' ? performance.now() * 0.001 : 0;
+
     const gridDepth = 0.62 + bass * 0.18;
     const gridFlow = time * (0.32 + mid * 0.95);
     const gridPulse = impulse * 18;
-    const horizonY = rect.height * 0.47;
+
+    const baseHue = record.sealParameters.hue;
+
+const liveHue =
+  (baseHue +
+    mid * 52 +
+    treble * 28 +
+    Math.sin(time * (0.45 + mid)) * 16) %
+  360;
+
+const saturation = Math.min(
+  100,
+  52 + voiceLevel * 22 + treble * 20
+);
+const depthAlpha =
+  0.10 + bass * 0.14 + voiceLevel * 0.05;
+
+const horizonY = rect.height * 0.47;
+
 const floorBottom = rect.height * 1.04;
 const horizontalLines = 16;
 const verticalLines = 19;
@@ -936,11 +955,9 @@ context.strokeStyle =
     ${(hue + 38 + treble * 22) % 360},
     92%,
     68%,
-    ${0.055 + voiceLevel * 0.05 + treble * 0.025}
-  )`;
+    ${0.16 + voiceLevel * 0.10 + treble * 0.05}  )`;
 
-context.lineWidth = 0.55 + treble * 0.35;
-
+    context.lineWidth = 0.8 + treble * 0.5;
 for (let line = 0; line <= horizontalLines; line += 1) {
   const progress = line / horizontalLines;
   const perspective = progress * progress;
