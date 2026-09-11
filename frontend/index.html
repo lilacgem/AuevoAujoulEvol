@@ -253,6 +253,71 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
 
+        .resonance-wrap {
+      position: relative;
+      min-height: 330px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(141, 212, 255, 0.24);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(86, 193, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 24% 78%, rgba(140, 89, 255, 0.14), transparent 38%),
+        linear-gradient(145deg, rgba(2, 8, 22, 0.92), rgba(7, 20, 40, 0.76));
+    }
+
+    #resonanceCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .resonance-wrap #sealSvg {
+      width: min(76vw, 300px);
+      filter: drop-shadow(0 0 13px rgba(112, 214, 255, 0.54));
+      transition: filter 280ms ease, transform 280ms ease;
+    }
+
+    .resonance-wrap:hover #sealSvg {
+      filter: drop-shadow(0 0 24px rgba(139, 221, 255, 0.86));
+      transform: scale(1.025);
+    }
+
+    .resonance-readout {
+      position: absolute;
+      left: 0.85rem;
+      right: 0.85rem;
+      bottom: 0.7rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      color: rgba(218, 239, 255, 0.78);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .resonance-readout span:last-child {
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .resonance-wrap #sealSvg,
+      .resonance-wrap:hover #sealSvg {
+        transition: none;
+        transform: none;
+      }
+    }
+
     @media (max-width: 800px) {
       header { flex-direction: column; }
       .grid { grid-template-columns: 1fr; }
@@ -286,7 +351,23 @@
       </article>
 
       <aside class="panel seal-wrap" aria-label="Current local seal">
-        <div class="seal"><svg id="sealSvg" viewBox="0 0 400 400" role="img" aria-label="Deterministic local session seal"></svg></div>
+        <div class="resonance-wrap" id="resonanceWrap">
+  <canvas id="resonanceCanvas" aria-hidden="true"></canvas>
+
+  <div class="seal">
+    <svg
+      id="sealSvg"
+      viewBox="0 0 400 400"
+      role="img"
+      aria-label="Deterministic local session seal"
+    ></svg>
+  </div>
+
+  <div class="resonance-readout" aria-live="polite">
+    <span id="resonanceState">Idle field</span>
+    <span id="resonanceSeed">No local record selected</span>
+  </div>
+</div>
         <div>
           <h2>Current seal</h2>
           <p id="sealSummary" class="helper">Create or select a session to view its local deterministic seal.</p>
@@ -376,6 +457,9 @@
       const reflection = $('reflection');
       const status = $('status');
       const sealSvg = $('sealSvg');
+      const resonanceCanvas = $('resonanceCanvas');
+      const resonanceState = $('resonanceState');
+      const resonanceSeed = $('resonanceSeed');
       const sealSummary = $('sealSummary');
       const hashDisplay = $('hashDisplay');
       const recordList = $('recordList');
@@ -532,9 +616,118 @@
         sealSvg.append(group);
       }
 
+      function hashSeed(value = '') {
+  let seed = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    seed ^= value.charCodeAt(index);
+    seed = Math.imul(seed, 16777619);
+  }
+
+  return seed >>> 0;
+}
+
+function mulberry32(seed) {
+  return function random() {
+    let value = (seed += 0x6d2b79f5);
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function renderResonance(record) {
+  const context = resonanceCanvas.getContext('2d');
+  const rect = resonanceCanvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(1, Math.floor(rect.width * dpr));
+  const height = Math.max(1, Math.floor(rect.height * dpr));
+
+  resonanceCanvas.width = width;
+  resonanceCanvas.height = height;
+
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  context.clearRect(0, 0, rect.width, rect.height);
+
+  if (!record) {
+    resonanceState.textContent = 'Idle field';
+    resonanceSeed.textContent = 'No local record selected';
+    return;
+  }
+
+  const seedText = record.recordHash || record.id || record.createdAt;
+  const random = mulberry32(hashSeed(seedText));
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const radius = Math.min(rect.width, rect.height) * 0.34;
+  const hue = Math.floor(random() * 110) + 185;
+  const particleCount = 42 + Math.floor(random() * 32);
+
+  const glow = context.createRadialGradient(
+    centerX,
+    centerY,
+    4,
+    centerX,
+    centerY,
+    radius * 1.55
+  );
+
+  glow.addColorStop(0, `hsla(${hue}, 95%, 72%, 0.20)`);
+  glow.addColorStop(
+    0.55,
+    `hsla(${(hue + 58) % 360}, 96%, 62%, 0.06)`
+  );
+  glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+  context.fillStyle = glow;
+  context.fillRect(0, 0, rect.width, rect.height);
+
+  context.lineWidth = 1;
+
+  for (let ring = 1; ring <= 3; ring += 1) {
+    context.beginPath();
+    context.strokeStyle =
+      `hsla(${hue + ring * 8}, 92%, 74%, ${0.18 - ring * 0.035})`;
+
+    context.arc(
+      centerX,
+      centerY,
+      radius * (0.62 + ring * 0.19),
+      0,
+      Math.PI * 2
+    );
+
+    context.stroke();
+  }
+
+  for (let index = 0; index < particleCount; index += 1) {
+    const angle = random() * Math.PI * 2;
+    const distance = radius * (0.7 + random() * 0.96);
+    const x = centerX + Math.cos(angle) * distance;
+    const y = centerY + Math.sin(angle) * distance * 0.76;
+    const size = 0.6 + random() * 2.5;
+
+    context.beginPath();
+    context.fillStyle =
+      `hsla(${hue + random() * 75}, 92%, ` +
+      `${68 + random() * 22}%, ${0.22 + random() * 0.68})`;
+
+    context.arc(x, y, size, 0, Math.PI * 2);
+    context.fill();
+  }
+
+  resonanceState.textContent =
+    `${record.sealParameters.sides}-point resonance field`;
+
+  resonanceSeed.textContent = `Seed ${seedText.slice(0, 12)}…`;
+}
+
       function showRecord(record) {
   currentRecord = record;
   renderSeal(record);
+  renderResonance(record);
+
 
   if (!record) {
     sealSummary.textContent =
@@ -774,6 +967,8 @@
     );
   }
 });
+
+window.addEventListener('resize', () => renderResonance(currentRecord));
 
 initialize();
 })();
