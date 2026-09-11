@@ -916,7 +916,90 @@ function renderResonance(record) {
 
   const time =
     resonanceMotion === 'flowing' ? performance.now() * 0.001 : 0;
+    const gridDepth = 0.62 + bass * 0.18;
+    const gridFlow = time * (0.32 + mid * 0.95);
+    const gridPulse = impulse * 18;
+    const horizonY = rect.height * 0.47;
+const floorBottom = rect.height * 1.04;
+const horizontalLines = 16;
+const verticalLines = 19;
 
+context.save();
+
+context.strokeStyle =
+  `hsla(
+    ${(hue + 38 + treble * 22) % 360},
+    92%,
+    68%,
+    ${0.055 + voiceLevel * 0.05 + treble * 0.025}
+  )`;
+
+context.lineWidth = 0.55 + treble * 0.35;
+
+for (let line = 0; line <= horizontalLines; line += 1) {
+  const progress = line / horizontalLines;
+  const perspective = progress * progress;
+  const y = horizonY + (floorBottom - horizonY) * perspective;
+
+  const wave =
+    Math.sin(line * 0.78 + gridFlow) *
+      (1.5 + mid * 3.5) +
+    Math.cos(line * 0.34 - gridFlow * 1.2) *
+      bass *
+      3.5;
+
+  const pulseLift =
+    Math.exp(-Math.pow(progress - 0.42, 2) / 0.035) * gridPulse;
+
+  context.beginPath();
+  context.moveTo(-rect.width * 0.08, y + wave - pulseLift);
+  context.lineTo(rect.width * 1.08, y + wave - pulseLift);
+  context.stroke();
+}
+
+for (let line = 0; line <= verticalLines; line += 1) {
+  const progress = line / verticalLines;
+  const horizonX =
+    centerX + (progress - 0.5) * rect.width * 0.42;
+
+  const bottomX =
+    centerX + (progress - 0.5) * rect.width * (1.42 + gridDepth * 0.12);
+
+  const bend =
+    Math.sin(progress * Math.PI * 2 + gridFlow * 0.65) *
+    (mid * 8 + bass * 4);
+
+  context.beginPath();
+  context.moveTo(horizonX + bend * 0.2, horizonY);
+  context.lineTo(bottomX + bend, floorBottom);
+  context.stroke();
+}
+
+const horizonGlow = context.createLinearGradient(
+  0,
+  horizonY - 24,
+  0,
+  horizonY + 42
+);
+
+horizonGlow.addColorStop(0, `hsla(${hue}, 95%, 76%, 0)`);
+
+horizonGlow.addColorStop(
+  0.5,
+  `hsla(
+    ${(hue + 42) % 360},
+    96%,
+    76%,
+    ${0.06 + voiceLevel * 0.07}
+  )`
+);
+
+horizonGlow.addColorStop(1, `hsla(${hue}, 95%, 76%, 0)`);
+
+context.fillStyle = horizonGlow;
+context.fillRect(0, horizonY - 24, rect.width, 66);
+
+context.restore();
   const glow = context.createRadialGradient(
     centerX,
     centerY,
