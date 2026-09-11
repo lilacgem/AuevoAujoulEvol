@@ -701,6 +701,12 @@
       let micAnimationFrame = null;
       let micData = null;
       let liveMicLevel = 0;
+      let liveMicBass = 0;
+      let liveMicMid = 0;
+      let liveMicTreble = 0;
+      let liveMicImpulse = 0;
+      let previousMicLevel = 0;
+      let micFrequencyData = null;
 
       function setStatus(message, kind = '') {
         status.textContent = message;
@@ -884,72 +890,194 @@ function renderResonance(record) {
   const random = mulberry32(hashSeed(seedText));
   const centerX = rect.width / 2;
   const centerY = rect.height / 2;
-  const radius = Math.min(rect.width, rect.height) * 0.34;
+  const baseRadius = Math.min(rect.width, rect.height) * 0.34;
   const hue = Math.floor(random() * 110) + 185;
-  const particleCount = 42 + Math.floor(random() * 32);
+  const baseParticleCount = 42 + Math.floor(random() * 32);
 
-  const intensity = resonanceIntensity * (1 + liveMicLevel * 0.72);
+  const voiceLevel = liveMicLevel;
+  const bass = liveMicBass;
+  const mid = liveMicMid;
+  const treble = liveMicTreble;
+  const impulse = liveMicImpulse;
+
+  const intensity =
+    resonanceIntensity *
+    (1 + voiceLevel * 0.42 + mid * 0.26 + treble * 0.16);
+
+  const voiceScale = 1 + bass * 0.22 + voiceLevel * 0.08;
+  const voiceFlow = 1 + mid * 0.9;
+  const voiceDetail = 1 + treble * 1.35;
+  const voicePulse = impulse * 0.75;
+
+  const radius = baseRadius * voiceScale;
+  const particleCount = Math.round(
+    baseParticleCount + treble * 26 + voiceLevel * 12
+  );
+
+  const time =
+    resonanceMotion === 'flowing' ? performance.now() * 0.001 : 0;
+
   const glow = context.createRadialGradient(
     centerX,
     centerY,
     4,
     centerX,
     centerY,
-    radius * 1.55
+    radius * (1.55 + bass * 0.18 + voicePulse * 0.26)
   );
 
   glow.addColorStop(
-  0,
-  `hsla(${hue}, 95%, 72%, ${0.20 * intensity})`
-);
+    0,
+    `hsla(${hue}, 95%, 72%, ${0.20 * intensity * (1 + voiceLevel * 0.35)})`
+  );
 
-glow.addColorStop(
-  0.55,
-  `hsla(${(hue + 58) % 360}, 96%, 62%, ${0.06 * intensity})`
-);
+  glow.addColorStop(
+    0.55,
+    `hsla(
+      ${(hue + 58 + treble * 24) % 360},
+      96%,
+      62%,
+      ${0.06 * intensity * voiceDetail}
+    )`
+  );
+
   glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
   context.fillStyle = glow;
   context.fillRect(0, 0, rect.width, rect.height);
 
-  context.lineWidth = 1;
+  const ringCount = 3 + Math.round(treble * 2);
 
-  for (let ring = 1; ring <= 3; ring += 1) {
+  for (let ring = 1; ring <= ringCount; ring += 1) {
+    const ringProgress = ring / ringCount;
+    const ringRadius =
+      radius *
+      (0.52 + ringProgress * 0.65 + voicePulse * (0.07 + ring * 0.015));
+
+    const waveAmount =
+      bass * 7 +
+      mid * 5 +
+      treble * 2.5 +
+      voicePulse * 11;
+
+    const rotation =
+      time * (0.15 + ring * 0.035) * voiceFlow +
+      ring * 0.6;
+
     context.beginPath();
 
     context.strokeStyle =
-  `hsla(${hue + ring * 8}, 92%, 74%, ${(0.18 - ring * 0.035) * intensity})`;
+      `hsla(
+        ${(hue + ring * 8 + treble * 38) % 360},
+        92%,
+        74%,
+        ${(0.18 - ring * 0.028) * intensity * (1 + voiceLevel * 0.2)}
+      )`;
 
-    context.arc(
-      centerX,
-      centerY,
-      radius * (0.62 + ring * 0.19),
-      0,
-      Math.PI * 2
-    );
+    context.lineWidth =
+      0.8 + treble * 0.85 + voicePulse * 0.65;
 
+    const points = 88;
+
+    for (let point = 0; point <= points; point += 1) {
+      const angle = (point / points) * Math.PI * 2;
+      const organicWave =
+        Math.sin(angle * (2.4 + mid * 2.8) + rotation) * waveAmount +
+        Math.cos(angle * (4.8 + treble * 4.2) - rotation * 1.35) *
+          waveAmount *
+          0.42;
+
+      const currentRadius = ringRadius + organicWave;
+      const x = centerX + Math.cos(angle) * currentRadius;
+      const y = centerY + Math.sin(angle) * currentRadius * 0.76;
+
+      if (point === 0) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+    }
+
+    context.closePath();
     context.stroke();
   }
 
+  const coreRadius =
+    radius * (0.13 + bass * 0.06 + voicePulse * 0.04);
+
+  const coreGlow = context.createRadialGradient(
+    centerX,
+    centerY,
+    0,
+    centerX,
+    centerY,
+    coreRadius * 2.8
+  );
+
+  coreGlow.addColorStop(
+    0,
+    `hsla(${hue}, 100%, 88%, ${0.45 * intensity * (1 + voiceLevel * 0.3)})`
+  );
+
+  coreGlow.addColorStop(
+    0.35,
+    `hsla(${(hue + 32) % 360}, 96%, 70%, ${0.16 * intensity})`
+  );
+
+  coreGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+  context.fillStyle = coreGlow;
+  context.beginPath();
+  context.arc(centerX, centerY, coreRadius * 2.8, 0, Math.PI * 2);
+  context.fill();
+
   for (let index = 0; index < particleCount; index += 1) {
-    const angle = random() * Math.PI * 2;
-    const distance = radius * (0.7 + random() * 0.96);
-    const x = centerX + Math.cos(angle) * distance;
-    const y = centerY + Math.sin(angle) * distance * 0.76;
-    const size = 0.6 + random() * 2.5;
+    const baseAngle = random() * Math.PI * 2;
+    const angle =
+      baseAngle +
+      time *
+        (0.08 + random() * 0.15) *
+        voiceFlow *
+        (index % 2 === 0 ? 1 : -1);
+
+    const distance =
+      radius *
+      (0.66 + random() * 1.02 + bass * random() * 0.15) +
+      voicePulse * radius * random() * 0.2;
+
+    const drift =
+      Math.sin(time * (0.8 + mid) + baseAngle * 3) *
+      (2 + mid * 7);
+
+    const x = centerX + Math.cos(angle) * (distance + drift);
+    const y =
+      centerY +
+      Math.sin(angle) *
+        (distance + drift) *
+        (0.76 + bass * 0.05);
+
+    const size =
+      (0.6 + random() * 2.5) *
+      (1 + treble * 0.65 + voicePulse * 0.4);
 
     context.beginPath();
 
     context.fillStyle =
-  `hsla(${hue + random() * 75}, 92%, ` +
-  `${68 + random() * 22}%, ${(0.22 + random() * 0.68) * intensity})`;
+      `hsla(
+        ${(hue + random() * 75 + treble * 32) % 360},
+        92%,
+        ${68 + random() * 22}%,
+        ${(0.22 + random() * 0.68) * intensity * voiceDetail}
+      )`;
 
-context.arc(x, y, size, 0, Math.PI * 2);
-context.fill();
+    context.arc(x, y, size, 0, Math.PI * 2);
+    context.fill();
   }
 
   resonanceState.textContent =
-    `${record.sealParameters.sides}-point resonance field`;
+    liveMicLevel > 0.02
+      ? `${record.sealParameters.sides}-point live resonance field`
+      : `${record.sealParameters.sides}-point resonance field`;
 
   resonanceSeed.textContent = `Seed ${seedText.slice(0, 12)}…`;
 }
@@ -987,9 +1115,10 @@ function stopMicrophoneResonance(message = 'Microphone is off.') {
 }
 
 function updateMicrophoneResonance() {
-  if (!micAnalyser || !micData) return;
+  if (!micAnalyser || !micData || !micFrequencyData) return;
 
   micAnalyser.getByteTimeDomainData(micData);
+  micAnalyser.getByteFrequencyData(micFrequencyData);
 
   let total = 0;
 
@@ -999,7 +1128,44 @@ function updateMicrophoneResonance() {
   }
 
   const rms = Math.sqrt(total / micData.length);
-  liveMicLevel = Math.min(1, rms * 4.2);
+  const rawLevel = Math.min(1, rms * 4.2);
+
+  const binHz = micAudioContext.sampleRate / micAnalyser.fftSize;
+
+  function averageBand(fromHz, toHz) {
+    const start = Math.max(0, Math.floor(fromHz / binHz));
+    const end = Math.min(
+      micFrequencyData.length - 1,
+      Math.ceil(toHz / binHz)
+    );
+
+    let sum = 0;
+    let count = 0;
+
+    for (let index = start; index <= end; index += 1) {
+      sum += micFrequencyData[index];
+      count += 1;
+    }
+
+    return count ? sum / count / 255 : 0;
+  }
+
+  const rawBass = averageBand(60, 250);
+  const rawMid = averageBand(250, 2200);
+  const rawTreble = averageBand(2200, 7000);
+
+  liveMicLevel = liveMicLevel * 0.72 + rawLevel * 0.28;
+  liveMicBass = liveMicBass * 0.76 + rawBass * 0.24;
+  liveMicMid = liveMicMid * 0.76 + rawMid * 0.24;
+  liveMicTreble = liveMicTreble * 0.76 + rawTreble * 0.24;
+
+  const risingEdge = Math.max(0, liveMicLevel - previousMicLevel);
+  liveMicImpulse = Math.min(
+    1,
+    liveMicImpulse * 0.84 + risingEdge * 7.5
+  );
+
+  previousMicLevel = liveMicLevel;
 
   micMeterFill.style.width = `${Math.round(liveMicLevel * 100)}%`;
 
@@ -1038,10 +1204,12 @@ async function startMicrophoneResonance() {
 
     micAnalyser = micAudioContext.createAnalyser();
     micAnalyser.fftSize = 1024;
+    micAnalyser.smoothingTimeConstant = 0.78;
 
-    micData = new Uint8Array(micAnalyser.fftSize);
+  micData = new Uint8Array(micAnalyser.fftSize);
+  micFrequencyData = new Uint8Array(micAnalyser.frequencyBinCount);
 
-    source.connect(micAnalyser);
+  source.connect(micAnalyser);
 
     stopMic.disabled = false;
 
