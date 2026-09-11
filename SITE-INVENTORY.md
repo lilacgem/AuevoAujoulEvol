@@ -19,6 +19,14 @@
 - Status: Review after the main frontend
 - Visible files: `index.html`, `manifest.webmanifest`
 - Goal: Identify current content, links, branding, and intended deployment.
+- Site identity found: Aujoule
+- Browser title: `AuJoule - Your Real Accumulated Energy`
+- Meta description: `AuJoule measures the real, cumulative energy behind every seal you've generated across the system - not currency, an honest reflection of what you've actually made.`
+- Social sharing: Open Graph and Twitter card metadata are present.
+- Social URL: `https://aujoule.com`
+- Audit note: No `og:image` was seen in the initial metadata review.
+- Audit note: The viewport uses `maximum-scale=1.0`; review later for mobile zoom accessibility.
+- Wallet metadata: `crypto-address` and `sovereign-wallet` are present and use the same address.
 
 ## 3. Evolving Roots
 
