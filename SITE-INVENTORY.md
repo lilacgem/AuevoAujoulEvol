@@ -6,6 +6,12 @@
 - Status: Review first
 - Notes: Contains site icons, logo files, `_headers`, `_redirects`, `.well-known`, and `index.html`.
 - Caution: Treat deployment configuration and verification files as protected until their purpose is confirmed.
+- Site identity found: EvoMirror
+- Browser title: `EvoMirror - A Living Reflection of You`
+- Meta description: `A 3D mirror that listens to your voice and reflects it back as a living symbol that evolves with you, one seal at a time.`
+- Social sharing: Open Graph and Twitter card metadata are present.
+- Share image: `https://evomirror.com/og-image.jpg` (1200 × 630)
+- External libraries: Three.js r128 and OrbitControls, loaded from cdnjs and jsDelivr.
 
 ## 2. Aujoule
 
