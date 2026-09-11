@@ -310,6 +310,87 @@
       white-space: nowrap;
     }
 
+        .resonance-controls {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 0.1rem;
+      padding-top: 0.95rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: minmax(7.4rem, 0.46fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .control-row label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 650;
+    }
+
+    .control-row output {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+    }
+
+    .intensity-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .motion-control {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .motion-control button {
+      padding: 0.48rem 0.66rem;
+      font-size: 0.84rem;
+      font-weight: 650;
+    }
+
+    .motion-control button[aria-pressed="true"] {
+      color: #03101c;
+      border-color: rgba(157, 231, 255, 0.86);
+      background: linear-gradient(135deg, #8ee6ff, #c7afff);
+    }
+
+    .resonance-wrap.is-flowing #sealSvg {
+      animation: resonance-breathe 5.4s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    @keyframes resonance-breathe {
+      0%, 100% {
+        filter: drop-shadow(0 0 13px rgba(112, 214, 255, 0.54));
+        transform: scale(1) rotate(0deg);
+      }
+      50% {
+        filter: drop-shadow(0 0 28px rgba(158, 225, 255, 0.9));
+        transform: scale(1.035) rotate(1.25deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .resonance-wrap.is-flowing #sealSvg {
+        animation: none;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .resonance-wrap #sealSvg,
       .resonance-wrap:hover #sealSvg {
@@ -372,6 +453,47 @@
           <h2>Current seal</h2>
           <p id="sealSummary" class="helper">Create or select a session to view its local deterministic seal.</p>
           <div id="hashDisplay" class="hash">No record hash yet.</div>
+          <div class="resonance-controls" aria-label="Local resonance display controls">
+  <div class="control-row">
+    <label for="fieldIntensity">Field intensity</label>
+
+    <div class="intensity-control">
+      <input
+        id="fieldIntensity"
+        type="range"
+        min="35"
+        max="140"
+        value="100"
+        step="1"
+      >
+      <output id="fieldIntensityValue" for="fieldIntensity">100%</output>
+    </div>
+  </div>
+
+  <div class="control-row">
+    <span class="helper">Field motion</span>
+
+    <div class="motion-control" role="group" aria-label="Field motion">
+      <button
+        id="motionStill"
+        class="secondary"
+        type="button"
+        aria-pressed="true"
+      >
+        Still
+      </button>
+
+      <button
+        id="motionFlowing"
+        class="secondary"
+        type="button"
+        aria-pressed="false"
+      >
+        Flowing
+      </button>
+    </div>
+  </div>
+</div>
         </div>
       </aside>
     </section>
@@ -460,6 +582,13 @@
       const resonanceCanvas = $('resonanceCanvas');
       const resonanceState = $('resonanceState');
       const resonanceSeed = $('resonanceSeed');
+
+      const resonanceWrap = $('resonanceWrap');
+      const fieldIntensity = $('fieldIntensity');
+      const fieldIntensityValue = $('fieldIntensityValue');
+      const motionStill = $('motionStill');
+      const motionFlowing = $('motionFlowing');
+
       const sealSummary = $('sealSummary');
       const hashDisplay = $('hashDisplay');
       const recordList = $('recordList');
@@ -477,6 +606,9 @@
 
       let currentRecord = null;
       let currentRecords = [];
+
+      let resonanceIntensity = 1;
+      let resonanceMotion = 'still';
 
       function setStatus(message, kind = '') {
         status.textContent = message;
@@ -664,6 +796,8 @@ function renderResonance(record) {
   const hue = Math.floor(random() * 110) + 185;
   const particleCount = 42 + Math.floor(random() * 32);
 
+  const intensity = resonanceIntensity;
+
   const glow = context.createRadialGradient(
     centerX,
     centerY,
@@ -673,11 +807,15 @@ function renderResonance(record) {
     radius * 1.55
   );
 
-  glow.addColorStop(0, `hsla(${hue}, 95%, 72%, 0.20)`);
   glow.addColorStop(
-    0.55,
-    `hsla(${(hue + 58) % 360}, 96%, 62%, 0.06)`
-  );
+  0,
+  `hsla(${hue}, 95%, 72%, ${0.20 * intensity})`
+);
+
+glow.addColorStop(
+  0.55,
+  `hsla(${(hue + 58) % 360}, 96%, 62%, ${0.06 * intensity})`
+);
   glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
   context.fillStyle = glow;
@@ -687,8 +825,9 @@ function renderResonance(record) {
 
   for (let ring = 1; ring <= 3; ring += 1) {
     context.beginPath();
+
     context.strokeStyle =
-      `hsla(${hue + ring * 8}, 92%, 74%, ${0.18 - ring * 0.035})`;
+  `hsla(${hue + ring * 8}, 92%, 74%, ${(0.18 - ring * 0.035) * intensity})`;
 
     context.arc(
       centerX,
@@ -709,12 +848,13 @@ function renderResonance(record) {
     const size = 0.6 + random() * 2.5;
 
     context.beginPath();
-    context.fillStyle =
-      `hsla(${hue + random() * 75}, 92%, ` +
-      `${68 + random() * 22}%, ${0.22 + random() * 0.68})`;
 
-    context.arc(x, y, size, 0, Math.PI * 2);
-    context.fill();
+    context.fillStyle =
+  `hsla(${hue + random() * 75}, 92%, ` +
+  `${68 + random() * 22}%, ${(0.22 + random() * 0.68) * intensity})`;
+
+context.arc(x, y, size, 0, Math.PI * 2);
+context.fill();
   }
 
   resonanceState.textContent =
@@ -967,6 +1107,33 @@ function renderResonance(record) {
     );
   }
 });
+
+function setResonanceMotion(mode) {
+  resonanceMotion = mode;
+
+  const isFlowing = mode === 'flowing';
+
+  resonanceWrap.classList.toggle('is-flowing', isFlowing);
+
+  motionStill.setAttribute('aria-pressed', String(!isFlowing));
+  motionFlowing.setAttribute('aria-pressed', String(isFlowing));
+
+  setStatus(
+    isFlowing
+      ? 'Flowing display motion is active. It changes only this local visual display.'
+      : 'Still display motion is active. It changes only this local visual display.',
+    'good'
+  );
+}
+
+fieldIntensity.addEventListener('input', () => {
+  resonanceIntensity = Number(fieldIntensity.value) / 100;
+  fieldIntensityValue.textContent = `${fieldIntensity.value}%`;
+  renderResonance(currentRecord);
+});
+
+motionStill.addEventListener('click', () => setResonanceMotion('still'));
+motionFlowing.addEventListener('click', () => setResonanceMotion('flowing'));
 
 window.addEventListener('resize', () => renderResonance(currentRecord));
 
