@@ -385,6 +385,56 @@
       }
     }
 
+        .mic-resonance {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .mic-resonance h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .mic-resonance p {
+      margin: 0;
+    }
+
+    .mic-meter {
+      height: 0.54rem;
+      overflow: hidden;
+      border: 1px solid rgba(121, 219, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(1, 5, 14, 0.58);
+    }
+
+    .mic-meter > span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #69d8ff, #c5a7ff, #96f5c4);
+      box-shadow: 0 0 18px rgba(105, 216, 255, 0.6);
+      transition: width 90ms linear;
+    }
+
+    .mic-state {
+      min-height: 1.4rem;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .mic-state.active {
+      color: var(--good);
+    }
+
+    .mic-resonance.is-active {
+      border-top-color: rgba(143, 241, 198, 0.42);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .resonance-wrap.is-flowing #sealSvg {
         animation: none;
@@ -495,6 +545,36 @@
   </div>
 </div>
         </div>
+        <section
+  class="mic-resonance"
+  id="micResonance"
+  aria-labelledby="micResonanceTitle"
+>
+  <h3 id="micResonanceTitle">Live microphone resonance</h3>
+
+  <p class="helper">
+    Optional live visual response. Audio is analyzed only in this browser while
+    active. Nothing is recorded, saved, or uploaded.
+  </p>
+
+  <div class="mic-meter" aria-hidden="true">
+    <span id="micMeterFill"></span>
+  </div>
+
+  <p id="micState" class="mic-state" role="status">
+    Microphone is off.
+  </p>
+
+  <div class="actions">
+    <button id="startMic" type="button">
+      Start live microphone resonance
+    </button>
+
+    <button id="stopMic" class="secondary" type="button" disabled>
+      Stop microphone
+    </button>
+  </div>
+</section>
       </aside>
     </section>
 
@@ -588,6 +668,11 @@
       const fieldIntensityValue = $('fieldIntensityValue');
       const motionStill = $('motionStill');
       const motionFlowing = $('motionFlowing');
+      const micResonance = $('micResonance');
+      const micMeterFill = $('micMeterFill');
+      const micState = $('micState');
+      const startMic = $('startMic');
+      const stopMic = $('stopMic');
 
       const sealSummary = $('sealSummary');
       const hashDisplay = $('hashDisplay');
@@ -609,6 +694,13 @@
 
       let resonanceIntensity = 1;
       let resonanceMotion = 'still';
+
+      let micStream = null;
+      let micAudioContext = null;
+      let micAnalyser = null;
+      let micAnimationFrame = null;
+      let micData = null;
+      let liveMicLevel = 0;
 
       function setStatus(message, kind = '') {
         status.textContent = message;
@@ -796,8 +888,7 @@ function renderResonance(record) {
   const hue = Math.floor(random() * 110) + 185;
   const particleCount = 42 + Math.floor(random() * 32);
 
-  const intensity = resonanceIntensity;
-
+  const intensity = resonanceIntensity * (1 + liveMicLevel * 0.72);
   const glow = context.createRadialGradient(
     centerX,
     centerY,
@@ -861,6 +952,114 @@ context.fill();
     `${record.sealParameters.sides}-point resonance field`;
 
   resonanceSeed.textContent = `Seed ${seedText.slice(0, 12)}…`;
+}
+
+function setMicState(message, active = false) {
+  micState.textContent = message;
+  micState.classList.toggle('active', active);
+  micResonance.classList.toggle('is-active', active);
+}
+
+function stopMicrophoneResonance(message = 'Microphone is off.') {
+  if (micAnimationFrame) {
+    cancelAnimationFrame(micAnimationFrame);
+    micAnimationFrame = null;
+  }
+
+  if (micStream) {
+    micStream.getTracks().forEach((track) => track.stop());
+    micStream = null;
+  }
+
+  if (micAudioContext) {
+    micAudioContext.close().catch(() => {});
+    micAudioContext = null;
+  }
+
+  micAnalyser = null;
+  micData = null;
+  liveMicLevel = 0;
+  micMeterFill.style.width = '0%';
+  startMic.disabled = false;
+  stopMic.disabled = true;
+  setMicState(message, false);
+  renderResonance(currentRecord);
+}
+
+function updateMicrophoneResonance() {
+  if (!micAnalyser || !micData) return;
+
+  micAnalyser.getByteTimeDomainData(micData);
+
+  let total = 0;
+
+  for (let index = 0; index < micData.length; index += 1) {
+    const centered = (micData[index] - 128) / 128;
+    total += centered * centered;
+  }
+
+  const rms = Math.sqrt(total / micData.length);
+  liveMicLevel = Math.min(1, rms * 4.2);
+
+  micMeterFill.style.width = `${Math.round(liveMicLevel * 100)}%`;
+
+  renderResonance(currentRecord);
+  micAnimationFrame = requestAnimationFrame(updateMicrophoneResonance);
+}
+
+async function startMicrophoneResonance() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    setMicState(
+      'Live microphone access is not available in this browser or page context.',
+      false
+    );
+    return;
+  }
+
+  try {
+    startMic.disabled = true;
+    setMicState('Requesting microphone permission…', false);
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      },
+      video: false
+    });
+
+    micStream = stream;
+
+    micAudioContext =
+      new (window.AudioContext || window.webkitAudioContext)();
+
+    const source = micAudioContext.createMediaStreamSource(stream);
+
+    micAnalyser = micAudioContext.createAnalyser();
+    micAnalyser.fftSize = 1024;
+
+    micData = new Uint8Array(micAnalyser.fftSize);
+
+    source.connect(micAnalyser);
+
+    stopMic.disabled = false;
+
+    setMicState(
+      'Microphone is active for live visual response only. No audio is recorded, saved, or uploaded.',
+      true
+    );
+
+    updateMicrophoneResonance();
+  } catch (error) {
+    console.error(error);
+
+    stopMicrophoneResonance(
+      error.name === 'NotAllowedError'
+        ? 'Microphone permission was not granted. EvoMirror remains fully usable without it.'
+        : `Microphone could not start: ${error.message}`
+    );
+  }
 }
 
       function showRecord(record) {
@@ -1134,6 +1333,10 @@ fieldIntensity.addEventListener('input', () => {
 
 motionStill.addEventListener('click', () => setResonanceMotion('still'));
 motionFlowing.addEventListener('click', () => setResonanceMotion('flowing'));
+
+startMic.addEventListener('click', startMicrophoneResonance);
+stopMic.addEventListener('click', () => stopMicrophoneResonance());
+window.addEventListener('pagehide', () => stopMicrophoneResonance());
 
 window.addEventListener('resize', () => renderResonance(currentRecord));
 
