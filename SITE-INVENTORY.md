@@ -49,6 +49,15 @@
 - Status: Review after Evolving Roots
 - Visible files: `index.html`, `lisajevolves.jpg`, `thedraft.mp3`
 - Goal: Identify current content, media behavior, links, and intended deployment.
+- Site identity found: LisaJEvolving / `soulsista191`
+- Browser title: `soulsista191 - LisaJEvolving`
+- Meta description: `soulsista191's personal space - a nostalgic profile that's alive, evolving, and reacting to what's actually playing.`
+- Social sharing: Open Graph and Twitter card metadata are present.
+- Social URL: `https://lisajevolving.com`
+- Audit note: No `og:image` was seen in the initial metadata review.
+- External library: Three.js r128 is loaded from cdnjs.
+- Security note: The external Three.js script did not show Subresource Integrity attributes; review and test later before changing it.
+- Media asset: `thedraft.mp3` is present in the project folder.
 
 ## Review checklist
 
