@@ -207,6 +207,52 @@
 
     dialog::backdrop { background: rgba(0, 0, 0, 0.68); }
 
+        .journal-detail {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      background: rgba(1, 5, 14, 0.42);
+      border-radius: 13px;
+      padding: 0.9rem;
+    }
+
+    .journal-detail h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+    }
+
+    .journal-entry {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin: 0.75rem 0;
+      color: #eaf5ff;
+      line-height: 1.65;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: minmax(8rem, 0.4fr) minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: start;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .detail-row strong {
+      color: var(--ink);
+    }
+
+    .detail-row code {
+      color: #b9dfff;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
     @media (max-width: 800px) {
       header { flex-direction: column; }
       .grid { grid-template-columns: 1fr; }
@@ -261,11 +307,47 @@
         <p class="helper">This initial version does not connect a wallet, publish data, or use blockchain. SHA-256 hashes are local integrity fingerprints.</p>
       </article>
 
-      <article class="panel">
-        <h2>Local sessions</h2>
-        <p id="recordCount" class="helper">No saved sessions.</p>
-        <ul id="recordList" class="record-list" aria-label="Saved local sessions"></ul>
-      </article>
+     <article class="panel">
+  <h2>Local sessions</h2>
+  <p id="recordCount" class="helper">No saved sessions.</p>
+  <ul id="recordList" class="record-list" aria-label="Saved local sessions"></ul>
+
+  <section class="journal-detail" aria-label="Selected journal entry">
+    <h3>Selected journal entry</h3>
+
+    <p id="journalEntry" class="journal-entry">
+      Select or create a session to read its reflection.
+    </p>
+
+    <div class="detail-grid">
+      <div class="detail-row">
+        <strong>Session</strong>
+        <span id="journalSession">—</span>
+      </div>
+
+      <div class="detail-row">
+        <strong>Created</strong>
+        <span id="journalCreated">—</span>
+      </div>
+
+      <div class="detail-row">
+        <strong>Record hash</strong>
+        <code id="journalHash">—</code>
+      </div>
+
+      <div class="detail-row">
+        <strong>Previous hash</strong>
+        <code id="journalPreviousHash">First local session</code>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="copyHash" class="secondary" type="button" disabled>
+        Copy current hash
+      </button>
+    </div>
+  </section>
+</article>
     </section>
   </main>
 
@@ -298,8 +380,19 @@
       const hashDisplay = $('hashDisplay');
       const recordList = $('recordList');
       const recordCount = $('recordCount');
+
+      const journalEntry = $('journalEntry');
+      const journalSession = $('journalSession');
+      const journalCreated = $('journalCreated');
+      const journalHash = $('journalHash');
+      const journalPreviousHash = $('journalPreviousHash');
+      const copyHash = $('copyHash');
+
       const importDialog = $('importDialog');
       const importSummary = $('importSummary');
+
+      let currentRecord = null;
+      let currentRecords = [];
 
       function setStatus(message, kind = '') {
         status.textContent = message;
@@ -440,18 +533,59 @@
       }
 
       function showRecord(record) {
-        renderSeal(record);
-        if (!record) {
-          sealSummary.textContent = 'Create or select a session to view its local deterministic seal.';
-          hashDisplay.textContent = 'No record hash yet.';
-          return;
-        }
-        sealSummary.textContent = `Created ${new Date(record.createdAt).toLocaleString()} · schema v${record.schemaVersion} · ${record.sealParameters.sides}-point seal`;
-        hashDisplay.textContent = `SHA-256: ${record.recordHash}`;
-      }
+  currentRecord = record;
+  renderSeal(record);
+
+  if (!record) {
+    sealSummary.textContent =
+      'Create or select a session to view its local deterministic seal.';
+    hashDisplay.textContent = 'No record hash yet.';
+
+    journalEntry.textContent =
+      'Select or create a session to read its reflection.';
+    journalSession.textContent = '—';
+    journalCreated.textContent = '—';
+    journalHash.textContent = '—';
+    journalPreviousHash.textContent = 'First local session';
+    copyHash.disabled = true;
+
+    return;
+  }
+
+  const sessionPosition =
+    currentRecords.findIndex((item) => item.id === record.id) + 1;
+
+  sealSummary.textContent =
+    `Created ${new Date(record.createdAt).toLocaleString()} · ` +
+    `schema v${record.schemaVersion} · ` +
+    `${record.sealParameters.sides}-point seal`;
+
+  hashDisplay.textContent = `SHA-256: ${record.recordHash}`;
+
+  journalEntry.textContent =
+    record.reflectionText ||
+    'No written reflection was saved for this session.';
+
+  journalSession.textContent =
+    sessionPosition > 0
+      ? `${sessionPosition} of ${currentRecords.length}`
+      : 'Saved local session';
+
+  journalCreated.textContent =
+    new Date(record.createdAt).toLocaleString();
+
+  journalHash.textContent = record.recordHash;
+
+  journalPreviousHash.textContent =
+    record.previousRecordHash || 'First local session';
+
+  copyHash.disabled = false;
+}
 
       async function renderRecords(selectLatest = true) {
         const records = await allRecords();
+        currentRecords = records;
+
         recordList.replaceChildren();
         recordCount.textContent = records.length === 1 ? '1 saved local session.' : `${records.length} saved local sessions.`;
         records.slice().reverse().forEach((record) => {
@@ -626,9 +760,23 @@
       $('mergeImport').addEventListener('click', () => applyImport('merge'));
       $('replaceImport').addEventListener('click', () => applyImport('replace'));
       $('cancelImport').addEventListener('click', () => { pendingImport = null; importDialog.close(); });
+      
+      copyHash.addEventListener('click', async () => {
+  if (!currentRecord) return;
 
-      initialize();
-    })();
-  </script>
+  try {
+    await navigator.clipboard.writeText(currentRecord.recordHash);
+    setStatus('Current SHA-256 record hash copied to the clipboard.', 'good');
+  } catch (error) {
+    setStatus(
+      'The hash could not be copied automatically. Select it from the Journal Archive panel and copy it manually.',
+      'warn'
+    );
+  }
+});
+
+initialize();
+})();
+</script>
 </body>
 </html>
