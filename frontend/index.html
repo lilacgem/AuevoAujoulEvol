@@ -273,9 +273,15 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
     }
+
+    .resonance-wrap .seal,
+.resonance-readout {
+  position: relative;
+  z-index: 1;
+}
 
     .resonance-wrap #sealSvg {
       width: min(76vw, 300px);
