@@ -34,6 +34,14 @@
 - Status: Review after Aujoule
 - Visible files: `index.html`, `manifest.webmanifest`
 - Goal: Identify current content, links, branding, and intended deployment.
+- Site identity found: Evolving Roots
+- Browser title: `Evolving Roots - A Constellation Built From Your History`
+- Meta description: `A space built entirely from your own sealed history - real stars for every real moment, a universe only your evolution could have made.`
+- Social sharing: Open Graph and Twitter card metadata are present.
+- Social URL: `https://evolvingroots.org`
+- Audit note: No `og:image` was seen in the initial metadata review.
+- Audit note: The viewport uses `maximum-scale=1.0`; review later for mobile zoom accessibility.
+- Wallet metadata: `crypto-address` and `sovereign-wallet` are present and use the same address.
 
 ## 4. Lisa J Evolving
 
