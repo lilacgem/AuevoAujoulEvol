@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="A private, local-first EvoMirror reflection archive that creates deterministic visual seals from personal sessions.">
+  <meta property="og:title" content="EvoMirror — Private Local Reflection">
+  <meta property="og:description" content="A private local-first reflection archive with versioned sessions and deterministic visual seals.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://evomirror.com">
+  <title>EvoMirror — Private Local Reflection</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eaf5ff;
+      --muted: #9aaabf;
+      --line: rgba(197, 226, 255, 0.18);
+      --panel: rgba(8, 15, 31, 0.82);
+      --accent: #79dbff;
+      --accent-2: #cba7ff;
+      --good: #8ff1c6;
+      --warn: #ffd580;
+      --danger: #ff9da9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(77, 126, 255, 0.26), transparent 32rem),
+        radial-gradient(circle at 82% 14%, rgba(170, 84, 255, 0.20), transparent 28rem),
+        linear-gradient(155deg, #030711, #09142a 52%, #050914);
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 3rem;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 0 1.6rem;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 0.4rem;
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: 0.08em;
+      font-weight: 780;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .eyebrow {
+      color: var(--accent-2);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.75rem;
+      font-weight: 750;
+    }
+
+    .tagline { color: var(--muted); max-width: 42rem; line-height: 1.6; }
+
+    .private-badge {
+      border: 1px solid rgba(143, 241, 198, 0.45);
+      color: var(--good);
+      background: rgba(30, 90, 70, 0.18);
+      border-radius: 999px;
+      padding: 0.55rem 0.8rem;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+      gap: 1rem;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 20px;
+      padding: clamp(1rem, 3vw, 1.5rem);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(12px);
+    }
+
+    label { display: block; margin-bottom: 0.55rem; font-weight: 650; }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      border-radius: 13px;
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+      background: rgba(2, 7, 18, 0.66);
+      color: var(--ink);
+      font: inherit;
+      line-height: 1.5;
+    }
+
+    textarea:focus, button:focus-visible, input:focus-visible {
+      outline: 3px solid rgba(121, 219, 255, 0.5);
+      outline-offset: 2px;
+    }
+
+    .helper, .privacy { color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
+
+    button, .file-label {
+      appearance: none;
+      border: 1px solid rgba(121, 219, 255, 0.42);
+      border-radius: 11px;
+      padding: 0.7rem 0.9rem;
+      background: rgba(40, 110, 160, 0.22);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    button:hover, .file-label:hover { transform: translateY(-1px); background: rgba(52, 138, 197, 0.35); }
+    button.secondary, .file-label.secondary { background: rgba(203, 167, 255, 0.12); border-color: rgba(203, 167, 255, 0.42); }
+    button.danger { background: rgba(170, 42, 64, 0.18); border-color: rgba(255, 157, 169, 0.4); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .file-label input { display: none; }
+
+    .seal-wrap { display: grid; gap: 1rem; }
+
+    .seal {
+      aspect-ratio: 1;
+      width: min(100%, 390px);
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(164, 226, 255, 0.35);
+      background: radial-gradient(circle at 50% 45%, rgba(138, 222, 255, 0.18), rgba(9, 14, 40, 0.75) 58%, rgba(2, 5, 15, 0.98));
+      overflow: hidden;
+      box-shadow: inset 0 0 70px rgba(93, 196, 255, 0.13), 0 0 80px rgba(62, 119, 255, 0.14);
+    }
+
+    #sealSvg { width: 100%; height: 100%; }
+
+    .status {
+      min-height: 2.4rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: 11px;
+      border: 1px solid var(--line);
+      background: rgba(1, 5, 14, 0.45);
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .status.good { color: var(--good); border-color: rgba(143, 241, 198, 0.32); }
+    .status.warn { color: var(--warn); border-color: rgba(255, 213, 128, 0.32); }
+    .status.error { color: var(--danger); border-color: rgba(255, 157, 169, 0.32); }
+
+    .hash {
+      overflow-wrap: anywhere;
+      color: #b9dfff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .record-list { margin: 1rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.55rem; max-height: 255px; overflow: auto; }
+    .record-list button { width: 100%; text-align: left; padding: 0.7rem; background: rgba(255, 255, 255, 0.03); border-color: var(--line); font-weight: 550; }
+    .record-list small { display: block; color: var(--muted); margin-top: 0.25rem; }
+
+    .notice {
+      margin-top: 1rem;
+      border-left: 3px solid var(--warn);
+      padding: 0.8rem 0.9rem;
+      background: rgba(117, 80, 17, 0.13);
+      border-radius: 0 10px 10px 0;
+      color: #ffe7b2;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    dialog {
+      width: min(560px, calc(100% - 2rem));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #0b1427;
+      color: var(--ink);
+      padding: 1.25rem;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.6);
+    }
+
+    dialog::backdrop { background: rgba(0, 0, 0, 0.68); }
+
+        .journal-detail {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      background: rgba(1, 5, 14, 0.42);
+      border-radius: 13px;
+      padding: 0.9rem;
+    }
+
+    .journal-detail h3 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+    }
+
+    .journal-entry {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin: 0.75rem 0;
+      color: #eaf5ff;
+      line-height: 1.65;
+    }
+
+    .detail-grid {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: minmax(8rem, 0.4fr) minmax(0, 1fr);
+      gap: 0.75rem;
+      align-items: start;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .detail-row strong {
+      color: var(--ink);
+    }
+
+    .detail-row code {
+      color: #b9dfff;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+        .resonance-wrap {
+      position: relative;
+      min-height: min(72vh, 680px);      display: grid;
+      place-items: center;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(141, 212, 255, 0.24);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(86, 193, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 24% 78%, rgba(140, 89, 255, 0.14), transparent 38%),
+        linear-gradient(145deg, rgba(2, 8, 22, 0.92), rgba(7, 20, 40, 0.76));
+    }
+
+    #resonanceCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .resonance-wrap .seal,
+.resonance-readout {
+  position: relative;
+  z-index: 1;
+}
+
+    .resonance-wrap #sealSvg {
+      width: min(48vw, 430px);
+      filter: drop-shadow(0 0 13px rgba(112, 214, 255, 0.54));
+      transition: filter 280ms ease, transform 280ms ease;
+    }
+
+    .resonance-wrap:hover #sealSvg {
+      filter: drop-shadow(0 0 24px rgba(139, 221, 255, 0.86));
+      transform: scale(1.025);
+    }
+
+    .resonance-readout {
+      position: absolute;
+      left: 0.85rem;
+      right: 0.85rem;
+      bottom: 0.7rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      color: rgba(218, 239, 255, 0.78);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .resonance-readout span:last-child {
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+        .resonance-controls {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 0.1rem;
+      padding-top: 0.95rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: minmax(7.4rem, 0.46fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .control-row label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 650;
+    }
+
+    .control-row output {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+    }
+
+    .intensity-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .motion-control {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .motion-control button {
+      padding: 0.48rem 0.66rem;
+      font-size: 0.84rem;
+      font-weight: 650;
+    }
+
+    .motion-control button[aria-pressed="true"] {
+      color: #03101c;
+      border-color: rgba(157, 231, 255, 0.86);
+      background: linear-gradient(135deg, #8ee6ff, #c7afff);
+    }
+
+    .resonance-wrap.is-flowing #sealSvg {
+      animation: resonance-breathe 5.4s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    @keyframes resonance-breathe {
+      0%, 100% {
+        filter: drop-shadow(0 0 13px rgba(112, 214, 255, 0.54));
+        transform: scale(1) rotate(0deg);
+      }
+      50% {
+        filter: drop-shadow(0 0 28px rgba(158, 225, 255, 0.9));
+        transform: scale(1.035) rotate(1.25deg);
+      }
+    }
+
+        .mic-resonance {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .mic-resonance h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .mic-resonance p {
+      margin: 0;
+    }
+
+    .mic-meter {
+      height: 0.54rem;
+      overflow: hidden;
+      border: 1px solid rgba(121, 219, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(1, 5, 14, 0.58);
+    }
+
+    .mic-meter > span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #69d8ff, #c5a7ff, #96f5c4);
+      box-shadow: 0 0 18px rgba(105, 216, 255, 0.6);
+      transition: width 90ms linear;
+    }
+
+    .mic-state {
+      min-height: 1.4rem;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .mic-state.active {
+      color: var(--good);
+    }
+
+    .mic-resonance.is-active {
+      border-top-color: rgba(143, 241, 198, 0.42);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .resonance-wrap.is-flowing #sealSvg {
+        animation: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .resonance-wrap #sealSvg,
+      .resonance-wrap:hover #sealSvg {
+        transition: none;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 800px) {
+      header { flex-direction: column; }
+      .grid { grid-template-columns: 1fr; }
+      .private-badge { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">Private local-first archive</p>
+        <h1>EVO<span>MIRROR</span></h1>
+        <p class="tagline">A private reflection space for your own sessions. Create a local record, generate a deterministic seal, and keep a backup archive you control.</p>
+      </div>
+      <div class="private-badge">Private single-user mode · no account</div>
+    </header>
+
+    <section class="grid" aria-label="EvoMirror private session workspace">
+      <article class="panel">
+        <h2>Create a local reflection</h2>
+        <label for="reflection">What is present for you right now?</label>
+        <textarea id="reflection" maxlength="12000" placeholder="Optional — write what you want this session to remember."></textarea>
+        <p class="helper">A session is stored only in this browser unless you export an archive. Reflection text is optional.</p>
+        <div class="actions">
+          <button id="createSession" type="button">Create local seal</button>
+          <button id="clearDraft" class="secondary" type="button">Clear draft</button>
+        </div>
+        <div id="status" class="status" role="status" aria-live="polite">Loading local archive…</div>
+        <div class="notice"><strong>Backup notice:</strong> browser/site data can be cleared by device cleanup, browser reset, or storage settings. Export your archive after important sessions. This app does not use accounts or server backups.</div>
+      </article>
+
+      <aside class="panel seal-wrap" aria-label="Current local seal">
+        <div class="resonance-wrap" id="resonanceWrap">
+  <canvas id="resonanceCanvas" aria-hidden="true"></canvas>
+
+  <div class="seal">
+    <svg
+      id="sealSvg"
+      viewBox="0 0 400 400"
+      role="img"
+      aria-label="Deterministic local session seal"
+    ></svg>
+  </div>
+
+  <div class="resonance-readout" aria-live="polite">
+    <span id="resonanceState">Idle field</span>
+    <span id="resonanceSeed">No local record selected</span>
+  </div>
+</div>
+        <div>
+          <h2>Current seal</h2>
+          <p id="sealSummary" class="helper">Create or select a session to view its local deterministic seal.</p>
+          <div id="hashDisplay" class="hash">No record hash yet.</div>
+          <div class="resonance-controls" aria-label="Local resonance display controls">
+  <div class="control-row">
+    <label for="fieldIntensity">Field intensity</label>
+
+    <div class="intensity-control">
+      <input
+        id="fieldIntensity"
+        type="range"
+        min="35"
+        max="140"
+        value="100"
+        step="1"
+      >
+      <output id="fieldIntensityValue" for="fieldIntensity">100%</output>
+    </div>
+  </div>
+
+  <div class="control-row">
+    <span class="helper">Field motion</span>
+
+    <div class="motion-control" role="group" aria-label="Field motion">
+      <button
+        id="motionStill"
+        class="secondary"
+        type="button"
+        aria-pressed="true"
+      >
+        Still
+      </button>
+
+      <button
+        id="motionFlowing"
+        class="secondary"
+        type="button"
+        aria-pressed="false"
+      >
+        Flowing
+      </button>
+    </div>
+  </div>
+</div>
+        </div>
+        <section
+  class="mic-resonance"
+  id="micResonance"
+  aria-labelledby="micResonanceTitle"
+>
+  <h3 id="micResonanceTitle">Live microphone resonance</h3>
+
+  <p class="helper">
+    Optional live visual response. Audio is analyzed only in this browser while
+    active. Nothing is recorded, saved, or uploaded.
+  </p>
+
+  <div class="mic-meter" aria-hidden="true">
+    <span id="micMeterFill"></span>
+  </div>
+
+  <p id="micState" class="mic-state" role="status">
+    Microphone is off.
+  </p>
+
+  <div class="actions">
+    <button id="startMic" type="button">
+      Start live microphone resonance
+    </button>
+
+    <button id="stopMic" class="secondary" type="button" disabled>
+      Stop microphone
+    </button>
+  </div>
+</section>
+      </aside>
+    </section>
+
+    <section class="grid" style="margin-top: 1rem" aria-label="Local archive tools">
+      <article class="panel">
+        <h2>Archive</h2>
+        <p class="privacy">Export creates a JSON backup download. Import checks the archive structure and recomputes record hashes before offering a merge or replacement.</p>
+        <div class="actions">
+          <button id="exportArchive" class="secondary" type="button">Export archive</button>
+          <label class="file-label secondary">Import archive<input id="importArchive" type="file" accept="application/json,.json"></label>
+          <button id="clearLocal" class="danger" type="button">Clear local archive</button>
+        </div>
+        <p class="helper">This initial version does not connect a wallet, publish data, or use blockchain. SHA-256 hashes are local integrity fingerprints.</p>
+      </article>
+
+     <article class="panel">
+  <h2>Local sessions</h2>
+  <p id="recordCount" class="helper">No saved sessions.</p>
+  <ul id="recordList" class="record-list" aria-label="Saved local sessions"></ul>
+
+  <section class="journal-detail" aria-label="Selected journal entry">
+    <h3>Selected journal entry</h3>
+
+    <p id="journalEntry" class="journal-entry">
+      Select or create a session to read its reflection.
+    </p>
+
+    <div class="detail-grid">
+      <div class="detail-row">
+        <strong>Session</strong>
+        <span id="journalSession">—</span>
+      </div>
+
+      <div class="detail-row">
+        <strong>Created</strong>
+        <span id="journalCreated">—</span>
+      </div>
+
+      <div class="detail-row">
+        <strong>Record hash</strong>
+        <code id="journalHash">—</code>
+      </div>
+
+      <div class="detail-row">
+        <strong>Previous hash</strong>
+        <code id="journalPreviousHash">First local session</code>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="copyHash" class="secondary" type="button" disabled>
+        Copy current hash
+      </button>
+    </div>
+  </section>
+</article>
+    </section>
+  </main>
+
+  <dialog id="importDialog">
+    <h2>Import archive</h2>
+    <p id="importSummary" class="privacy"></p>
+    <div class="actions">
+      <button id="mergeImport" type="button">Merge valid records</button>
+      <button id="replaceImport" class="secondary" type="button">Replace local archive</button>
+      <button id="cancelImport" class="danger" type="button">Cancel</button>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const DB_NAME = 'evomirror-private-archive';
+      const DB_VERSION = 1;
+      const STORE = 'sessions';
+      const SCHEMA_VERSION = 1;
+      let db;
+      let pendingImport = null;
+
+      const $ = (id) => document.getElementById(id);
+      const reflection = $('reflection');
+      const status = $('status');
+      const sealSvg = $('sealSvg');
+      const resonanceCanvas = $('resonanceCanvas');
+      const resonanceState = $('resonanceState');
+      const resonanceSeed = $('resonanceSeed');
+
+      const resonanceWrap = $('resonanceWrap');
+      const fieldIntensity = $('fieldIntensity');
+      const fieldIntensityValue = $('fieldIntensityValue');
+      const motionStill = $('motionStill');
+      const motionFlowing = $('motionFlowing');
+      const micResonance = $('micResonance');
+      const micMeterFill = $('micMeterFill');
+      const micState = $('micState');
+      const startMic = $('startMic');
+      const stopMic = $('stopMic');
+
+      const sealSummary = $('sealSummary');
+      const hashDisplay = $('hashDisplay');
+      const recordList = $('recordList');
+      const recordCount = $('recordCount');
+
+      const journalEntry = $('journalEntry');
+      const journalSession = $('journalSession');
+      const journalCreated = $('journalCreated');
+      const journalHash = $('journalHash');
+      const journalPreviousHash = $('journalPreviousHash');
+      const copyHash = $('copyHash');
+
+      const importDialog = $('importDialog');
+      const importSummary = $('importSummary');
+
+      let currentRecord = null;
+      let currentRecords = [];
+
+      let resonanceIntensity = 1;
+      let resonanceMotion = 'still';
+
+      let micStream = null;
+      let micAudioContext = null;
+      let micAnalyser = null;
+      let micAnimationFrame = null;
+      let micData = null;
+      let liveMicLevel = 0;
+      let liveMicBass = 0;
+      let liveMicMid = 0;
+      let liveMicTreble = 0;
+      let liveMicImpulse = 0;
+      let previousMicLevel = 0;
+      let micFrequencyData = null;
+
+      function setStatus(message, kind = '') {
+        status.textContent = message;
+        status.className = `status ${kind}`;
+      }
+
+      function openDb() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = () => {
+            const database = request.result;
+            if (!database.objectStoreNames.contains(STORE)) {
+              const store = database.createObjectStore(STORE, { keyPath: 'id' });
+              store.createIndex('createdAt', 'createdAt', { unique: false });
+            }
+          };
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      function transaction(mode = 'readonly') {
+        return db.transaction(STORE, mode).objectStore(STORE);
+      }
+
+      function requestAsPromise(request) {
+        return new Promise((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      async function allRecords() {
+        const records = await requestAsPromise(transaction().getAll());
+        return records.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      }
+
+      async function putRecord(record) {
+        return requestAsPromise(transaction('readwrite').put(record));
+      }
+
+      async function clearRecords() {
+        return requestAsPromise(transaction('readwrite').clear());
+      }
+
+      function canonicalPayload(record) {
+        return JSON.stringify({
+          schemaVersion: record.schemaVersion,
+          id: record.id,
+          createdAt: record.createdAt,
+          reflectionText: record.reflectionText,
+          sealParameters: record.sealParameters,
+          previousRecordHash: record.previousRecordHash
+        });
+      }
+
+      async function sha256(value) {
+        const bytes = new TextEncoder().encode(value);
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+      }
+
+      function numberFromHash(hash, offset, length = 8) {
+        return parseInt(hash.slice(offset, offset + length), 16) / Math.pow(16, length);
+      }
+
+      function sealParametersFromHash(hash) {
+        const hue = Math.floor(numberFromHash(hash, 0) * 360);
+        const hue2 = Math.floor(numberFromHash(hash, 8) * 360);
+        const sides = 5 + Math.floor(numberFromHash(hash, 16) * 8);
+        const rings = 2 + Math.floor(numberFromHash(hash, 24) * 5);
+        const rotation = Math.floor(numberFromHash(hash, 32) * 360);
+        const pulse = 0.35 + numberFromHash(hash, 40) * 0.55;
+        return { hue, hue2, sides, rings, rotation, pulse };
+      }
+
+      function svgNode(name, attributes = {}) {
+        const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+        Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+        return node;
+      }
+
+      function renderSeal(record) {
+        sealSvg.replaceChildren();
+        if (!record) {
+          sealSvg.append(svgNode('circle', { cx: 200, cy: 200, r: 110, fill: 'none', stroke: 'rgba(121,219,255,.32)', 'stroke-width': 1.5 }));
+          return;
+        }
+        const p = record.sealParameters;
+        const center = 200;
+        const outer = 150;
+        const group = svgNode('g', { transform: `rotate(${p.rotation} ${center} ${center})` });
+        const defs = svgNode('defs');
+        const gradient = svgNode('radialGradient', { id: 'sealGlow', cx: '50%', cy: '50%', r: '50%' });
+        gradient.append(
+          svgNode('stop', { offset: '0%', 'stop-color': `hsl(${p.hue}, 95%, 78%)`, 'stop-opacity': '0.95' }),
+          svgNode('stop', { offset: '56%', 'stop-color': `hsl(${p.hue2}, 86%, 54%)`, 'stop-opacity': '0.25' }),
+          svgNode('stop', { offset: '100%', 'stop-color': '#02050f', 'stop-opacity': '0' })
+        );
+        defs.append(gradient);
+        sealSvg.append(defs);
+        sealSvg.append(svgNode('circle', { cx: center, cy: center, r: 171, fill: 'url(#sealGlow)' }));
+
+        for (let ring = 1; ring <= p.rings; ring += 1) {
+          group.append(svgNode('circle', {
+            cx: center,
+            cy: center,
+            r: (outer / p.rings) * ring,
+            fill: 'none',
+            stroke: `hsl(${(p.hue + ring * 18) % 360}, 92%, ${64 - ring * 4}%)`,
+            'stroke-opacity': (0.16 + (ring / p.rings) * 0.38).toFixed(2),
+            'stroke-width': (0.7 + ring * 0.35).toFixed(2)
+          }));
+        }
+
+        const points = [];
+        for (let i = 0; i < p.sides; i += 1) {
+          const angle = (Math.PI * 2 * i) / p.sides - Math.PI / 2;
+          const radius = 90 + ((i % 2) * 25) + p.pulse * 22;
+          points.push(`${center + Math.cos(angle) * radius},${center + Math.sin(angle) * radius}`);
+        }
+        group.append(svgNode('polygon', {
+          points: points.join(' '),
+          fill: `hsla(${p.hue2}, 90%, 62%, 0.17)`,
+          stroke: `hsl(${p.hue}, 96%, 76%)`,
+          'stroke-width': 2
+        }));
+
+        for (let i = 0; i < p.sides; i += 1) {
+          const angle = (Math.PI * 2 * i) / p.sides - Math.PI / 2;
+          const x = center + Math.cos(angle) * 145;
+          const y = center + Math.sin(angle) * 145;
+          group.append(svgNode('circle', { cx: x, cy: y, r: 3.5 + p.pulse * 2, fill: `hsl(${(p.hue2 + i * 19) % 360}, 100%, 78%)` }));
+        }
+
+        group.append(svgNode('circle', { cx: center, cy: center, r: 23 + p.pulse * 12, fill: `hsl(${p.hue}, 98%, 78%)`, 'fill-opacity': 0.72 }));
+        sealSvg.append(group);
+      }
+
+      function hashSeed(value = '') {
+  let seed = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    seed ^= value.charCodeAt(index);
+    seed = Math.imul(seed, 16777619);
+  }
+
+  return seed >>> 0;
+}
+
+function mulberry32(seed) {
+  return function random() {
+    let value = (seed += 0x6d2b79f5);
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function renderResonance(record) {
+  const context = resonanceCanvas.getContext('2d');
+  const rect = resonanceCanvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(1, Math.floor(rect.width * dpr));
+  const height = Math.max(1, Math.floor(rect.height * dpr));
+
+  resonanceCanvas.width = width;
+  resonanceCanvas.height = height;
+
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  context.clearRect(0, 0, rect.width, rect.height);
+
+  if (!record) {
+    resonanceState.textContent = 'Idle field';
+    resonanceSeed.textContent = 'No local record selected';
+    return;
+  }
+
+  const seedText = record.recordHash || record.id || record.createdAt;
+  const random = mulberry32(hashSeed(seedText));
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const baseRadius = Math.min(rect.width, rect.height) * 0.34;
+  const hue = Math.floor(random() * 110) + 185;
+  const baseParticleCount = 42 + Math.floor(random() * 32);
+
+  const voiceLevel = liveMicLevel;
+  const bass = liveMicBass;
+  const mid = liveMicMid;
+  const treble = liveMicTreble;
+  const impulse = liveMicImpulse;
+
+  const intensity =
+    resonanceIntensity *
+    (1 + voiceLevel * 0.42 + mid * 0.26 + treble * 0.16);
+
+  const voiceScale = 1 + bass * 0.22 + voiceLevel * 0.08;
+  const voiceFlow = 1 + mid * 0.9;
+  const voiceDetail = 1 + treble * 1.35;
+  const voicePulse = impulse * 0.75;
+
+  const radius = baseRadius * voiceScale;
+  const particleCount = Math.round(
+    baseParticleCount + treble * 26 + voiceLevel * 12
+  );
+
+  const time =
+    resonanceMotion === 'flowing' ? performance.now() * 0.001 : 0;
+
+    const gridDepth = 0.62 + bass * 0.18;
+    const gridFlow = time * (0.32 + mid * 0.95);
+    const gridPulse = impulse * 18;
+
+    const baseHue = record.sealParameters.hue;
+
+const liveHue =
+  (baseHue +
+    mid * 52 +
+    treble * 28 +
+    Math.sin(time * (0.45 + mid)) * 16) %
+  360;
+
+const saturation = Math.min(
+  100,
+  52 + voiceLevel * 22 + treble * 20
+);
+
+const lightness = Math.min(
+  88,
+  42 + voiceLevel * 14 + impulse * 22
+);
+
+const depthAlpha =
+  0.10 + bass * 0.14 + voiceLevel * 0.05;
+
+const horizonY = rect.height * 0.47;
+const floorBottom = rect.height * 1.04;
+const horizontalLines = 16;
+const verticalLines = 19;
+
+context.save();
+
+context.strokeStyle =
+  `hsla(
+    ${(liveHue + 26 + treble * 18) % 360},
+    ${saturation}%,
+    ${Math.min(84, lightness + 18)}%,
+    ${Math.min(0.42, depthAlpha + treble * 0.06)}
+  )`;
+
+context.lineWidth = 0.8 + treble * 0.5 + impulse * 0.35;
+
+for (let line = 0; line <= horizontalLines; line += 1) {
+  const progress = line / horizontalLines;
+  const perspective = progress * progress;
+  const y = horizonY + (floorBottom - horizonY) * perspective;
+
+  const wave =
+    Math.sin(line * 0.78 + gridFlow) *
+      (1.5 + mid * 3.5) +
+    Math.cos(line * 0.34 - gridFlow * 1.2) *
+      bass *
+      3.5;
+
+  const pulseLift =
+    Math.exp(-Math.pow(progress - 0.42, 2) / 0.035) * gridPulse;
+
+  context.beginPath();
+  context.moveTo(-rect.width * 0.08, y + wave - pulseLift);
+  context.lineTo(rect.width * 1.08, y + wave - pulseLift);
+  context.stroke();
+}
+
+for (let line = 0; line <= verticalLines; line += 1) {
+  const progress = line / verticalLines;
+  const horizonX =
+    centerX + (progress - 0.5) * rect.width * 0.42;
+
+  const bottomX =
+    centerX + (progress - 0.5) * rect.width * (1.42 + gridDepth * 0.12);
+
+  const bend =
+    Math.sin(progress * Math.PI * 2 + gridFlow * 0.65) *
+    (mid * 8 + bass * 4);
+
+  context.beginPath();
+  context.moveTo(horizonX + bend * 0.2, horizonY);
+  context.lineTo(bottomX + bend, floorBottom);
+  context.stroke();
+}
+
+
+
+const horizonGlow = context.createLinearGradient(
+  0,
+  horizonY - 28,
+  0,
+  horizonY + 48
+);
+
+horizonGlow.addColorStop(
+  0,
+  `hsla(${liveHue}, ${saturation}%, 78%, 0)`
+);
+
+horizonGlow.addColorStop(
+  0.5,
+  `hsla(
+    ${(liveHue + 42 + treble * 18) % 360},
+    ${saturation}%,
+    ${Math.min(88, lightness + 26)}%,
+    ${Math.min(0.30, depthAlpha + voiceLevel * 0.10)}
+  )`
+);
+
+horizonGlow.addColorStop(
+  1,
+  `hsla(${liveHue}, ${saturation}%, 78%, 0)`
+);
+
+context.fillStyle = horizonGlow;
+context.fillRect(0, horizonY - 28, rect.width, 76);
+
+context.restore();
+
+const wireformLobes = 3 + Math.floor(random() * 3);
+const wireformTurns = 2.2 + random() * 1.8;
+const wireformPoints = 180;
+const wireformWidth = radius * (1.06 + bass * 0.42 + impulse * 0.18);
+const wireformHeight = radius * (0.56 + mid * 0.30 + impulse * 0.08);
+const wireformCenterY = centerY - radius * 0.04;
+const wireformSpin = time * (0.46 + mid * 2.1 + voiceLevel * 0.55);
+
+context.save();
+
+context.globalCompositeOperation = 'lighter';
+context.lineCap = 'round';
+context.lineJoin = 'round';
+context.shadowColor =
+  `hsla(${liveHue}, ${saturation}%, ${Math.min(92, lightness + 24)}%, 0.82)`;
+
+context.shadowBlur =
+  7 + treble * 12 + voiceLevel * 6 + impulse * 8;
+
+const strandCount = 9 + Math.round(treble * 7);
+
+for (let strand = 0; strand < strandCount; strand += 1) {
+  const strandOffset =
+    (strand / Math.max(1, strandCount - 1) - 0.5) *
+    (4.5 + treble * 10);
+
+  context.beginPath();
+
+  context.strokeStyle =
+    `hsla(
+      ${(liveHue + strand * 3.8 + mid * 26) % 360},
+      ${Math.min(100, saturation + 10)}%,
+      ${Math.min(92, lightness + 20 + treble * 12)}%,
+      ${Math.min(0.68, 0.18 + depthAlpha + treble * 0.12)}
+    )`;
+
+  context.lineWidth =
+    0.45 + treble * 0.55 + (strand % 3 === 0 ? 0.3 : 0);
+
+  for (let point = 0; point <= wireformPoints; point += 1) {
+    const progress = point / wireformPoints;
+    const angle = progress * Math.PI * 2 * wireformTurns;
+
+    const lobe =
+      1 +
+      Math.sin(
+        angle * wireformLobes +
+          wireformSpin +
+          strand * 0.18
+      ) *
+        (0.22 + bass * 0.18);
+
+    const spiral =
+      0.26 +
+      Math.sin(angle * 0.5 + wireformSpin * 0.65) *
+        0.13;
+
+    const x =
+      centerX +
+      Math.cos(
+        angle +
+          wireformSpin +
+          Math.sin(angle * 0.75 + strand) * 0.34
+      ) *
+        wireformWidth *
+        lobe *
+        spiral;
+
+    const y =
+      wireformCenterY +
+      Math.sin(
+        angle * (1.08 + mid * 0.35) -
+          wireformSpin * 0.72
+      ) *
+        wireformHeight *
+        lobe +
+      strandOffset;
+
+    if (point === 0) {
+      context.moveTo(x, y);
+    } else {
+      context.lineTo(x, y);
+    }
+  }
+
+  context.stroke();
+}
+
+context.restore();
+
+const fieldParticleCount = 72 + Math.round(treble * 42);
+const particleDrift = time * (0.22 + mid * 0.72);
+
+context.save();
+
+context.globalCompositeOperation = 'lighter';
+context.shadowColor =
+  `hsla(${liveHue}, ${saturation}%, ${Math.min(94, lightness + 26)}%, 0.65)`;
+
+context.shadowBlur =
+  3 + treble * 8 + impulse * 5;
+
+for (let particle = 0; particle < fieldParticleCount; particle += 1) {
+  const seedAngle = random() * Math.PI * 2;
+  const seedDistance = radius * (0.58 + random() * 1.58);
+  const orbitDirection = particle % 2 === 0 ? 1 : -1;
+
+  const angle =
+    seedAngle +
+    particleDrift *
+      orbitDirection *
+      (0.55 + random() * 0.85);
+
+  const outwardPulse =
+    impulse *
+    radius *
+    (0.05 + random() * 0.18);
+
+  const wave =
+    Math.sin(
+      particleDrift * (1.2 + random() * 1.8) +
+        seedAngle * 3
+    ) *
+    (2 + mid * 9);
+
+  const x =
+    centerX +
+    Math.cos(angle) *
+      (seedDistance + outwardPulse + wave);
+
+  const y =
+    centerY +
+    Math.sin(angle) *
+      (seedDistance + outwardPulse + wave) *
+      (0.70 + bass * 0.10);
+
+  const size =
+    1.1 +
+    random() * 2.6 +
+    treble * 2.5 +
+    impulse * 1.4;
+
+  const particleHue =
+    (liveHue +
+      22 +
+      random() * 84 +
+      treble * 26) %
+    360;
+
+  const alpha =
+    Math.min(
+      0.86,
+      0.20 +
+        random() * 0.45 +
+        voiceLevel * 0.20 +
+        treble * 0.15
+    );
+
+  context.fillStyle =
+    `hsla(
+      ${particleHue},
+      ${Math.min(100, saturation + 8)}%,
+      ${Math.min(94, lightness + 28)}%,
+      ${alpha}
+    )`;
+
+  context.fillRect(
+    x - size / 2,
+    y - size / 2,
+    size,
+    size
+  );
+}
+
+context.restore();
+
+const rippleCount = 3;
+
+context.save();
+
+context.globalCompositeOperation = 'lighter';
+context.lineWidth = 0.7 + treble * 0.45;
+
+for (let ripple = 0; ripple < rippleCount; ripple += 1) {
+  const phase =
+    (time * (0.52 + mid * 0.48) + ripple / rippleCount) % 1;
+
+  const rippleRadius =
+    radius *
+    (0.35 + phase * (1.45 + bass * 0.34) + impulse * 0.18);
+
+  const rippleAlpha =
+    Math.max(
+      0,
+      (1 - phase) *
+        (0.05 + voiceLevel * 0.11 + impulse * 0.20)
+    );
+
+  context.beginPath();
+
+  context.strokeStyle =
+    `hsla(
+      ${(liveHue + ripple * 22 + treble * 20) % 360},
+      ${Math.min(100, saturation + 4)}%,
+      ${Math.min(94, lightness + 24)}%,
+      ${rippleAlpha}
+    )`;
+
+  context.arc(
+    centerX,
+    centerY,
+    rippleRadius,
+    0,
+    Math.PI * 2
+  );
+
+  context.stroke();
+}
+
+context.restore();
+
+  const glow = context.createRadialGradient(
+    centerX,
+    centerY,
+    4,
+    centerX,
+    centerY,
+    radius * (1.55 + bass * 0.18 + voicePulse * 0.26)
+  );
+
+  glow.addColorStop(
+  0,
+  `hsla(
+    ${liveHue},
+    ${saturation}%,
+    ${Math.min(92, lightness + 20)}%,
+    ${0.20 * intensity * (1 + voiceLevel * 0.35)}
+  )`
+);
+
+glow.addColorStop(
+  0.55,
+  `hsla(
+    ${(liveHue + 58 + treble * 24) % 360},
+    ${Math.min(100, saturation + 6)}%,
+    ${Math.min(86, lightness + 12)}%,
+    ${0.06 * intensity * voiceDetail}
+  )`
+);
+
+  glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+  context.fillStyle = glow;
+  context.fillRect(0, 0, rect.width, rect.height);
+
+  const ringCount = 3 + Math.round(treble * 2);
+
+  for (let ring = 1; ring <= ringCount; ring += 1) {
+    const ringProgress = ring / ringCount;
+    const ringRadius =
+      radius *
+      (0.52 + ringProgress * 0.65 + voicePulse * (0.07 + ring * 0.015));
+
+    const waveAmount =
+      bass * 7 +
+      mid * 5 +
+      treble * 2.5 +
+      voicePulse * 11;
+
+    const rotation =
+      time * (0.15 + ring * 0.035) * voiceFlow +
+      ring * 0.6;
+
+    context.beginPath();
+
+    context.strokeStyle =
+  `hsla(
+    ${(liveHue + ring * 8 + treble * 38) % 360},
+    ${Math.min(100, saturation + ring * 2)}%,
+    ${Math.min(92, lightness + 18 - ring * 2)}%,
+    ${(0.18 - ring * 0.028) * intensity * (1 + voiceLevel * 0.2)}
+  )`;
+
+    context.lineWidth =
+      0.8 + treble * 0.85 + voicePulse * 0.65;
+
+    const points = 88;
+
+    for (let point = 0; point <= points; point += 1) {
+      const angle = (point / points) * Math.PI * 2;
+      const organicWave =
+        Math.sin(angle * (2.4 + mid * 2.8) + rotation) * waveAmount +
+        Math.cos(angle * (4.8 + treble * 4.2) - rotation * 1.35) *
+          waveAmount *
+          0.42;
+
+      const currentRadius = ringRadius + organicWave;
+      const x = centerX + Math.cos(angle) * currentRadius;
+      const y = centerY + Math.sin(angle) * currentRadius * 0.76;
+
+      if (point === 0) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+    }
+
+    context.closePath();
+    context.stroke();
+  }
+
+  const coreRadius =
+    radius * (0.13 + bass * 0.06 + voicePulse * 0.04);
+
+  const coreGlow = context.createRadialGradient(
+    centerX,
+    centerY,
+    0,
+    centerX,
+    centerY,
+    coreRadius * 2.8
+  );
+
+  coreGlow.addColorStop(
+  0,
+  `hsla(
+    ${liveHue},
+    ${Math.min(100, saturation + 12)}%,
+    ${Math.min(96, lightness + 34)}%,
+    ${0.45 * intensity * (1 + voiceLevel * 0.3)}
+  )`
+);
+
+coreGlow.addColorStop(
+  0.35,
+  `hsla(
+    ${(liveHue + 32 + treble * 12) % 360},
+    ${Math.min(100, saturation + 8)}%,
+    ${Math.min(86, lightness + 14)}%,
+    ${0.16 * intensity}
+  )`
+);
+
+  coreGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+  context.fillStyle = coreGlow;
+  context.beginPath();
+  context.arc(centerX, centerY, coreRadius * 2.8, 0, Math.PI * 2);
+  context.fill();
+
+  for (let index = 0; index < particleCount; index += 1) {
+    const baseAngle = random() * Math.PI * 2;
+    const angle =
+      baseAngle +
+      time *
+        (0.08 + random() * 0.15) *
+        voiceFlow *
+        (index % 2 === 0 ? 1 : -1);
+
+    const distance =
+      radius *
+      (0.66 + random() * 1.02 + bass * random() * 0.15) +
+      voicePulse * radius * random() * 0.2;
+
+    const drift =
+      Math.sin(time * (0.8 + mid) + baseAngle * 3) *
+      (2 + mid * 7);
+
+    const x = centerX + Math.cos(angle) * (distance + drift);
+    const y =
+      centerY +
+      Math.sin(angle) *
+        (distance + drift) *
+        (0.76 + bass * 0.05);
+
+    const size =
+      (0.6 + random() * 2.5) *
+      (1 + treble * 0.65 + voicePulse * 0.4);
+
+    context.beginPath();
+
+    context.fillStyle =
+  `hsla(
+    ${(liveHue + random() * 75 + treble * 32) % 360},
+    ${Math.min(100, saturation + 6)}%,
+    ${Math.min(96, lightness + 18 + random() * 8)}%,
+    ${(0.22 + random() * 0.68) * intensity * voiceDetail}
+  )`;
+
+    context.arc(x, y, size, 0, Math.PI * 2);
+    context.fill();
+  }
+
+  resonanceState.textContent =
+    liveMicLevel > 0.02
+      ? `${record.sealParameters.sides}-point live resonance field`
+      : `${record.sealParameters.sides}-point resonance field`;
+
+  resonanceSeed.textContent = `Seed ${seedText.slice(0, 12)}…`;
+}
+
+function setMicState(message, active = false) {
+  micState.textContent = message;
+  micState.classList.toggle('active', active);
+  micResonance.classList.toggle('is-active', active);
+}
+
+function stopMicrophoneResonance(message = 'Microphone is off.') {
+  if (micAnimationFrame) {
+    cancelAnimationFrame(micAnimationFrame);
+    micAnimationFrame = null;
+  }
+
+  if (micStream) {
+    micStream.getTracks().forEach((track) => track.stop());
+    micStream = null;
+  }
+
+  if (micAudioContext) {
+    micAudioContext.close().catch(() => {});
+    micAudioContext = null;
+  }
+
+  micAnalyser = null;
+  micData = null;
+  liveMicLevel = 0;
+  micMeterFill.style.width = '0%';
+  startMic.disabled = false;
+  stopMic.disabled = true;
+  setMicState(message, false);
+  renderResonance(currentRecord);
+}
+
+function updateMicrophoneResonance() {
+  if (!micAnalyser || !micData || !micFrequencyData) return;
+
+  micAnalyser.getByteTimeDomainData(micData);
+  micAnalyser.getByteFrequencyData(micFrequencyData);
+
+  let total = 0;
+
+  for (let index = 0; index < micData.length; index += 1) {
+    const centered = (micData[index] - 128) / 128;
+    total += centered * centered;
+  }
+
+  const rms = Math.sqrt(total / micData.length);
+  const rawLevel = Math.min(1, rms * 4.2);
+
+  const binHz = micAudioContext.sampleRate / micAnalyser.fftSize;
+
+  function averageBand(fromHz, toHz) {
+    const start = Math.max(0, Math.floor(fromHz / binHz));
+    const end = Math.min(
+      micFrequencyData.length - 1,
+      Math.ceil(toHz / binHz)
+    );
+
+    let sum = 0;
+    let count = 0;
+
+    for (let index = start; index <= end; index += 1) {
+      sum += micFrequencyData[index];
+      count += 1;
+    }
+
+    return count ? sum / count / 255 : 0;
+  }
+
+  const rawBass = averageBand(60, 250);
+  const rawMid = averageBand(250, 2200);
+  const rawTreble = averageBand(2200, 7000);
+
+  liveMicLevel = liveMicLevel * 0.72 + rawLevel * 0.28;
+  liveMicBass = liveMicBass * 0.76 + rawBass * 0.24;
+  liveMicMid = liveMicMid * 0.76 + rawMid * 0.24;
+  liveMicTreble = liveMicTreble * 0.76 + rawTreble * 0.24;
+
+  const risingEdge = Math.max(0, liveMicLevel - previousMicLevel);
+  liveMicImpulse = Math.min(
+    1,
+    liveMicImpulse * 0.84 + risingEdge * 7.5
+  );
+
+  previousMicLevel = liveMicLevel;
+
+  micMeterFill.style.width = `${Math.round(liveMicLevel * 100)}%`;
+
+  renderResonance(currentRecord);
+  micAnimationFrame = requestAnimationFrame(updateMicrophoneResonance);
+}
+
+async function startMicrophoneResonance() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    setMicState(
+      'Live microphone access is not available in this browser or page context.',
+      false
+    );
+    return;
+  }
+
+  try {
+    startMic.disabled = true;
+    setMicState('Requesting microphone permission…', false);
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
+      },
+      video: false
+    });
+
+    micStream = stream;
+
+    micAudioContext =
+      new (window.AudioContext || window.webkitAudioContext)();
+
+    const source = micAudioContext.createMediaStreamSource(stream);
+
+    micAnalyser = micAudioContext.createAnalyser();
+    micAnalyser.fftSize = 1024;
+    micAnalyser.smoothingTimeConstant = 0.78;
+
+  micData = new Uint8Array(micAnalyser.fftSize);
+  micFrequencyData = new Uint8Array(micAnalyser.frequencyBinCount);
+
+  source.connect(micAnalyser);
+
+    stopMic.disabled = false;
+
+    setMicState(
+      'Microphone is active for live visual response only. No audio is recorded, saved, or uploaded.',
+      true
+    );
+
+    updateMicrophoneResonance();
+  } catch (error) {
+    console.error(error);
+
+    stopMicrophoneResonance(
+      error.name === 'NotAllowedError'
+        ? 'Microphone permission was not granted. EvoMirror remains fully usable without it.'
+        : `Microphone could not start: ${error.message}`
+    );
+  }
+}
+
+      function showRecord(record) {
+  currentRecord = record;
+  renderSeal(record);
+  renderResonance(record);
+
+
+  if (!record) {
+    sealSummary.textContent =
+      'Create or select a session to view its local deterministic seal.';
+    hashDisplay.textContent = 'No record hash yet.';
+
+    journalEntry.textContent =
+      'Select or create a session to read its reflection.';
+    journalSession.textContent = '—';
+    journalCreated.textContent = '—';
+    journalHash.textContent = '—';
+    journalPreviousHash.textContent = 'First local session';
+    copyHash.disabled = true;
+
+    return;
+  }
+
+  const sessionPosition =
+    currentRecords.findIndex((item) => item.id === record.id) + 1;
+
+  sealSummary.textContent =
+    `Created ${new Date(record.createdAt).toLocaleString()} · ` +
+    `schema v${record.schemaVersion} · ` +
+    `${record.sealParameters.sides}-point seal`;
+
+  hashDisplay.textContent = `SHA-256: ${record.recordHash}`;
+
+  journalEntry.textContent =
+    record.reflectionText ||
+    'No written reflection was saved for this session.';
+
+  journalSession.textContent =
+    sessionPosition > 0
+      ? `${sessionPosition} of ${currentRecords.length}`
+      : 'Saved local session';
+
+  journalCreated.textContent =
+    new Date(record.createdAt).toLocaleString();
+
+  journalHash.textContent = record.recordHash;
+
+  journalPreviousHash.textContent =
+    record.previousRecordHash || 'First local session';
+
+  copyHash.disabled = false;
+}
+
+      async function renderRecords(selectLatest = true) {
+        const records = await allRecords();
+        currentRecords = records;
+
+        recordList.replaceChildren();
+        recordCount.textContent = records.length === 1 ? '1 saved local session.' : `${records.length} saved local sessions.`;
+        records.slice().reverse().forEach((record) => {
+          const item = document.createElement('li');
+          const button = document.createElement('button');
+          const preview = record.reflectionText ? record.reflectionText.replace(/\s+/g, ' ').slice(0, 66) : 'Untitled local reflection';
+          button.innerHTML = `${escapeHtml(preview)}<small>${new Date(record.createdAt).toLocaleString()} · ${record.recordHash.slice(0, 14)}…</small>`;
+          button.addEventListener('click', () => showRecord(record));
+          item.append(button);
+          recordList.append(item);
+        });
+        if (selectLatest) showRecord(records.at(-1) || null);
+        return records;
+      }
+
+      function escapeHtml(value) {
+        return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[character]));
+      }
+
+      async function createSession() {
+        try {
+          const records = await allRecords();
+          const previous = records.at(-1);
+          const record = {
+            schemaVersion: SCHEMA_VERSION,
+            id: crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+            reflectionText: reflection.value.trim(),
+            sealParameters: null,
+            previousRecordHash: previous ? previous.recordHash : null
+          };
+          const firstHash = await sha256(JSON.stringify({
+            schemaVersion: record.schemaVersion,
+            id: record.id,
+            createdAt: record.createdAt,
+            reflectionText: record.reflectionText,
+            previousRecordHash: record.previousRecordHash
+          }));
+          record.sealParameters = sealParametersFromHash(firstHash);
+          record.recordHash = await sha256(canonicalPayload(record));
+          await putRecord(record);
+          reflection.value = '';
+          showRecord(record);
+          await renderRecords(false);
+          setStatus('Local session created and saved in this browser. Export an archive to make a backup.', 'good');
+        } catch (error) {
+          console.error(error);
+          setStatus(`Could not create the local session: ${error.message}`, 'error');
+        }
+      }
+
+      function buildArchive(records) {
+        return {
+          archiveSchemaVersion: 1,
+          app: 'EvoMirror Private Local Archive',
+          exportedAt: new Date().toISOString(),
+          records
+        };
+      }
+
+      async function exportArchive() {
+        try {
+          const records = await allRecords();
+          const content = JSON.stringify(buildArchive(records), null, 2);
+          const blob = new Blob([content], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `evomirror-private-archive-${new Date().toISOString().slice(0, 10)}.json`;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+          setStatus(`Exported ${records.length} local session${records.length === 1 ? '' : 's'} as a JSON backup.`, 'good');
+        } catch (error) {
+          console.error(error);
+          setStatus(`Could not export archive: ${error.message}`, 'error');
+        }
+      }
+
+      async function validateRecord(record) {
+        if (!record || typeof record !== 'object') return { valid: false, reason: 'Record is not an object.' };
+        const required = ['schemaVersion', 'id', 'createdAt', 'reflectionText', 'sealParameters', 'previousRecordHash', 'recordHash'];
+        if (required.some((key) => !(key in record))) return { valid: false, reason: 'Record is missing required fields.' };
+        if (record.schemaVersion !== SCHEMA_VERSION || typeof record.id !== 'string' || typeof record.createdAt !== 'string' || typeof record.reflectionText !== 'string' || typeof record.recordHash !== 'string') {
+          return { valid: false, reason: 'Record fields have an unsupported type or version.' };
+        }
+        const computed = await sha256(canonicalPayload(record));
+        if (computed !== record.recordHash) return { valid: false, reason: 'SHA-256 hash does not match this record.' };
+        const p = record.sealParameters;
+        if (!p || !['hue', 'hue2', 'sides', 'rings', 'rotation', 'pulse'].every((key) => Number.isFinite(p[key]))) {
+          return { valid: false, reason: 'Seal parameters are invalid.' };
+        }
+        return { valid: true };
+      }
+
+      async function inspectArchive(file) {
+        try {
+          const text = await file.text();
+          const archive = JSON.parse(text);
+          if (!archive || archive.archiveSchemaVersion !== 1 || !Array.isArray(archive.records)) throw new Error('This is not a supported EvoMirror archive.');
+          const checks = await Promise.all(archive.records.map(validateRecord));
+          const validRecords = archive.records.filter((_, index) => checks[index].valid);
+          const invalidRecords = checks.filter((check) => !check.valid);
+          pendingImport = { validRecords, invalidRecords };
+          importSummary.textContent = `The archive contains ${archive.records.length} record(s): ${validRecords.length} valid and ${invalidRecords.length} invalid or altered. Only valid records can be imported. Choose Merge to preserve current records, or Replace to clear current local records first.`;
+          importDialog.showModal();
+        } catch (error) {
+          console.error(error);
+          setStatus(`Import was not opened: ${error.message}`, 'error');
+        } finally {
+          $('importArchive').value = '';
+        }
+      }
+
+      async function applyImport(mode) {
+        if (!pendingImport) return;
+        try {
+          const { validRecords, invalidRecords } = pendingImport;
+          if (mode === 'replace') await clearRecords();
+          const current = await allRecords();
+          const ids = new Set(current.map((record) => record.id));
+          let added = 0;
+          for (const record of validRecords) {
+            if (!ids.has(record.id)) {
+              await putRecord(record);
+              added += 1;
+            }
+          }
+          await renderRecords(true);
+          importDialog.close();
+          setStatus(`Import complete: ${added} valid record(s) added${mode === 'replace' ? ' after replacing the local archive' : ''}. ${invalidRecords.length} invalid record(s) were not imported.`, invalidRecords.length ? 'warn' : 'good');
+          pendingImport = null;
+        } catch (error) {
+          console.error(error);
+          setStatus(`Could not apply import: ${error.message}`, 'error');
+        }
+      }
+
+      async function clearLocalArchive() {
+        const records = await allRecords();
+        if (!records.length) {
+          setStatus('There are no local sessions to clear.', 'warn');
+          return;
+        }
+        if (!window.confirm(`Clear ${records.length} local session(s) from this browser? Export a backup first if you want to keep them.`)) return;
+        await clearRecords();
+        await renderRecords(true);
+        setStatus('Local archive cleared from this browser.', 'warn');
+      }
+
+      async function initialize() {
+        try {
+          if (!('indexedDB' in window) || !crypto?.subtle || !crypto?.randomUUID) throw new Error('This browser does not provide the local storage and Web Crypto features EvoMirror needs.');
+          db = await openDb();
+          await renderRecords(true);
+          setStatus('Private local archive ready. No account or server login is used.', 'good');
+          renderSeal(null);
+        } catch (error) {
+          console.error(error);
+          setStatus(`EvoMirror could not start: ${error.message}`, 'error');
+          $('createSession').disabled = true;
+          $('exportArchive').disabled = true;
+        }
+      }
+
+      $('createSession').addEventListener('click', createSession);
+      $('clearDraft').addEventListener('click', () => { reflection.value = ''; reflection.focus(); });
+      $('exportArchive').addEventListener('click', exportArchive);
+      $('importArchive').addEventListener('change', (event) => { if (event.target.files[0]) inspectArchive(event.target.files[0]); });
+      $('clearLocal').addEventListener('click', clearLocalArchive);
+      $('mergeImport').addEventListener('click', () => applyImport('merge'));
+      $('replaceImport').addEventListener('click', () => applyImport('replace'));
+      $('cancelImport').addEventListener('click', () => { pendingImport = null; importDialog.close(); });
+      
+      copyHash.addEventListener('click', async () => {
+  if (!currentRecord) return;
+
+  try {
+    await navigator.clipboard.writeText(currentRecord.recordHash);
+    setStatus('Current SHA-256 record hash copied to the clipboard.', 'good');
+  } catch (error) {
+    setStatus(
+      'The hash could not be copied automatically. Select it from the Journal Archive panel and copy it manually.',
+      'warn'
+    );
+  }
+});
+
+function setResonanceMotion(mode) {
+  resonanceMotion = mode;
+
+  const isFlowing = mode === 'flowing';
+
+  resonanceWrap.classList.toggle('is-flowing', isFlowing);
+
+  motionStill.setAttribute('aria-pressed', String(!isFlowing));
+  motionFlowing.setAttribute('aria-pressed', String(isFlowing));
+
+  setStatus(
+    isFlowing
+      ? 'Flowing display motion is active. It changes only this local visual display.'
+      : 'Still display motion is active. It changes only this local visual display.',
+    'good'
+  );
+}
+
+fieldIntensity.addEventListener('input', () => {
+  resonanceIntensity = Number(fieldIntensity.value) / 100;
+  fieldIntensityValue.textContent = `${fieldIntensity.value}%`;
+  renderResonance(currentRecord);
+});
+
+motionStill.addEventListener('click', () => setResonanceMotion('still'));
+motionFlowing.addEventListener('click', () => setResonanceMotion('flowing'));
+
+startMic.addEventListener('click', startMicrophoneResonance);
+stopMic.addEventListener('click', () => stopMicrophoneResonance());
+window.addEventListener('pagehide', () => stopMicrophoneResonance());
+
+window.addEventListener('resize', () => renderResonance(currentRecord));
+
+initialize();
+})();
+</script>
+</body>
+</html>
