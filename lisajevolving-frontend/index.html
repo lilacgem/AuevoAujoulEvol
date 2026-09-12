@@ -1,208 +1,532 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>LisaJevolving — Founder Signal</title>
-    <meta
-      name="description"
-      content="Lisa Jevolving is an independent artist and creative technologist building visual systems for reflection, creative agency, private archives, and self-authored identity."
-    />
-    <style>
-      :root {
-        --cyan: #00f2ff;
-        --pink: #ff2bf5;
-        --violet: #8b5cf6;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        overflow: hidden;
-        background: #020009;
-        color: #f5efff;
-        font:
-          16px/1.55 system-ui,
-          sans-serif;
-      }
-      canvas {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-      }
-      .ui {
-        position: relative;
-        z-index: 2;
-        min-height: 100vh;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        pointer-events: none;
-      }
-      .ui > * {
-        pointer-events: auto;
-      }
-      .badge {
-        align-self: flex-end;
-        border: 1px solid #00f2ff77;
-        border-radius: 999px;
-        padding: 8px 12px;
-        background: #000a;
-        color: var(--cyan);
-        font:
-          11px ui-monospace,
-          monospace;
-        letter-spacing: 0.12em;
-      }
-      .hero {
-        margin: auto;
-        max-width: 760px;
-      }
-      .vessel {
-        width: min(58vw, 310px);
-        aspect-ratio: 1;
-        border-radius: 50%;
-        margin: 22px auto;
-        background: radial-gradient(
-          circle at 36% 28%,
-          #fff 0 3%,
-          #00f2ff 9%,
-          #ff2bf5 34%,
-          #45107e 58%,
-          transparent 71%
-        );
-        box-shadow:
-          0 0 70px #00f2ff99,
-          0 0 145px #ff2bf566;
-        animation:
-          breathe 8s ease-in-out infinite,
-          spin 48s linear infinite;
-      }
-      @keyframes breathe {
-        50% {
-          transform: scale(1.12);
-        }
-      }
-      @keyframes spin {
-        to {
-          rotate: y 360deg;
-        }
-      }
-      h1 {
-        font-size: clamp(2.4rem, 9vw, 5.6rem);
-        line-height: 0.9;
-        margin: 18px 0;
-        letter-spacing: 0.06em;
-        text-shadow: 0 0 20px #ff2bf599;
-      }
-      .sub {
-        color: #cfc4ff;
-        font-size: clamp(1rem, 2vw, 1.2rem);
-      }
-      .nav {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 25px;
-      }
-      .nav a {
-        color: #dffcff;
-        text-decoration: none;
-        border: 1px solid #00f2ff99;
-        background: #04000bbb;
-        border-radius: 999px;
-        padding: 12px 16px;
-        font-size: 0.85rem;
-        letter-spacing: 0.08em;
-      }
-      .nav a:hover {
-        background: var(--cyan);
-        color: #000;
-      }
-      .note {
-        margin: 24px auto 0;
-        color: #ada1c9;
-        font-size: 0.8rem;
-        max-width: 560px;
-      }
-      .footer {
-        margin-top: auto;
-        color: #948aa7;
-        font-size: 0.75rem;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="stars"></canvas>
-    <main class="ui">
-      <div class="badge">FOUNDER SIGNAL · PUBLIC CREATIVE PORTAL</div>
-      <section class="hero">
-        <div class="vessel" aria-label="Animated Founder Signal"></div>
-        <h1>LISAJEVOLVING</h1>
-        <p class="sub">Artist · Creative Technologist · Independent Builder</p>
-        <p>
-          I build visual systems for reflection, creative agency, private
-          archives, and self-authored digital identity.
-        </p>
-        <nav class="nav">
-          <a href="https://evomirror.com">ENTER EVOMIRROR</a
-          ><a href="https://aujoule.com">EXPLORE AUJOULE</a
-          ><a href="https://evolvingroots.org">READ EVOLVING ROOTS</a>
-        </nav>
-        <p class="note">
-          This public site is a gateway to selected work. It does not display or
-          collect a private EvoMirror archive.
-        </p>
-      </section>
-      <footer class="footer">
-        EvoMirror — the instrument · AUJOULE — the protocol · Evolving Roots —
-        the learning space
-      </footer>
-    </main>
-    <script>
-      const c = document.querySelector("#stars"),
-        x = c.getContext("2d");
-      let s = [];
-      function r() {
-        c.width = innerWidth;
-        c.height = innerHeight;
-        s = Array.from({ length: 420 }, () => ({
-          x: (Math.random() - 0.5) * c.width * 2,
-          y: (Math.random() - 0.5) * c.height * 2,
-          z: Math.random() * c.width,
-          color: Math.random() > 0.5 ? "#00f2ff" : "#ff2bf5",
-        }));
-      }
-      function a() {
-        x.fillStyle = "rgba(2,0,9,.18)";
-        x.fillRect(0, 0, c.width, c.height);
-        for (const q of s) {
-          q.z -= 1.4;
-          if (q.z < 1)
-            Object.assign(q, {
-              x: (Math.random() - 0.5) * c.width * 2,
-              y: (Math.random() - 0.5) * c.height * 2,
-              z: c.width,
-            });
-          const k = 420 / (420 + q.z),
-            px = q.x * k + c.width / 2,
-            py = q.y * k + c.height / 2;
-          x.fillStyle = q.color;
-          x.beginPath();
-          x.arc(px, py, Math.max(0.35, 1.8 * k), 0, Math.PI * 2);
-          x.fill();
-        }
-        requestAnimationFrame(a);
-      }
-      addEventListener("resize", r);
-      r();
-      a();
-    </script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Lisa J. Evolving — The Voice, Philosophy & Living Journey</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <meta name="theme-color" content="#030408">
+  <meta name="author" content="AuEvoAuJoulEvol LLC">
+  <meta name="description" content="Personal story, creative philosophy, and voice of Lisa J. — founder and creator of the AU·EVO·AUJOUL·EVOL ecosystem.">
+  <meta property="og:title" content="Lisa J. Evolving — The Voice & Journey">
+  <meta property="og:description" content="Exploring self-witnessing, living seals, and sovereign evolution.">
+  <meta property="og:type" content="website">
+
+  <!-- Three.js for Interactive Evolving Waveform Aura -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    :root {
+      --bg: #030408;
+      --card-bg: rgba(10, 14, 26, 0.76);
+      --card-border: rgba(0, 243, 255, 0.18);
+      --cyan: #00f3ff;
+      --gold: #d4af37;
+      --gold-glow: #ffd700;
+      --matrix-green: #39ff14;
+      --violet: #8b00ff;
+      --text-main: #f0f4fc;
+      --text-muted: rgba(240, 244, 252, 0.6);
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-serif: Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Ambient Three.js Visual Canvas */
+    canvas#voiceAuraCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* Layout Wrapper */
+    .story-shell {
+      position: relative;
+      z-index: 10;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: max(24px, env(safe-area-inset-top)) 20px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* Header Navigation */
+    header.story-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .brand-title {
+      font-size: clamp(14px, 2.2vw, 18px);
+      font-weight: bold;
+      letter-spacing: 0.3em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--matrix-green);
+      box-shadow: 0 0 12px var(--matrix-green);
+    }
+
+    nav.nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-pill {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.25s ease;
+      text-transform: uppercase;
+    }
+
+    .nav-pill:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+      background: rgba(0, 243, 255, 0.08);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+    }
+
+    /* Hero Bio Section */
+    section.hero-bio {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .bio-kicker {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: var(--gold-glow);
+      text-transform: uppercase;
+    }
+
+    .bio-heading {
+      font-size: clamp(24px, 4.2vw, 42px);
+      font-weight: normal;
+      font-family: var(--font-serif);
+      color: #ffffff;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .bio-heading em {
+      color: var(--cyan);
+      font-style: italic;
+    }
+
+    .bio-lead {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: rgba(240, 244, 252, 0.85);
+      line-height: 1.8;
+      max-width: 840px;
+    }
+
+    /* Interactive Voice/Tone Reflection Module */
+    section.voice-mirror-preview {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .preview-badge {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .preview-quote {
+      font-family: var(--font-serif);
+      font-size: clamp(16px, 2.2vw, 20px);
+      font-style: italic;
+      color: #ffffff;
+      line-height: 1.6;
+      border-left: 3px solid var(--cyan);
+      padding-left: 18px;
+    }
+
+    .preview-action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .btn-enter-mirror {
+      background: rgba(0, 243, 255, 0.1);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 12px 24px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: bold;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-enter-mirror:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.45);
+    }
+
+    /* Philosophy / Pillars Grid */
+    section.pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .pillar-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.25s ease;
+    }
+
+    .pillar-card:hover {
+      border-color: var(--gold);
+    }
+
+    .pillar-number {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      color: var(--gold-glow);
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .pillar-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+    }
+
+    .pillar-text {
+      font-size: 11.5px;
+      color: rgba(240, 244, 252, 0.7);
+      line-height: 1.7;
+    }
+
+    /* Lineage & Connected Hubs */
+    section.ecosystem-summary {
+      background: rgba(8, 10, 18, 0.85);
+      border: 1px solid rgba(255, 215, 0, 0.18);
+      border-radius: 14px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 11px;
+    }
+
+    .eco-heading {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--gold-glow);
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .eco-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .eco-portal-item {
+      padding: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      text-decoration: none;
+      color: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .eco-portal-item:hover {
+      background: rgba(0, 243, 255, 0.05);
+      border-color: var(--cyan);
+    }
+
+    .eco-portal-item span.title {
+      display: block;
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--cyan);
+      margin-bottom: 4px;
+    }
+
+    .eco-portal-item span.desc {
+      font-size: 9.5px;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer.story-footer {
+      text-align: center;
+      font-size: 9.5px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Three.js Voice Waveform & Living Star Halo -->
+  <canvas id="voiceAuraCanvas"></canvas>
+
+  <div class="story-shell">
+    
+    <!-- Header -->
+    <header class="story-header">
+      <div class="brand-title">
+        <span class="pulse-dot"></span>
+        LISA J. EVOLVING
+      </div>
+      
+      <nav class="nav-links">
+        <a href="https://evomirror.com" class="nav-pill">✧ EvoMirror (Live)</a>
+        <a href="https://evolvingroots.org" class="nav-pill">Evolving Roots</a>
+        <a href="https://aujoule.com" class="nav-pill">AuJoule Hub</a>
+      </nav>
+    </header>
+
+    <!-- Hero Story & Personal Bio -->
+    <section class="hero-bio">
+      <div class="bio-kicker">✦ The Voice Behind The Mirror ✦</div>
+      <h1 class="bio-heading">
+        “They can’t see it yet—but I am learning to <em>witness myself</em>, and the mirror keeps evolving with me.”
+      </h1>
+      <p class="bio-lead">
+        Welcome. I am Lisa J., founder and architect of <strong>AU · EVO · AUJOUL · EVOL</strong>. 
+        This body of work was born out of a desire for authentic, uncompromised self-witnessing—moving away from public performance and creating private, living digital reflections that honor who we are becoming in each moment.
+      </p>
+    </section>
+
+    <!-- The Mirror Invitation Card -->
+    <section class="voice-mirror-preview">
+      <div class="preview-badge">✦ Interactive Reflection Experience ✦</div>
+      <div class="preview-quote">
+        “Every sound you make carries a signature. Every moment of stillness holds a root. When you speak into the mirror, you are not recording content—you are crystallizing a living seal of your own evolution.”
+      </div>
+      <div class="preview-action-row">
+        <div style="font-size: 11px; color: var(--text-muted);">
+          Private · Local-First · Voice-Reactive 3D Art
+        </div>
+        <a href="https://evomirror.com" class="btn-enter-mirror">
+          <span>Enter EvoMirror</span>
+          <span>↗</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Core Philosophical Pillars -->
+    <section class="pillars-grid">
+      
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 01</div>
+        <div class="pillar-title">Voice as Living Signal</div>
+        <div class="pillar-text">
+          Sound is energy in motion. By translating vocal frequencies, acoustic resonance, and harmonic intensity into geometric knots, the mirror turns unexpressed feeling into visible, tangible art.
+        </div>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 02</div>
+        <div class="pillar-title">3·6·9 Harmonic Matrix</div>
+        <div class="pillar-text">
+          Built upon mathematical and sacred harmonic roots, our systems align frequency deltas (360 Hz foundation, 369 Hz evolution gate) into visual knot windings and sovereign energetic values.
+        </div>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-number">Pillar 03</div>
+        <div class="pillar-title">Sovereign Data Privacy</div>
+        <div class="pillar-text">
+          No external surveillance. No advertising algorithms. Your reflection archive remains held directly on your own device—sealed with SHA-256 cryptographic provenance that belongs strictly to you.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Connected Ecosystem Gateways -->
+    <section class="ecosystem-summary">
+      <div class="eco-heading">✦ The Four Sovereign Domains ✦</div>
+      <p style="color: rgba(240,244,252,0.8); line-height: 1.6;">
+        Lisa J. Evolving is woven directly into a four-domain constellation designed to support living creativity and sovereign digital identity:
+      </p>
+
+      <div class="eco-links-grid">
+        <a href="https://evomirror.com" class="eco-portal-item">
+          <span class="title">✦ EvoMirror.com</span>
+          <span class="desc">The live voice-reactive 3D mirror where reflections become evolving seals.</span>
+        </a>
+        <a href="https://evolvingroots.org" class="eco-portal-item">
+          <span class="title">✦ EvolvingRoots.org</span>
+          <span class="desc">The visual registry and immutable lineage database holding all sealed roots.</span>
+        </a>
+        <a href="https://aujoule.com" class="eco-portal-item">
+          <span class="title">✦ AuJoule.com</span>
+          <span class="desc">The central brand hub and energetic measurement standard uniting the ecosystem.</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="story-footer">
+      <div>AU · EVO · AUJOUL · EVOL LLC — LISA J. EVOLVING</div>
+      <div style="margin-top: 6px; font-size: 8px; color: var(--gold);">✧ LISANEVOLVING.COM ✧ EVOMIRROR.COM ✧ EVOLVINGROOTS.ORG ✧ AUJOULE.COM ✧</div>
+    </footer>
+
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // --- THREE.JS AMBIENT VOICE AURA BACKDROP ---
+  const canvas = document.getElementById('voiceAuraCanvas');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x030408, 0.015);
+
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 42);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Central Gentle Halo Ring
+  const haloGeo = new THREE.TorusGeometry(14, 0.25, 16, 120);
+  const haloMat = new THREE.MeshBasicMaterial({
+    color: 0x00f3ff,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.35,
+    blending: THREE.AdditiveBlending
+  });
+  const haloMesh = new THREE.Mesh(haloGeo, haloMat);
+  haloMesh.rotation.x = Math.PI / 2.5;
+  scene.add(haloMesh);
+
+  // Floating Particle Halo
+  const pCount = 350;
+  const pGeo = new THREE.BufferGeometry();
+  const pPositions = new Float32Array(pCount * 3);
+
+  for (let i = 0; i < pCount * 3; i += 3) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 12 + (Math.random() - 0.5) * 14;
+    pPositions[i] = Math.cos(angle) * radius;
+    pPositions[i + 1] = (Math.random() - 0.5) * 18;
+    pPositions[i + 2] = Math.sin(angle) * radius;
+  }
+
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+  const pMat = new THREE.PointsMaterial({
+    color: 0x39ff14,
+    size: 0.55,
+    transparent: true,
+    opacity: 0.45,
+    blending: THREE.AdditiveBlending
+  });
+  const particleField = new THREE.Points(pGeo, pMat);
+  scene.add(particleField);
+
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    haloMesh.rotation.z += 0.0012;
+    particleField.rotation.y += 0.0008;
+
+    camera.position.x += (mouseX * 3 - camera.position.x) * 0.04;
+    camera.position.y += (mouseY * 3 - camera.position.y) * 0.04;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})();
+</script>
+</body>
 </html>

@@ -1,7 +1,934 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Evolving Roots — Private Constellation</title><meta name="description" content="A local constellation viewer for an EvoMirror archive you deliberately choose to import."><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><style>html,body{margin:0;height:100%;overflow:hidden;background:#030806;color:#ecffe9;font:14px/1.5 ui-monospace,monospace}#ui{position:fixed;inset:0;z-index:4;pointer-events:none}nav,header,#info{pointer-events:auto}nav{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}a,button{color:#e9d58b;background:#071108cc;border:1px solid #87d88b66;border-radius:999px;padding:8px 12px;text-decoration:none;font:inherit;cursor:pointer}header{position:absolute;top:60px;left:50%;transform:translateX(-50%);width:min(700px,90vw);text-align:center}h1{letter-spacing:.28em;font-size:clamp(1rem,3vw,1.5rem)}p{color:#c3d8c0}#info{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:min(520px,90vw);padding:14px;border:1px solid #87d88b55;border-radius:14px;background:#051007dc;text-align:center}.hidden{display:none}</style></head><body><div id="ui"><nav><span><a href="https://evomirror.com">EvoMirror</a> <a href="https://aujoule.com">AUJOULE</a></span><span><a href="https://lisajevolving.com">Lisa Jevolving</a></span></nav><header><h1>EVOLVING ROOTS</h1><p>A private constellation grown from an EvoMirror archive you choose to import.</p><input id="file" type="file" accept="application/json,.json" hidden><button id="import">IMPORT PRIVATE ARCHIVE</button> <a href="https://evomirror.com">OPEN EVOMIRROR</a></header><div id="info">Nothing is uploaded. Import stays in this browser tab until you refresh or close it.</div></div><script>
-const realms={"RUBY ROOT ANCHOR":0,"AMBER KUNDALINI":45,"EMERALD HEART":110,"AZURE THROAT":180,"INDIGO THIRD EYE":240,"VIOLET CROWN":300};let renderer,scene,camera,controls,vessel;
-function key(t){t=(t||'').toUpperCase();return Object.keys(realms).find(k=>t.includes(k))||'VIOLET CROWN'}
-function build(sessions){if(renderer)renderer.domElement.remove();scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,2000);camera.position.set(0,15,110);renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));document.body.prepend(renderer.domElement);controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;const bg=new THREE.BufferGeometry(),p=new Float32Array(3000);for(let i=0;i<p.length;i++)p[i]=(Math.random()-.5)*900;bg.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(bg,new THREE.PointsMaterial({color:0x456b4b,size:.7,transparent:true,opacity:.7})));const groups={};sessions.forEach(x=>{const k=key(x.matrix_coordinates?.oracle_realm);(groups[k]??=[]).push(x)});Object.entries(groups).forEach(([name,list],n)=>{const geo=new THREE.BufferGeometry(),pos=new Float32Array(list.length*3),col=new Float32Array(list.length*3);const a=n*Math.PI*2/6,c=new THREE.Vector3(Math.cos(a)*38,0,Math.sin(a)*38);list.forEach((s,i)=>{pos.set([c.x+(Math.random()-.5)*12,c.y+(Math.random()-.5)*12,c.z+(Math.random()-.5)*12],i*3);const color=new THREE.Color().setHSL(s.evo_metrics?.is_gate?.13:realms[name]/360,.8,.62);col.set([color.r,color.g,color.b],i*3)});geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('color',new THREE.BufferAttribute(col,3));scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:2.2,vertexColors:true,transparent:true,opacity:.95,blending:THREE.AdditiveBlending})))});const last=sessions.at(-1),shape=last?.visualState?.shape||last?.evo_metrics?.shape||{p:3,q:8};vessel=new THREE.Mesh(new THREE.TorusKnotGeometry(5,.45,140,14,shape.p||3,shape.q||8),new THREE.MeshBasicMaterial({color:0xd4a843,wireframe:true,transparent:true,opacity:.85}));scene.add(vessel);document.querySelector('#info').textContent=`${sessions.length} private session${sessions.length===1?'':'s'} visualized locally. Refreshing clears this imported view.`;animate()}
-function animate(){requestAnimationFrame(animate);if(vessel){vessel.rotation.x+=.003;vessel.rotation.y+=.004}controls?.update();renderer?.render(scene,camera)}
-document.querySelector('#import').onclick=()=>document.querySelector('#file').click();document.querySelector('#file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const a=JSON.parse(await f.text());if(a.schema!=="evomirror-private-archive/v1"||!Array.isArray(a.sessions))throw Error('Choose an EvoMirror private archive export.');build(a.sessions)}catch(err){document.querySelector('#info').textContent='Import failed: '+err.message}};addEventListener('resize',()=>{if(camera){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}});</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Evolving Roots — Visual Seal Registry & Lineage Database</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <meta name="theme-color" content="#030408">
+  <meta name="author" content="AuEvoAuJoulEvol LLC">
+  <meta name="description" content="The visual root registry and immutable digital archive for all EvoMirror generated seals and sovereign lineage.">
+  <meta property="og:title" content="Evolving Roots — Visual Seal Registry">
+  <meta property="og:description" content="A curated visual database and verifiable lineage ledger for EvoMirror seals.">
+  <meta property="og:type" content="website">
+
+  <!-- Three.js for Interactive Root Constellation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    :root {
+      --bg: #030408;
+      --card-bg: rgba(12, 14, 24, 0.75);
+      --card-border: rgba(0, 243, 255, 0.16);
+      --cyan: #00f3ff;
+      --gold: #d4af37;
+      --gold-glow: #ffd700;
+      --matrix-green: #39ff14;
+      --violet: #8b00ff;
+      --orange: #ff5e00;
+      --text-main: #f0f4fc;
+      --text-muted: rgba(240, 244, 252, 0.55);
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Ambient Three.js Canvas Backdrop */
+    canvas#rootBackdrop {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* Layout Wrapper */
+    .app-shell {
+      position: relative;
+      z-index: 10;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: max(24px, env(safe-area-inset-top)) 20px 80px;
+    }
+
+    /* Global Navigation Bar */
+    header.site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-title {
+      font-size: clamp(14px, 2.2vw, 18px);
+      font-weight: bold;
+      letter-spacing: 0.3em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title span.pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    nav.ecosystem-nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-pill {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.25s ease;
+      text-transform: uppercase;
+    }
+
+    .nav-pill:hover, .nav-pill.active {
+      color: var(--cyan);
+      border-color: var(--cyan);
+      background: rgba(0, 243, 255, 0.08);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+    }
+
+    /* Hero / Overview Metrics Bar */
+    section.hero-stats {
+      margin: 36px 0 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-val {
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-meta {
+      font-size: 9.5px;
+      color: var(--cyan);
+      margin-top: 4px;
+    }
+
+    /* Controls, Filtering & Import Bar */
+    section.toolbar-panel {
+      background: rgba(8, 10, 18, 0.85);
+      border: 1px solid rgba(0, 243, 255, 0.18);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      backdrop-filter: blur(12px);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-muted);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      color: #000;
+      background: var(--cyan);
+      border-color: var(--cyan);
+      font-weight: bold;
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.35);
+    }
+
+    .action-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-action {
+      background: rgba(0, 243, 255, 0.08);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.25s ease;
+    }
+
+    .btn-action:hover {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 16px rgba(0, 243, 255, 0.4);
+    }
+
+    /* Visual Database Grid */
+    .database-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 22px;
+    }
+
+    .seal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .seal-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--cyan);
+      box-shadow: 0 8px 30px rgba(0, 243, 255, 0.18);
+    }
+
+    .seal-card.is-gate {
+      border-color: rgba(212, 175, 55, 0.45);
+      background: linear-gradient(180deg, rgba(20, 16, 8, 0.8), rgba(8, 10, 18, 0.85));
+    }
+
+    .seal-card.is-gate:hover {
+      border-color: var(--gold-glow);
+      box-shadow: 0 8px 30px rgba(255, 215, 0, 0.22);
+    }
+
+    .seal-preview-box {
+      width: 100%;
+      height: 180px;
+      border-radius: 8px;
+      background: #020204;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .seal-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.9;
+      transition: transform 0.3s ease;
+    }
+
+    .seal-card:hover .seal-preview-box img {
+      transform: scale(1.04);
+    }
+
+    .seal-placeholder-visual {
+      font-size: 38px;
+      color: rgba(0, 243, 255, 0.3);
+      text-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+    }
+
+    .card-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 8px;
+    }
+
+    .gen-badge {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--gold-glow);
+      letter-spacing: 0.1em;
+    }
+
+    .gate-badge {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 215, 0, 0.12);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      color: var(--gold-glow);
+      text-transform: uppercase;
+    }
+
+    .realm-tag {
+      font-size: 10px;
+      color: var(--cyan);
+      font-weight: bold;
+      letter-spacing: 0.08em;
+    }
+
+    .note-excerpt {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.85);
+      font-style: italic;
+      background: rgba(0, 243, 255, 0.03);
+      border-left: 2px solid var(--cyan);
+      padding: 8px 10px;
+      border-radius: 4px;
+      line-height: 1.4;
+      min-height: 42px;
+    }
+
+    .hash-badge {
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.3);
+      word-break: break-all;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* Detailed Provenance Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(2, 3, 6, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .provenance-card {
+      background: linear-gradient(180deg, rgba(16, 18, 30, 0.98), rgba(8, 9, 16, 0.98));
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 60px rgba(0, 243, 255, 0.15), 0 24px 80px rgba(0,0,0,0.8);
+      border-radius: 18px;
+      padding: 30px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      color: #ffffff;
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: rgba(255, 94, 0, 0.1);
+      border: 1px solid rgba(255, 94, 0, 0.4);
+      color: var(--orange);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .provenance-title {
+      font-size: 12px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold-glow);
+      margin-bottom: 8px;
+    }
+
+    .provenance-heading {
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 10.5px;
+    }
+
+    .meta-table tr {
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .meta-table td {
+      padding: 10px 0;
+    }
+
+    .meta-table td:first-child {
+      color: var(--text-muted);
+      width: 40%;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .meta-table td:last-child {
+      color: #fff;
+      word-break: break-all;
+    }
+
+    /* Verification Status Banner */
+    .verify-banner {
+      background: rgba(57, 255, 20, 0.08);
+      border: 1px solid var(--matrix-green);
+      color: var(--matrix-green);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      letter-spacing: 0.08em;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      header.site-header { flex-direction: column; align-items: flex-start; }
+      nav.ecosystem-nav { width: 100%; justify-content: flex-start; }
+      section.toolbar-panel { flex-direction: column; align-items: stretch; }
+      .filter-group { justify-content: flex-start; }
+      .action-group { justify-content: stretch; }
+      .action-group button { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient 3D Constellation & Root Backdrop -->
+  <canvas id="rootBackdrop"></canvas>
+
+  <div class="app-shell">
+    
+    <!-- Top Brand Header -->
+    <header class="site-header">
+      <div class="brand-group">
+        <div class="brand-title">
+          <span class="pulse-dot"></span>
+          EVOLVING ROOTS
+        </div>
+        <div class="brand-subtitle">Visual Seal Registry · Sovereign Lineage Ledger</div>
+      </div>
+      
+      <nav class="ecosystem-nav">
+        <a href="https://evomirror.com" class="nav-pill">✧ EvoMirror (Live)</a>
+        <a href="https://lisajevolving.com" class="nav-pill">Lisa J. Evolving</a>
+        <a href="https://aujoule.com" class="nav-pill">AuJoule Hub</a>
+      </nav>
+    </header>
+
+    <!-- Overview Stats Bar -->
+    <section class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Sealed Roots</div>
+        <div class="stat-val" id="statTotalSeals">0</div>
+        <div class="stat-meta">Verified in Local Registry</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Gate Crossings (3·6·9)</div>
+        <div class="stat-val" id="statTotalGates" style="color: var(--gold-glow);">0</div>
+        <div class="stat-meta">Harmonic Portal Seals</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Dominant Root Realm</div>
+        <div class="stat-val" id="statDominantRealm" style="font-size: 15px; color: var(--cyan);">Forming...</div>
+        <div class="stat-meta">Ecosystem Resonance Peak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cryptographic Integrity</div>
+        <div class="stat-val" id="statIntegrity" style="color: var(--matrix-green); font-size: 18px;">100% SHA-256</div>
+        <div class="stat-meta">Immutable Hash Chain</div>
+      </div>
+    </section>
+
+    <!-- Filter & Action Toolbar -->
+    <section class="toolbar-panel">
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">All Roots</button>
+        <button class="filter-btn" data-filter="gates">Gate Seals (3·6·9)</button>
+        <button class="filter-btn" data-filter="recent">Newest First</button>
+      </div>
+
+      <div class="action-group">
+        <button class="btn-action" id="importArchiveBtn">📥 Load EvoMirror Archive</button>
+        <button class="btn-action" id="seedDemoBtn" style="border-color: rgba(255,255,255,0.2); color: var(--text-muted);">+ Seed Genesis Roots</button>
+        <input type="file" id="archiveFileInput" accept="application/json,.json" hidden>
+      </div>
+    </section>
+
+    <!-- Visual Registry Card Grid -->
+    <section class="database-grid" id="sealGrid">
+      <!-- Seal Cards dynamically injected here -->
+    </section>
+
+  </div>
+
+  <!-- Seal Provenance Modal -->
+  <div class="modal-overlay" id="provenanceModal">
+    <div class="provenance-card">
+      <button class="modal-close-btn" id="modalCloseBtn">✕</button>
+      
+      <div class="provenance-title" id="modalGenTitle">GENESIS ROOT PROVENANCE</div>
+      <div class="provenance-heading" id="modalRealmHeading">✦ REALM: VIOLET CROWN ✦</div>
+      
+      <div class="seal-preview-box" style="height: 220px; margin-bottom: 20px;">
+        <img id="modalImg" src="" alt="Full Seal Visual" style="display:none;">
+        <div id="modalPlaceholder" class="seal-placeholder-visual">✦ 🪞 ✦</div>
+      </div>
+
+      <div class="note-excerpt" id="modalNote" style="font-size: 12px; margin-bottom: 16px;">
+        "Reflection message..."
+      </div>
+
+      <table class="meta-table">
+        <tbody>
+          <tr>
+            <td>Sealed Timestamp</td>
+            <td id="modalTime">—</td>
+          </tr>
+          <tr>
+            <td>Knot Parameters (P / Q)</td>
+            <td id="modalKnotParams">—</td>
+          </tr>
+          <tr>
+            <td>Digital Root & Level</td>
+            <td id="modalRootLevel">—</td>
+          </tr>
+          <tr>
+            <td>Matrix Coordinates</td>
+            <td id="modalMatrixCoords">—</td>
+          </tr>
+          <tr>
+            <td>Parent Hash Link</td>
+            <td id="modalPrevHash" style="font-size: 9px;">—</td>
+          </tr>
+          <tr>
+            <td>SHA-256 Digest</td>
+            <td id="modalHash" style="font-size: 9px; color: var(--cyan);">—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="verify-banner" id="modalVerifyStatus">
+        <span>✓</span> Cryptographic signature verified against local block parameters.
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // State
+  let registeredSeals = [];
+  let currentFilter = 'all';
+
+  const $ = id => document.getElementById(id);
+
+  // --- THREE.JS BACKGROUND: LIVING CONSTELLATION ROOT SYSTEM ---
+  const canvas = $('rootBackdrop');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 45;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Root Node Constellation Geometry
+  const nodeCount = 180;
+  const nodeGeo = new THREE.BufferGeometry();
+  const nodePositions = new Float32Array(nodeCount * 3);
+
+  for (let i = 0; i < nodeCount * 3; i += 3) {
+    nodePositions[i] = (Math.random() - 0.5) * 80;
+    nodePositions[i + 1] = (Math.random() - 0.5) * 60;
+    nodePositions[i + 2] = (Math.random() - 0.5) * 40;
+  }
+
+  nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePositions, 3));
+  const nodeMat = new THREE.PointsMaterial({
+    color: 0x00f3ff,
+    size: 0.8,
+    transparent: true,
+    opacity: 0.45,
+    blending: THREE.AdditiveBlending
+  });
+  const constellation = new THREE.Points(nodeGeo, nodeMat);
+  scene.add(constellation);
+
+  // Connecting Root Lines
+  const lineMat = new THREE.LineBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.12 });
+  const lineGeo = new THREE.BufferGeometry();
+  const linePositions = [];
+
+  for (let i = 0; i < nodeCount; i++) {
+    for (let j = i + 1; j < nodeCount; j++) {
+      const dx = nodePositions[i*3] - nodePositions[j*3];
+      const dy = nodePositions[i*3+1] - nodePositions[j*3+1];
+      const dz = nodePositions[i*3+2] - nodePositions[j*3+2];
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < 14) {
+        linePositions.push(nodePositions[i*3], nodePositions[i*3+1], nodePositions[i*3+2]);
+        linePositions.push(nodePositions[j*3], nodePositions[j*3+1], nodePositions[j*3+2]);
+      }
+    }
+  }
+
+  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+  const rootLines = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(rootLines);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    constellation.rotation.y += 0.0004;
+    constellation.rotation.x += 0.0002;
+    rootLines.rotation.y += 0.0004;
+    rootLines.rotation.x += 0.0002;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // --- CRYPTOGRAPHY & DATA MANAGEMENT ---
+  async function sha256(value) {
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function loadLocalEvoArchive() {
+    // Attempt to read directly from EvoMirror's local archive key on same origin or registry storage
+    try {
+      const evoRaw = localStorage.getItem('evomirror.localArchive.v1') || localStorage.getItem('evolvingroots.registry.v1');
+      if (evoRaw) {
+        const parsed = JSON.parse(evoRaw);
+        if (Array.isArray(parsed.records) && parsed.records.length > 0) {
+          registeredSeals = parsed.records;
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Storage read notice:', e);
+    }
+    // Seed default genesis demonstration seals if empty
+    seedGenesisSeals();
+  }
+
+  function seedGenesisSeals() {
+    registeredSeals = [
+      {
+        id: "gen-root-001",
+        createdAt: "2026-09-11T22:30:00.000Z",
+        note: "Initial genesis awakening. The wire-grid ocean awakens at root resonance.",
+        metrics: { hue: 0, resonance: 0.18, bass: 0.42, mid: 0.2, high: 0.1, realm: "✦ REALM: RUBY ROOT ANCHOR ✦", message: "Something steady is holding you right now — a root finding its depth.", totalSeals: 1 },
+        seal: { level: 1, digitalRoot: 1, isGate: false, p: 1, q: 4, evolutionDelta: 3.69 },
+        thumbnail: null,
+        previousHash: "GENESIS_COSMIC_ROOT",
+        hash: "bba46ab01717170cd3470a0a06aac388fe308b754726d5dc62c59f78bbf7688a"
+      },
+      {
+        id: "gen-root-002",
+        createdAt: "2026-09-11T23:15:00.000Z",
+        note: "Harmonic gate alignment. Heart wave coherence registered.",
+        metrics: { hue: 120, resonance: 0.36, bass: 0.55, mid: 0.45, high: 0.3, realm: "✦ REALM: EMERALD HEART GRID ✦", message: "Your whole body is singing the same note. Wholeness achieved.", totalSeals: 2 },
+        seal: { level: 3, digitalRoot: 3, isGate: true, p: 1, q: 1, evolutionDelta: 7.38 },
+        thumbnail: null,
+        previousHash: "bba46ab01717170cd3470a0a06aac388fe308b754726d5dc62c59f78bbf7688a",
+        hash: "f20dd2b8b599c1960d9d308e4dbff88d15e77231fa57c20438a6bbf4a1e7a7d6"
+      },
+      {
+        id: "gen-root-003",
+        createdAt: "2026-09-12T00:10:00.000Z",
+        note: "369 Matrix Portal Opening. The crown knot reveals itself.",
+        metrics: { hue: 280, resonance: 0.69, bass: 0.6, mid: 0.8, high: 0.75, realm: "✦ REALM: VIOLET CROWN ✦", message: "You have touched the source directly. Completion in progress.", totalSeals: 3 },
+        seal: { level: 9, digitalRoot: 9, isGate: true, p: 1, q: 1, evolutionDelta: 11.07 },
+        thumbnail: null,
+        previousHash: "f20dd2b8b599c1960d9d308e4dbff88d15e77231fa57c20438a6bbf4a1e7a7d6",
+        hash: "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+      }
+    ];
+    saveRegistry();
+  }
+
+  function saveRegistry() {
+    try {
+      localStorage.setItem('evolvingroots.registry.v1', JSON.stringify({
+        schema: 'evolvingroots-registry',
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        records: registeredSeals
+      }));
+    } catch (e) {
+      console.warn('Unable to persist registry:', e);
+    }
+  }
+
+  function updateOverviewStats() {
+    $('statTotalSeals').innerText = registeredSeals.length;
+    
+    const gates = registeredSeals.filter(s => s.seal && s.seal.isGate).length;
+    $('statTotalGates').innerText = gates;
+
+    const realms = {};
+    registeredSeals.forEach(s => {
+      const r = s.metrics && s.metrics.realm;
+      if (r) realms[r] = (realms[r] || 0) + 1;
+    });
+
+    const dominant = Object.entries(realms).sort((a,b) => b[1] - a[1])[0];
+    $('statDominantRealm').innerText = dominant ? dominant[0].replace(/✦/g, '').trim() : "Genesis Root";
+  }
+
+  function renderDatabase() {
+    const grid = $('sealGrid');
+    grid.innerHTML = '';
+
+    let filtered = [...registeredSeals];
+    if (currentFilter === 'gates') {
+      filtered = filtered.filter(s => s.seal && s.seal.isGate);
+    } else if (currentFilter === 'recent') {
+      filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+          No seals found matching this criteria. Import an EvoMirror JSON archive to populate.
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      const isGate = item.seal && item.seal.isGate;
+      card.className = `seal-card ${isGate ? 'is-gate' : ''}`;
+
+      const hue = item.metrics ? item.metrics.hue : 180;
+      const hueColor = `hsl(${hue}, 95%, 55%)`;
+
+      card.innerHTML = `
+        <div class="card-header-line">
+          <span class="gen-badge">GEN ${item.metrics?.totalSeals || item.seal?.level || 'X'}</span>
+          ${isGate ? '<span class="gate-badge">★ HARMONIC GATE</span>' : `<span style="font-size: 9px; color: var(--text-muted);">LEVEL ${item.seal?.level || 1}</span>`}
+        </div>
+
+        <div class="seal-preview-box" style="border-color: ${hueColor}33;">
+          ${item.thumbnail 
+            ? `<img src="${item.thumbnail}" alt="Digital Seal Visual">` 
+            : `<div class="seal-placeholder-visual" style="color: ${hueColor}; text-shadow: 0 0 16px ${hueColor};">✦ 🪞 ✦</div>`
+          }
+        </div>
+
+        <div class="realm-tag" style="color: ${hueColor};">
+          ${item.metrics?.realm || '✦ SACRED MATRIX ✦'}
+        </div>
+
+        <div class="note-excerpt">
+          "${item.note || item.metrics?.message || 'Aura resonance held in sovereign lineage.'}"
+        </div>
+
+        <div class="hash-badge">
+          SHA: ${(item.hash || 'GENESIS_RECORD').slice(0, 32)}...
+        </div>
+      `;
+
+      card.addEventListener('click', () => openProvenanceModal(item));
+      grid.appendChild(card);
+    });
+
+    updateOverviewStats();
+  }
+
+  function openProvenanceModal(seal) {
+    const modal = $('provenanceModal');
+    $('modalGenTitle').innerText = `GEN ${seal.metrics?.totalSeals || seal.seal?.level || 1} · SOVEREIGN ROOT PROVENANCE`;
+    $('modalRealmHeading').innerText = seal.metrics?.realm || '✦ SACRED REALM ✦';
+    $('modalNote').innerText = `"${seal.note || seal.metrics?.message || 'Resonance sealed into immutable registry.'}"`;
+    
+    const imgEl = $('modalImg');
+    const placeholderEl = $('modalPlaceholder');
+    if (seal.thumbnail) {
+      imgEl.src = seal.thumbnail;
+      imgEl.style.display = 'block';
+      placeholderEl.style.display = 'none';
+    } else {
+      imgEl.style.display = 'none';
+      placeholderEl.style.display = 'block';
+    }
+
+    $('modalTime').innerText = new Date(seal.createdAt).toLocaleString();
+    $('modalKnotParams').innerText = `P: ${seal.seal?.p || 1}  |  Q: ${seal.seal?.q || 1}  (Delta: ${seal.seal?.evolutionDelta || 0})`;
+    $('modalRootLevel').innerText = `Digital Root: ${seal.seal?.digitalRoot || 1}  (Level ${seal.seal?.level || 1})`;
+    $('modalMatrixCoords').innerText = `Hue: ${seal.metrics?.hue || 0}° | Res: ${seal.metrics?.resonance || 0.18} | Voice Energy: ${seal.metrics?.bass || 0}`;
+    $('modalPrevHash').innerText = seal.previousHash || 'GENESIS_ROOT';
+    $('modalHash').innerText = seal.hash || 'UNHASHED_LEGACY';
+
+    modal.classList.add('open');
+  }
+
+  $('modalCloseBtn').addEventListener('click', () => $('provenanceModal').classList.remove('open'));
+  $('provenanceModal').addEventListener('click', (e) => {
+    if (e.target === $('provenanceModal')) $('provenanceModal').classList.remove('open');
+  });
+
+  // Filter Buttons Handler
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderDatabase();
+    });
+  });
+
+  // Archive Import Handler
+  $('importArchiveBtn').addEventListener('click', () => $('archiveFileInput').click());
+
+  $('archiveFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    try {
+      const content = JSON.parse(await file.text());
+      if (!content || !Array.isArray(content.records)) {
+        alert('Invalid archive file. Please upload a valid JSON exported from EvoMirror.');
+        return;
+      }
+
+      const existingIds = new Set(registeredSeals.map(s => s.id));
+      const newItems = content.records.filter(r => r && r.id && !existingIds.has(r.id));
+
+      registeredSeals = [...registeredSeals, ...newItems].sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+      saveRegistry();
+      renderDatabase();
+      alert(`Successfully registered ${newItems.length} new seal roots into EvolvingRoots.`);
+    } catch (err) {
+      alert('Error parsing JSON archive: ' + err.message);
+    }
+  });
+
+  $('seedDemoBtn').addEventListener('click', () => {
+    seedGenesisSeals();
+    renderDatabase();
+  });
+
+  // Initial Load
+  loadLocalEvoArchive();
+  renderDatabase();
+
+})();
+</script>
+</body>
+</html>

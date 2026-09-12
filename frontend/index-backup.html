@@ -22,22 +22,12 @@
     :root { --bg-color:#000002; --matrix-green:#39ff14; --matrix-orange:#ff5e00; --matrix-violet:#8b00ff; --gold-luxe:#d4af37; --cyan-glow:#00f3ff; --text-muted:#666; }
     html,body { margin:0; padding:0; width:100%; min-width:100vw; height:100%; min-height:100dvh; overflow:hidden; background:var(--bg-color); font-family:"Courier New",Courier,monospace; color:#fff; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; overscroll-behavior:none; }
     canvas#bg { display:block; position:fixed; inset:0; width:100vw; height:100vh; z-index:1; pointer-events:auto; }
-    
-    /* Top Ambient Title & Ecosystem Constellation Bar */
-    .ambient-header { position:fixed; top:max(10px,env(safe-area-inset-top)); left:50%; transform:translateX(-50%); width:min(94vw,620px); text-align:center; color:rgba(255,255,255,.88); text-shadow:0 0 12px rgba(0,0,0,.9); z-index:20; }
-    .ambient-title { font-size:clamp(.65rem,2.2vw,.82rem); letter-spacing:.38em; text-transform:uppercase; color:rgba(255,255,255,.95); margin-bottom:6px; }
-    
-    /* Elegant Ecosystem Network Bar */
-    .ecosystem-bar { display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap; }
-    .eco-node-link { font-size:8px; letter-spacing:.15em; color:rgba(0,243,255,.55); text-decoration:none; padding:3px 8px; border-radius:999px; background:rgba(0,0,0,.45); border:1px solid rgba(0,243,255,.18); transition:all .2s ease; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); text-transform:uppercase; }
-    .eco-node-link:hover { color:#fff; border-color:var(--cyan-glow); background:rgba(0,243,255,.15); box-shadow:0 0 10px rgba(0,243,255,.3); }
-    .eco-node-link.gold-node { color:rgba(255,215,0,.65); border-color:rgba(255,215,0,.25); }
-    .eco-node-link.gold-node:hover { color:#fff; border-color:#ffd700; background:rgba(255,215,0,.15); box-shadow:0 0 10px rgba(255,215,0,.3); }
-    .eco-sep { color:rgba(255,255,255,.2); font-size:8px; }
-
-    .privacy-badge { position:fixed; top:max(10px,env(safe-area-inset-top)); left:12px; z-index:30; background:rgba(4,5,9,.85); border:1px solid rgba(0,243,255,.4); color:#00f3ff; padding:8px 12px; border-radius:999px; font-size:8px; letter-spacing:.1em; font-family:monospace; text-transform:uppercase; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); cursor:pointer; }
+    .ambient-header { position:fixed; top:max(10px,env(safe-area-inset-top)); left:50%; transform:translateX(-50%); width:min(92vw,560px); text-align:center; color:rgba(255,255,255,.88); text-shadow:0 0 12px rgba(0,0,0,.9); pointer-events:none; z-index:20; }
+    .ambient-title { font-size:clamp(.6rem,2vw,.78rem); letter-spacing:.35em; text-transform:uppercase; color:rgba(255,255,255,.92); }
+    .personal-seal-link { position:fixed; top:calc(max(16px,env(safe-area-inset-top)) + 26px); left:0; right:0; text-align:center; font-size:9px; letter-spacing:.2em; color:rgba(0,243,255,.5); text-decoration:none; z-index:9; transition:color .2s ease; }
+    .personal-seal-link:hover { color:rgba(0,243,255,.9); }
+    .privacy-badge { position:fixed; top:max(10px,env(safe-area-inset-top)); left:12px; z-index:30; background:rgba(4,5,9,.85); border:1px solid rgba(0,243,255,.4); color:#00f3ff; padding:8px 12px; border-radius:999px; font-size:8px; letter-spacing:.1em; font-family:monospace; text-transform:uppercase; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
     .toggle-vault-btn { position:fixed; top:max(10px,env(safe-area-inset-top)); right:12px; z-index:30; background:rgba(4,5,9,.85); border:1px solid rgba(255,255,255,.2); color:#fff; padding:6px 12px; border-radius:999px; font-size:8px; font-family:monospace; cursor:pointer; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
-    
     .dashboard { position:fixed; bottom:max(20px,env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(92vw,420px); z-index:25; display:flex; flex-direction:column; gap:8px; font-size:9px; pointer-events:auto; }
     .spectrum-monitor { display:flex; align-items:flex-end; justify-content:space-between; height:22px; padding:2px 8px; border-radius:999px; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); gap:4px; }
     .spectrum-bar { flex:1; background:linear-gradient(180deg,var(--cyan-glow),var(--matrix-green)); height:15%; border-radius:2px; transition:height .05s ease; }
@@ -53,7 +43,6 @@
     .btn-core:disabled { opacity:.25; cursor:not-allowed; border-color:#333!important; color:#333!important; }
     @keyframes pulseRecording { 0%{box-shadow:0 0 0 0 rgba(255,94,0,.7)} 70%{box-shadow:0 0 0 10px rgba(255,94,0,0)} 100%{box-shadow:0 0 0 0 rgba(255,94,0,0)} }
     .active-rec { animation:pulseRecording 1.2s infinite; background:rgba(255,94,0,.35)!important; border-color:#ff5e00!important; color:#fff!important; }
-    
     .vault-panel { position:fixed; right:0; top:0; width:min(390px,100vw); height:100vh; overflow-y:auto; z-index:40; border-left:1px solid rgba(0,243,255,.15); background:rgba(6,6,10,.97); padding:max(25px,env(safe-area-inset-top)) 22px 25px; box-sizing:border-box; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); display:none; transform:translateX(20px); opacity:0; transition:transform .25s ease,opacity .25s ease; }
     .vault-panel.open { display:block; transform:translateX(0); opacity:1; }
     .vault-header { color:#fff; letter-spacing:.15em; margin:0 0 12px; display:flex; justify-content:space-between; align-items:center; font-size:12px; text-transform:uppercase; }
@@ -62,14 +51,6 @@
     .archive-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 0 16px; }
     .archive-action { padding:10px 7px; border-radius:8px; cursor:pointer; background:rgba(0,243,255,.06); border:1px solid rgba(0,243,255,.25); color:#00f3ff; font:9px "Courier New",monospace; letter-spacing:.06em; text-transform:uppercase; }
     .archive-action.warn { color:#ffb574; border-color:rgba(255,94,0,.35); background:rgba(255,94,0,.06); }
-    
-    /* Ecosystem Map inside Archive */
-    .archive-ecosystem-card { background:rgba(255,215,0,.04); border:1px solid rgba(255,215,0,.22); border-radius:10px; padding:12px; margin-bottom:16px; font-size:9.5px; }
-    .archive-eco-title { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:#ffd700; margin-bottom:8px; font-weight:bold; }
-    .archive-eco-links { display:flex; flex-direction:column; gap:6px; }
-    .archive-eco-link { color:rgba(255,255,255,.8); text-decoration:none; display:flex; justify-content:space-between; }
-    .archive-eco-link:hover { color:var(--cyan-glow); }
-
     .portrait-card { background:linear-gradient(135deg,rgba(0,243,255,.06),rgba(139,0,255,.06)); border:1px solid rgba(0,243,255,.25); border-radius:12px; padding:16px; margin-bottom:18px; }
     .portrait-title { font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:10px; }
     .portrait-line { font-size:12px; color:#fff; margin:6px 0; }
@@ -77,7 +58,6 @@
     .record-card { background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.07); padding:14px; border-radius:8px; font-size:11px; color:#ccc; cursor:pointer; transition:all .25s ease; }
     .record-card:hover { background:rgba(255,255,255,.06); border-color:rgba(255,215,0,.4); }
     .hash-line { margin-top:8px; font-size:8px; color:rgba(255,255,255,.34); word-break:break-all; }
-    
     .seal-modal-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.8); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; }
     .seal-modal-overlay.open { display:flex; }
     .seal-modal-card { background:linear-gradient(180deg,rgba(15,16,26,.98),rgba(8,8,14,.98)); border:1px solid rgba(0,243,255,.25); box-shadow:0 0 40px rgba(0,243,255,.08),0 20px 60px rgba(0,0,0,.6); border-radius:16px; padding:24px; width:100%; max-width:360px; color:#fff; }
@@ -88,68 +68,31 @@
     .seal-modal-actions button { flex:1; padding:11px; cursor:pointer; border-radius:8px; font:10px "Courier New",monospace; letter-spacing:.08em; text-transform:uppercase; }
     .seal-confirm { background:#00f3ff; color:#000; border:none; font-weight:bold!important; }
     .seal-cancel { background:transparent; color:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.15); }
-    
-    @media(max-width:600px) { 
-      .dashboard{width:92vw;bottom:max(16px,env(safe-area-inset-bottom));gap:6px}
-      .btn-core{padding:9px 2px;font-size:7.5px;min-height:34px}
-      .oracle-text{font-size:7.5px}
-      .privacy-badge{font-size:7px;padding:7px 9px}
-      .toggle-vault-btn{font-size:7px;padding:7px 9px}
-      .ecosystem-bar{gap:4px}
-      .eco-node-link{font-size:7px;padding:2px 6px}
-    }
+    @media(max-width:600px) { .dashboard{width:92vw;bottom:max(16px,env(safe-area-inset-bottom));gap:6px}.btn-core{padding:9px 2px;font-size:7.5px;min-height:34px}.oracle-text{font-size:7.5px}.privacy-badge{font-size:7px;padding:7px 9px}.toggle-vault-btn{font-size:7px;padding:7px 9px} }
   </style>
 </head>
 <body>
   <canvas id="bg"></canvas>
-  
   <button class="privacy-badge" type="button" id="privacyButton" title="Your archive is stored in this browser">PRIVATE · LOCAL</button>
   <button class="toggle-vault-btn" type="button" id="vaultButton">🗃️ YOUR ARCHIVE</button>
-  
-  <!-- Centered Top Ambient Header & Full Ecosystem Bar -->
-  <div class="ambient-header" aria-label="Ecosystem Navigation">
-    <div class="ambient-title">AU·EVO·AUJOUL·EVOL</div>
-    <div class="ecosystem-bar">
-      <a href="https://lisajevolving.com" target="_blank" rel="noopener" class="eco-node-link">✧ Story: lisajevolving.com</a>
-      <span class="eco-sep">·</span>
-      <a href="https://evolvingroots.org" target="_blank" rel="noopener" class="eco-node-link">Roots: evolvingroots.org</a>
-      <span class="eco-sep">·</span>
-      <a href="https://aujoule.com" target="_blank" rel="noopener" class="eco-node-link gold-node">Hub: aujoule.com ↗</a>
-    </div>
-  </div>
-
+  <div class="ambient-header" aria-hidden="true"><div class="ambient-title">AU·EVO·AUJOUL·EVOL</div></div>
+  <a href="https://lisajevolving.com" class="personal-seal-link">✧ lisajevolving.com ✧</a>
   <section class="dashboard" aria-label="Mirror controls">
     <div class="spectrum-monitor" id="spectrumMonitor"><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div><div class="spectrum-bar"></div></div>
     <div class="oracle-box"><div class="oracle-realm" id="oracleRealm">✦ REALM: INITIALIZING MATRIX... ✦</div><div class="oracle-text" id="oracleText">Touch the field or listen through the microphone to let the wire-grid ocean decode this moment.</div></div>
     <div class="control-row"><button id="micButton" class="btn-core secondary" type="button">LISTEN</button><button id="recordButton" class="btn-core primary" type="button">SEAL THIS</button><button id="videoRecordButton" class="btn-core recording-btn" type="button">CAPTURE</button></div>
   </section>
-
-  <!-- Side Archive Panel -->
   <div id="history-vault-container" class="vault-panel" aria-label="Your local archive">
     <h3 class="vault-header"><span>🗃️ Everything You’ve Become</span><button id="vaultClose" class="vault-close-btn" aria-label="Close archive">✕</button></h3>
     <p class="vault-description">This archive lives in this browser. Select a seal to re-project its color, form, and reflection. Export it before changing browsers or clearing site data.</p>
-    
-    <!-- Ecosystem Network Map in Vault -->
-    <div class="archive-ecosystem-card">
-      <div class="archive-eco-title">✦ AU·EVO·AUJOUL·EVOL System</div>
-      <div class="archive-eco-links">
-        <a href="https://evolvingroots.org" target="_blank" rel="noopener" class="archive-eco-link"><span>✦ Evolving Roots (Registry)</span><span>↗</span></a>
-        <a href="https://lisajevolving.com" target="_blank" rel="noopener" class="archive-eco-link"><span>✦ Lisa J. Evolving (Story)</span><span>↗</span></a>
-        <a href="https://aujoule.com" target="_blank" rel="noopener" class="archive-eco-link"><span>✦ AuJoule (Energy Hub)</span><span>↗</span></a>
-      </div>
-    </div>
-
     <div class="archive-actions"><button id="exportButton" class="archive-action" type="button">Export archive</button><button id="importButton" class="archive-action" type="button">Import archive</button><button id="verifyButton" class="archive-action warn" type="button">Verify records</button><button id="clearButton" class="archive-action warn" type="button">Clear archive</button></div>
     <input id="importInput" type="file" accept="application/json,.json" hidden>
-    
     <div id="self-portrait"></div>
     <div id="gallery-grid" style="display:grid;grid-template-columns:1fr;gap:12px;margin-top:15px;"></div>
   </div>
-
   <div id="sealModal" class="seal-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="sealTitle">
     <div class="seal-modal-card"><div id="sealTitle" class="seal-modal-title">Seal this reflection</div><textarea id="reflectionInput" class="seal-input" maxlength="1200" placeholder="Optional: write what this moment holds..."></textarea><div class="seal-modal-actions"><button id="sealCancel" class="seal-cancel" type="button">Return</button><button id="sealConfirm" class="seal-confirm" type="button">Create seal</button></div></div>
   </div>
-
 <script>
 (() => {
   'use strict';
