@@ -1,0 +1,12 @@
+# Ignore database records so your personal test runs don't leak online
+data_storage/audio_database.json
+
+# Ignore heavy media assets
+frontend/*.wav
+frontend/*.mp4
+frontend/*.png
+
+# Ignore Node and Python local environment caches
+node_modules/
+__pycache__/
+.env

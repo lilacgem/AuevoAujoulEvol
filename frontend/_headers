@@ -1,0 +1,19 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.evomirror.com https://cloudflareinsights.com; img-src 'self' data: blob: https://api.evomirror.com; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=(), usb=(), publickey-credentials-get=(self)
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+
+/.well-known/webauthn
+  Content-Type: application/json
+  Cache-Control: public, max-age=3600
+
+/logo.svg
+  Content-Type: image/svg+xml
+  Cache-Control: public, max-age=31536000, immutable
+
+/logo.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000, immutable
