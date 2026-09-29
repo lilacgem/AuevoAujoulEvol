@@ -2,394 +2,45 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<title>soulsista191 - LisaJEvolving</title>
-<meta name="description" content="soulsista191's personal space - a nostalgic profile that's alive, evolving, and reacting to what's actually playing.">
-<meta property="og:title" content="soulsista191 - LisaJEvolving">
-<meta property="og:description" content="A nostalgic personal profile that's alive - evolving and reacting to what's actually playing.">
-<meta property="og:url" content="https://lisajevolving.com">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07090a">
+<title>Lisa J Evolving | Notes from a life in motion</title>
+<meta name="description" content="Personal notes, thoughts, and fragments from Lisa J Evolving.">
+<meta property="og:title" content="Lisa J Evolving | Notes from a life in motion">
+<meta property="og:description" content="A personal journal, living archive, and space for thoughts in motion.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="soulsista191 - LisaJEvolving">
-<meta name="twitter:description" content="A nostalgic personal profile that's alive and evolving.">
 <link rel="icon" href="data:,">
 <style>
-    @keyframes glow-pulse {
-        0%, 100% { text-shadow: 0 0 5px #ff10f0, 0 0 10px #ff10f0, 0 0 20px #ff10f0, 0 0 40px #ff10f0; }
-        50% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 60px #00ffff; }
-    }
-    @keyframes sparkle-fall {
-        0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(400px) rotate(360deg); opacity: 0; }
-    }
-
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        background: #0a0014;
-        background-image:
-            repeating-linear-gradient(45deg, rgba(255,16,240,0.03) 0px, rgba(255,16,240,0.03) 2px, transparent 2px, transparent 40px),
-            repeating-linear-gradient(-45deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 2px, transparent 2px, transparent 40px);
-        font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif;
-        color: #e0e0ff;
-        min-height: 100vh;
-        overflow-x: hidden;
-    }
-
-    .page-wrap { max-width: 950px; margin: 0 auto; padding: 20px 12px; }
-
-    .header-title {
-        text-align: center;
-        font-size: 42px;
-        font-weight: bold;
-        letter-spacing: 4px;
-        color: #fff;
-        animation: glow-pulse 3s ease-in-out infinite;
-        margin: 20px 0 4px;
-        word-break: break-word;
-    }
-    .header-sub {
-        text-align: center;
-        color: #39ff14;
-        font-size: 13px;
-        letter-spacing: 3px;
-        margin-bottom: 24px;
-        text-shadow: 0 0 8px #39ff14;
-    }
-
-    .main-table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 4px solid #ff10f0;
-        box-shadow: 0 0 25px rgba(255,16,240,0.5), inset 0 0 25px rgba(0,255,255,0.1);
-        background: #12001f;
-    }
-    .main-table td { vertical-align: top; padding: 0; }
-
-    .sidebar { width: 260px; border-right: 3px dashed #00ffff; padding: 16px; background: #0d0018; }
-    .content { padding: 16px 20px; }
-
-    .pfp-box {
-        border: 3px solid #00ffff;
-        box-shadow: 0 0 15px #00ffff;
-        background: repeating-linear-gradient(135deg, #1a0030, #1a0030 10px, #250045 10px, #250045 20px);
-        width: 100%;
-        max-width: 250px;
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 60px;
-        margin: 0 auto 12px auto;
-        overflow: hidden;
-    }
-    .pfp-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .section-title {
-        color: #fff;
-        background: linear-gradient(90deg, #ff10f0, #bf00ff);
-        padding: 4px 10px;
-        font-size: 13px;
-        font-weight: bold;
-        letter-spacing: 2px;
-        margin: 16px 0 8px;
-        border-left: 4px solid #39ff14;
-        text-transform: uppercase;
-    }
-
-    .info-line { font-size: 12px; margin: 4px 0; color: #cceeff; }
-    .info-line b { color: #ff10f0; }
-
-    .about-text {
-        font-size: 13px;
-        line-height: 1.7;
-        color: #dce0ff;
-        background: rgba(0,255,255,0.04);
-        border: 1px dashed rgba(0,255,255,0.3);
-        padding: 12px;
-        word-break: break-word;
-    }
-
-    .comment-wall { margin-top: 8px; }
-    .comment {
-        border: 1px solid #39ff14;
-        background: rgba(57,255,20,0.05);
-        padding: 8px 10px;
-        margin-bottom: 8px;
-        font-size: 12px;
-        word-break: break-word;
-    }
-    .comment b { color: #00ffff; }
-    .comment .date { color: #888; font-size: 10px; }
-
-    .counter-box {
-        text-align: center;
-        margin-top: 16px;
-        font-size: 11px;
-        color: #888;
-    }
-    .counter-box span {
-        background: #000;
-        color: #39ff14;
-        font-family: 'Courier New', monospace;
-        padding: 3px 8px;
-        border: 1px solid #39ff14;
-        letter-spacing: 3px;
-        font-size: 14px;
-    }
-
-    .gateway-overlay {
-        position: fixed; inset: 0; z-index: 2000;
-        background: #0a0014;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-        text-align: center; padding: 24px;
-        transition: opacity 1.1s ease;
-        opacity: 1;
-    }
-    .gateway-overlay.fading { opacity: 0; }
-    .gateway-overlay.hidden { display: none; }
-    .gateway-seal-box {
-        width: min(70vw, 300px);
-        aspect-ratio: 1;
-        margin-bottom: 6px;
-    }
-    .gateway-seal-box canvas { display: block; width: 100% !important; height: 100% !important; }
-    .gateway-title {
-        font-size: 32px; font-weight: bold; color: #fff;
-        animation: glow-pulse 3s ease-in-out infinite;
-        letter-spacing: 3px;
-    }
-    .gateway-sub { color: #39ff14; font-size: 12px; letter-spacing: 2px; text-shadow: 0 0 6px #39ff14; }
-    .gateway-btn {
-        background: linear-gradient(90deg, #ff10f0, #bf00ff);
-        color: #fff; border: 2px solid #00ffff; box-shadow: 0 0 20px rgba(0,255,255,0.6);
-        padding: 14px 34px; font-size: 14px; font-weight: bold; letter-spacing: 3px;
-        cursor: pointer; font-family: inherit; text-transform: uppercase;
-        margin-top: 8px;
-    }
-    .gateway-btn:hover { box-shadow: 0 0 30px rgba(0,255,255,0.9); }
-
-    /* Responsive Mobile Styles */
-    @media (max-width: 720px) {
-        .header-title { font-size: 28px; letter-spacing: 2px; }
-        .header-sub { font-size: 11px; letter-spacing: 1px; }
-        .main-table, .main-table tbody, .main-table tr, .main-table td {
-            display: block;
-            width: 100% !important;
-        }
-        .sidebar {
-            border-right: none;
-            border-bottom: 3px dashed #00ffff;
-            padding: 16px;
-        }
-        .content {
-            padding: 16px;
-        }
-        .gateway-title { font-size: 24px; }
-    }
+:root{color-scheme:dark;--ink:#07090a;--line:rgba(229,241,235,.13);--paper:#f1f3ec;--muted:#9ba6a0;--green:#a6ff72;--cyan:#65e9e5;--orange:#ff8755;--serif:Georgia,"Times New Roman",serif;--mono:"Courier New",monospace}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-width:320px;color:var(--paper);background-color:var(--ink);background-image:radial-gradient(rgba(168,255,115,.12) .7px,transparent .7px),linear-gradient(115deg,transparent 0 58%,rgba(101,233,229,.035) 58% 58.15%,transparent 58.15%);background-size:24px 24px,100% 100%;font-family:"Trebuchet MS",Verdana,sans-serif;line-height:1.6}a{color:inherit}button,input{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}.shell{width:min(1160px,calc(100% - 48px));margin-inline:auto}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:60px;border-bottom:1px solid var(--line);color:var(--muted);font:10px/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase}.signal{display:inline-flex;align-items:center;gap:9px}.signal:before{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(166,255,114,.8);content:""}.owner-link{color:var(--cyan);text-decoration:none}.owner-link:hover{color:var(--paper)}
+.hero{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(250px,.88fr);gap:clamp(38px,8vw,104px);align-items:center;padding-block:clamp(62px,10vw,124px) 96px;animation:arrive .7s ease both}.eyebrow,.section-kicker,.archive-count{color:var(--green);font:10px/1.5 var(--mono);letter-spacing:.18em;text-transform:uppercase}.hero h1{max-width:700px;margin:18px 0 20px;font:400 clamp(50px,8.4vw,104px)/.94 var(--serif);letter-spacing:0}.hero h1 span{color:var(--cyan);font-style:italic}.hero-copy{max-width:510px;margin:0;color:#bdc7c1;font-size:15px;line-height:1.9}.hero-foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px 25px;margin-top:34px}.jump-link{color:var(--green);font:11px var(--mono);letter-spacing:.1em;text-decoration:none;text-transform:uppercase}.jump-link:after{margin-left:10px;color:var(--cyan);content:"↓"}.social-links{display:flex;gap:14px;color:var(--muted);font:10px var(--mono)}.social-links a{text-decoration-color:rgba(255,255,255,.2);text-underline-offset:4px}.portrait-frame{position:relative;width:min(100%,355px);justify-self:end;margin:0;padding:12px;border:1px solid rgba(101,233,229,.35)}.portrait-frame:before{position:absolute;z-index:-1;top:25px;right:-24px;bottom:-24px;left:25px;border:1px solid rgba(166,255,114,.23);content:""}.portrait-frame img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 35%;filter:saturate(.82) contrast(1.06)}.portrait-caption{display:flex;justify-content:space-between;gap:10px;padding-top:11px;color:var(--muted);font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.archive{border-top:1px solid var(--line);padding-block:52px 92px}.archive-head{display:flex;justify-content:space-between;align-items:end;gap:28px;margin-bottom:25px}.archive-head h2{margin:7px 0 0;font:400 clamp(32px,5vw,52px)/1.05 var(--serif)}.archive-count{color:var(--muted);white-space:nowrap}.archive-tools{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:18px;align-items:center;padding-block:15px;border-block:1px solid var(--line)}.search-wrap{position:relative}.search-wrap:before{position:absolute;top:50%;left:0;color:var(--cyan);content:"/";transform:translateY(-50%)}.search-input{width:100%;min-height:42px;padding:8px 10px 8px 20px;border:0;border-bottom:1px solid transparent;border-radius:0;color:var(--paper);background:transparent;font:12px var(--mono)}.search-input::placeholder{color:#76817b}.search-input:focus{border-bottom-color:var(--cyan);outline:0}.filters{display:flex;flex-wrap:wrap;justify-content:end;gap:7px}.filter-button{min-height:34px;padding:7px 10px;border:1px solid var(--line);border-radius:2px;color:var(--muted);background:transparent;cursor:pointer;font:9px var(--mono);letter-spacing:.07em;text-transform:uppercase}.filter-button:hover,.filter-button[aria-pressed=true]{border-color:var(--green);color:var(--green);background:rgba(166,255,114,.06)}.entry-list{display:grid}.entry{display:grid;grid-template-columns:minmax(120px,.28fr) minmax(0,1fr);gap:clamp(24px,6vw,78px);padding:32px 0 38px;border-bottom:1px solid var(--line);animation:arrive .45s ease both}.entry-date{display:block;margin-bottom:10px;color:var(--muted);font:10px var(--mono)}.entry-category{color:var(--cyan);font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase}.entry h3{margin:0 0 13px;font:400 clamp(24px,3.5vw,37px)/1.15 var(--serif)}.entry-body{max-width:700px;color:#c8d0cb;font-size:14px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}.entry-mood{display:inline-block;margin-top:17px;color:var(--orange);font:9px var(--mono);letter-spacing:.11em;text-transform:uppercase}.empty-state,.load-error{padding:40px 0;color:var(--muted);font:12px/1.8 var(--mono)}.empty-state strong{display:block;margin-bottom:7px;color:var(--paper);font:400 25px var(--serif)}.footer{display:flex;justify-content:space-between;gap:24px;padding-block:20px 34px;border-top:1px solid var(--line);color:var(--muted);font:9px/1.7 var(--mono);letter-spacing:.08em}.footer a{color:var(--cyan);text-decoration:none}@keyframes arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:720px){.shell{width:min(100% - 34px,560px)}.topline{min-height:54px;font-size:9px}.hero{grid-template-columns:1fr;gap:38px;padding-block:68px 70px}.hero h1{font-size:clamp(52px,15vw,82px)}.portrait-frame{width:min(82%,320px);justify-self:center}.archive{padding-block:38px 65px}.archive-head{align-items:start}.archive-tools{grid-template-columns:1fr;gap:8px}.filters{justify-content:start}.entry{grid-template-columns:1fr;gap:10px;padding-block:25px 30px}.entry-date{display:inline;margin-right:12px}.footer{flex-direction:column;gap:8px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.hero h1{font-size:84px}.archive-head h2{font-size:48px}.entry h3{font-size:36px}
+@media(max-width:720px){.hero h1{font-size:56px}.archive-head h2{font-size:32px}.entry h3{font-size:24px}}
+.portrait-frame img{height:410px}
+@media(max-width:720px){.portrait-frame img{height:350px}}
+@media(max-width:720px){.hero{gap:26px;padding-block:48px 40px}.portrait-frame img{height:225px}}
 </style>
 </head>
 <body>
-
-<div class="gateway-overlay" id="gatewayOverlay">
-    <div class="gateway-seal-box" id="gatewaySealBox"></div>
-    <div class="gateway-title">✧ soulsista191 ✧</div>
-    <div class="gateway-sub">°•. click to enter .•°</div>
-    <button class="gateway-btn" id="enterBtn">✦ Enter ✦</button>
-</div>
-
-<audio id="siteTrack" src="thedraft.mp3" loop></audio>
-
-<div class="page-wrap">
-    <div class="header-title">✧ LisajEvokes ✧</div>
-    <div class="header-sub">°•. IN A WORLD OF MY OWN .•°</div>
-
-    <table class="main-table">
-        <tr>
-            <td class="sidebar">
-                <div class="pfp-box">
-                    <img src="lisajevokes.jpg" alt="profile" onerror="this.style.display='none'; this.parentElement.innerText='✦';">
-                </div>
-
-                <div class="section-title">Basic Info</div>
-                <div class="info-line"><b>Mood:</b> evolving ✧</div>
-                <div class="info-line"><b>Status:</b> online now</div>
-                <div class="info-line"><b>Zodiac:</b> Pisces</div>
-                <div class="info-line"><b>Here for:</b> friends, vibes, music</div>
-
-                <div class="counter-box">
-                    visitors: <span id="visitorCount">000000</span>
-                </div>
-            </td>
-            <td class="content">
-                <div class="section-title">About Me</div>
-                <div class="about-text">
-                    MY SPACE MY LANE MY VIBE ! TF
-                    <br><br>
-                    ✦ tiktok: @lisajevokes<br>
-                    ✦ instagram: @lisajevokes<br>
-                    ✦ facebook: @lisajevokes
-                </div>
-
-                <div class="section-title">Comments</div>
-                <div class="comment-wall">
-                    <div class="comment"><b>xXdreamerXx</b> <span class="date">- 3 days ago</span><br>heyyy girl love the new layout!! ✧</div>
-                    <div class="comment"><b>starlight22</b> <span class="date">- 1 week ago</span><br>omg add me back!! we should hang soon</div>
-                </div>
-            </td>
-        </tr>
-    </table>
-</div>
-
-<canvas id="sparkleCanvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:999;"></canvas>
-
+<header class="shell topline"><div class="signal">A personal archive in motion</div><a class="owner-link" href="/admin/">Owner sign in <span aria-hidden="true">↗</span></a></header>
+<main>
+<section class="shell hero" aria-labelledby="page-title"><div><div class="eyebrow">Journal / Archive / Becoming</div><h1 id="page-title">Lisa J <span>Evolving</span></h1><p class="hero-copy">A little corner of the internet for the thoughts, turning points, small joys, and unfinished ideas I want to keep. My space, my lane, always becoming.</p><div class="hero-foot"><a class="jump-link" href="#archive">Explore the archive</a><nav class="social-links" aria-label="Social links"><a href="https://www.instagram.com/lisajevokes/" target="_blank" rel="noreferrer">Instagram</a><a href="https://www.tiktok.com/@lisajevokes" target="_blank" rel="noreferrer">TikTok</a></nav></div></div><figure class="portrait-frame"><img src="lisajevokes.jpg" alt="Lisa J Evolving artwork" width="1024" height="1536"><figcaption class="portrait-caption"><span>Signal from my own lane</span><span>369 / ∞</span></figcaption></figure></section>
+<section class="shell archive" id="archive" aria-labelledby="archive-title"><div class="archive-head"><div><div class="section-kicker">Collected along the way</div><h2 id="archive-title">The journal</h2></div><div class="archive-count" id="entryCount" aria-live="polite">Loading archive</div></div><div class="archive-tools"><label class="search-wrap"><input class="search-input" id="searchInput" type="search" placeholder="Search the archive" autocomplete="off" aria-label="Search journal entries"></label><div class="filters" id="categoryFilters" aria-label="Filter by category"></div></div><div class="entry-list" id="entryList" aria-live="polite" aria-busy="true"></div><div class="empty-state" id="emptyState" hidden><strong>A quiet page, for now.</strong>New notes will find their way here.</div><div class="load-error" id="loadError" role="status" hidden>The archive could not connect just now. Please refresh in a moment.</div></section>
+</main>
+<footer class="shell footer"><span>Lisa J Evolving · An open notebook for the things that stay with me.</span><a href="https://evomirror.com" rel="noreferrer">A living reflection ↗</a></footer>
 <script>
-    const gwScene = new THREE.Scene();
-    const gwCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    gwCamera.position.z = 9;
-    const gwBox = document.getElementById('gatewaySealBox');
-    const gwRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    gwRenderer.setSize(gwBox.clientWidth, gwBox.clientHeight);
-    gwRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    gwBox.appendChild(gwRenderer.domElement);
-
-    const gwGroup = new THREE.Group();
-    gwScene.add(gwGroup);
-
-    const gwGeo = new THREE.TorusKnotGeometry(2.2, 0.55, 150, 14, 3, 8);
-    const gwCoreMat = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xff2bf5, transparent: true, opacity: 0.95 });
-    const gwGlowMat = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xff2bf5, transparent: true, opacity: 0.18 });
-    const gwCore = new THREE.Mesh(gwGeo, gwCoreMat);
-    const gwGlow = new THREE.Mesh(gwGeo, gwGlowMat);
-    gwGlow.scale.setScalar(1.12);
-    gwGroup.add(gwCore, gwGlow);
-
-    const gwParticleCount = 120;
-    const gwParticleGeo = new THREE.BufferGeometry();
-    const gwParticlePositions = new Float32Array(gwParticleCount * 3);
-    for (let i = 0; i < gwParticleCount; i++) {
-        const radius = 4 + Math.random() * 3;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.random() * Math.PI;
-        gwParticlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-        gwParticlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        gwParticlePositions[i * 3 + 2] = radius * Math.cos(phi);
-    }
-    gwParticleGeo.setAttribute('position', new THREE.BufferAttribute(gwParticlePositions, 3));
-    const gwParticleMat = new THREE.PointsMaterial({ color: 0x00ffff, size: 0.05, transparent: true, opacity: 0.6 });
-    const gwParticles = new THREE.Points(gwParticleGeo, gwParticleMat);
-    gwScene.add(gwParticles);
-
-    let gwTime = 0;
-    function animateGateway() {
-        requestAnimationFrame(animateGateway);
-        gwTime += 0.006;
-
-        gwGroup.rotation.x += 0.0016;
-        gwGroup.rotation.y += 0.0023;
-        gwGroup.rotation.z = Math.sin(gwTime * 0.4) * 0.15;
-
-        const breath = 1 + Math.sin(gwTime) * 0.06;
-        gwGroup.scale.setScalar(breath);
-        gwGlowMat.opacity = 0.14 + Math.sin(gwTime * 1.3) * 0.08;
-
-        gwParticles.rotation.y += 0.0008;
-        gwRenderer.render(gwScene, gwCamera);
-    }
-    animateGateway();
-
-    const gateway = document.getElementById('gatewayOverlay');
-    const enterBtn = document.getElementById('enterBtn');
-    const siteTrack = document.getElementById('siteTrack');
-
-    let bassVal = 0, midVal = 0, highVal = 0;
-    let analyser, dataArray;
-
-    enterBtn.addEventListener('click', () => {
-        gateway.classList.add('fading');
-        setTimeout(() => gateway.classList.add('hidden'), 1100);
-
-        siteTrack.volume = 0.6;
-
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const trackSource = audioContext.createMediaElementSource(siteTrack);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-        trackSource.connect(analyser);
-        analyser.connect(audioContext.destination);
-
-        siteTrack.play().catch(() => {});
-    });
-
-    function updateAudioReactivity() {
-        requestAnimationFrame(updateAudioReactivity);
-        if (!analyser) return;
-
-        analyser.getByteFrequencyData(dataArray);
-        let bassSum = 0, midSum = 0, highSum = 0;
-        for (let i = 0; i < 8; i++) bassSum += dataArray[i];
-        for (let i = 8; i < 40; i++) midSum += dataArray[i];
-        for (let i = 40; i < 128; i++) highSum += dataArray[i];
-
-        bassVal = Math.min(1.0, (bassSum / (8 * 255.0)) * 2.2);
-        midVal = Math.min(1.0, (midSum / (32 * 255.0)) * 2.0);
-        highVal = Math.min(1.0, (highSum / (88 * 255.0)) * 2.0);
-    }
-    updateAudioReactivity();
-
-    const counterEl = document.getElementById('visitorCount');
-    let count = 0;
-    const targetCount = 133742;
-    const counterInterval = setInterval(() => {
-        count += Math.ceil(targetCount / 60);
-        if (count >= targetCount) {
-            count = targetCount;
-            clearInterval(counterInterval);
-        }
-        counterEl.innerText = String(count).padStart(6, '0');
-    }, 30);
-
-    const canvas = document.getElementById('sparkleCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    let sparkles = [];
-
-    document.addEventListener('mousemove', (e) => {
-        sparkles.push({ x: e.clientX, y: e.clientY, life: 1, hue: Math.random() * 360 });
-    });
-
-    function animateSparkles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        sparkles = sparkles.filter(s => s.life > 0);
-        sparkles.forEach(s => {
-            ctx.save();
-            ctx.globalAlpha = s.life;
-            ctx.fillStyle = `hsl(${s.hue}, 100%, 65%)`;
-            ctx.shadowColor = `hsl(${s.hue}, 100%, 65%)`;
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            const size = 3 * s.life;
-            ctx.moveTo(s.x, s.y - size);
-            ctx.lineTo(s.x + size, s.y);
-            ctx.lineTo(s.x, s.y + size);
-            ctx.lineTo(s.x - size, s.y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-            s.y += 0.5;
-            s.life -= 0.02;
-        });
-        requestAnimationFrame(animateSparkles);
-    }
-    animateSparkles();
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
+const entryList=document.getElementById('entryList');const entryCount=document.getElementById('entryCount');const categoryFilters=document.getElementById('categoryFilters');const searchInput=document.getElementById('searchInput');const emptyState=document.getElementById('emptyState');const loadError=document.getElementById('loadError');let entries=[];let activeCategory='all';
+function formatDate(value){const date=new Date(value);if(Number.isNaN(date.getTime()))return'Date unknown';return new Intl.DateTimeFormat('en',{year:'numeric',month:'long',day:'numeric'}).format(date)}
+function makeFilter(label,value,selected){const button=document.createElement('button');button.className='filter-button';button.type='button';button.textContent=label;button.setAttribute('aria-pressed',String(selected));button.addEventListener('click',()=>{activeCategory=value;renderFilters();renderEntries()});return button}
+function renderFilters(){categoryFilters.replaceChildren(makeFilter('All notes','all',activeCategory==='all'));const categories=[...new Set(entries.map(entry=>entry.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b));categories.forEach(category=>categoryFilters.append(makeFilter(category,category,activeCategory===category)))}
+function renderEntries(){const query=searchInput.value.trim().toLocaleLowerCase();const visibleEntries=entries.filter(entry=>{const matchesCategory=activeCategory==='all'||entry.category===activeCategory;const searchable=`${entry.title} ${entry.body} ${entry.category} ${entry.mood||''}`.toLocaleLowerCase();return matchesCategory&&searchable.includes(query)});entryList.replaceChildren();entryCount.textContent=`${visibleEntries.length} ${visibleEntries.length===1?'entry':'entries'}`;emptyState.hidden=visibleEntries.length!==0;visibleEntries.forEach((entry,index)=>{const article=document.createElement('article');article.className='entry';article.style.animationDelay=`${Math.min(index*45,270)}ms`;const meta=document.createElement('div');const date=document.createElement('time');date.className='entry-date';date.dateTime=entry.published_at||entry.created_at;date.textContent=formatDate(entry.published_at||entry.created_at);const category=document.createElement('span');category.className='entry-category';category.textContent=entry.category||'Journal';meta.append(date,category);const content=document.createElement('div');const title=document.createElement('h3');title.textContent=entry.title;const body=document.createElement('div');body.className='entry-body';body.textContent=entry.body;content.append(title,body);if(entry.mood){const mood=document.createElement('span');mood.className='entry-mood';mood.textContent=`Current feeling / ${entry.mood}`;content.append(mood)}article.append(meta,content);entryList.append(article)})}
+searchInput.addEventListener('input',renderEntries);
+async function loadEntries(){try{const response=await fetch('/api/entries',{headers:{Accept:'application/json'}});if(!response.ok)throw new Error('Archive request failed');const data=await response.json();entries=Array.isArray(data.entries)?data.entries:[];renderFilters();renderEntries()}catch(error){entryCount.textContent='Archive unavailable';loadError.hidden=false}finally{entryList.setAttribute('aria-busy','false')}}
+loadEntries();
 </script>
 </body>
 </html>
